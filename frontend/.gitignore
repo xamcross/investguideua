@@ -1,0 +1,9 @@
+# Angular / Node build artefacts
+/node_modules
+/dist
+/.angular
+/out-tsc
+
+# misc
+*.log
+.DS_Store

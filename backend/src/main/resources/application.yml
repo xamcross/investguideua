@@ -1,0 +1,112 @@
+spring:
+  application:
+    name: investguide-backend
+  data:
+    mongodb:
+      # Secret: full connection string (with credentials) supplied via env. No default in prod.
+      uri: ${MONGODB_URI:mongodb://localhost:27017/investguide}
+      auto-index-creation: true
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: true   # §5.2: reject unknown fields on request bodies
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false                # let unmapped routes 404 through the handler
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework    # honour X-Forwarded-* from the TLS-terminating proxy
+  error:
+    include-stacktrace: never            # §5.3: never leak stack traces
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never                # no internal detail to unauthenticated callers
+
+app:
+  version: 1.0.0
+  frontend-base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}
+  signup:
+    free-tokens: 5
+  verification:
+    token-ttl-ms: 86400000               # 24h single-use verification link lifetime (BE-A3)
+  rate:
+    signup-per-hour-per-ip: 10
+    refresh-per-hour-per-ip: 100
+    search-per-minute: 5
+  search:
+    max-amount: 100000000
+    max-options: 5
+  pricing:
+    safety-multiple: 10
+    min-pack-uah: 50
+    gateway-fixed-fee-minor-units: 0
+    gateway-percent-fee: 0.013            # monobank "Plata by mono" acquiring commission, UA cards (§14)
+    uah-per-usd: 44.5                      # USD->UAH estimate for seed-time cost check (~44.3 May 2026)
+  cors:
+    allowed-origin: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:4200}
+
+llm:
+  api-key: ${ANTHROPIC_API_KEY}          # SECRET — required, no default (fail fast)
+  model: claude-haiku-4-5-20251001
+  max-input-tokens: 3000
+  max-output-tokens: 700
+  temperature: 0.4
+  max-return-pct: 40.0
+  request-timeout-ms: 7000
+  cost-per-search-usd: 0.0065
+  input-usd-per-million: 1.0
+  output-usd-per-million: 5.0
+
+payment:
+  result-url: ${PAYMENT_RESULT_URL:http://localhost:4200/payments/result}
+  callback-url: ${PAYMENT_CALLBACK_URL:http://localhost:8080/api/v1/payments/mono/callback}
+  mono:
+    # SECRET — monobank X-Token. Intentionally OPTIONAL at startup (empty default): a working
+    # deployed app must be shown to the bank before they issue the production token. Until set,
+    # payment creation returns 502; the rest of the app runs normally.
+    token: ${MONO_TOKEN:}
+    api-base-url: https://api.monobank.ua
+    invoice-validity-seconds: 3600       # 1h checkout window
+    request-timeout-ms: 7000
+    pubkey-cache-ttl-ms: 3600000         # re-fetch a fresh verification key at most hourly
+    pubkey-min-refresh-interval-ms: 60000 # bound refresh-on-failure to once/min (anti-amplification)
+
+security:
+  jwt-secret: ${JWT_SECRET}              # SECRET — required, no default; >= 32 bytes
+  jwt-issuer: investguide
+  access-ttl-ms: 900000                  # 15 min (spec cap §10)
+  refresh-ttl-ms: 1209600000             # 14 days
+  refresh-cookie:
+    # HttpOnly+Secure+SameSite cookie carrying the refresh token (BE-A4 / FE-CORE2 §10).
+    name: refresh_token
+    # Secure=true and SameSite=None are correct behind TLS with the SPA on a separate origin.
+    # For plain-HTTP local dev (no TLS), override APP_REFRESH_COOKIE_SECURE=false and
+    # APP_REFRESH_COOKIE_SAMESITE=Lax so the browser will actually store/send the cookie.
+    secure: ${APP_REFRESH_COOKIE_SECURE:true}
+    same-site: ${APP_REFRESH_COOKIE_SAMESITE:None}
+    path: /api/v1/auth
+
+logging:
+  # X6: structured (JSON) console logging via Spring Boot 3.4's built-in support (no extra dependency).
+  # ECS format emits one JSON object per line and includes MDC fields (requestId, userId) as top-level
+  # keys, so log aggregators can index them directly. Default ON; set LOG_CONSOLE_FORMAT="" for plain
+  # human-readable console output in local dev (the pattern below is then used).
+  structured:
+    format:
+      console: ${LOG_CONSOLE_FORMAT:ecs}
+  pattern:
+    # Fallback console pattern (used only when structured format is disabled), still surfacing
+    # requestId/userId from the MDC.
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [requestId=%X{requestId:-} userId=%X{userId:-}] %logger{36} - %msg%n"

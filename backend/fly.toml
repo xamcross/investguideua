@@ -1,0 +1,33 @@
+# fly.toml app configuration file generated for investguideua-api on 2026-06-01T13:54:19+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'investguideua-api'
+primary_region = 'ams'
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  SERVER_PORT = "8080"
+  # JVM: cap heap to fit a 512 MB machine
+  JAVA_TOOL_OPTIONS = "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"     # scale to zero when idle -> minimal cost
+  auto_start_machines = true      # wake on the next request (incl. monobank callback)
+  min_machines_running = 0        # 0 = cheapest (cold start ~10-20s). Set 1 to avoid cold starts (~$3-5/mo).
+
+  [[http_service.checks]]
+    grace_period = "60s"            # JVM cold start on shared-cpu-1x can take 20-35s
+    interval = "15s"
+    timeout = "5s"
+    method = "GET"
+    path = "/actuator/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

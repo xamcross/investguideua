@@ -1,0 +1,28 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+# Plaintext secret scratch files (e.g. docs/secrets.txt holds live keys — keep it local-only).
+# Narrow patterns so legitimate tooling like scripts/scan-frontend-secrets.* stays tracked.
+secrets.txt
+**/secrets.txt
+*.secret
+secrets/
+*.pem
+*.key
+id_rsa*
+
+# Java / Maven
+backend/target/
+*.class
+
+# Node / Angular (FE-CORE1)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store

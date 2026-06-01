@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestGuideUA</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 4rem auto; padding: 0 1rem; color: #1a1a1a; }
+    h1 { color: #0057b7; }
+    .bar { height: 6px; background: linear-gradient(90deg, #0057b7 50%, #ffd700 50%); border-radius: 3px; margin: 1rem 0 2rem; }
+    code { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; }
+    #status { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="bar"></div>
+  <h1>InvestGuideUA</h1>
+  <p>Invest in Ukraine, for Ukrainians.</p>
+  <p>This is the X1 placeholder shell. The full Angular SPA arrives with ticket FE-CORE1.</p>
+  <p>Backend connectivity (<code>GET /api/v1/ping</code>): <span id="status">checking…</span></p>
+
+  <script>
+    fetch('/api/v1/ping')
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) {
+        document.getElementById('status').textContent =
+          'OK — ' + d.service + ' v' + d.version;
+      })
+      .catch(function (e) {
+        document.getElementById('status').textContent = 'unreachable (' + e + ')';
+      });
+  </script>
+</body>
+</html>

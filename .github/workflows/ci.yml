@@ -1,0 +1,48 @@
+# CI gate for InvestGuideUA (QA1 + QA2). Runs the backend acceptance suite, builds and tests the
+# Angular SPA, and scans the built bundle for leaked secrets (AC #10). Consumed on Linux runners, so
+# this file is UTF-8/LF per CLAUDE.md (the ASCII-only rule applies to Windows-executed .ps1/.cmd/.bat).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend tests (QA1)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Run backend test suite
+        working-directory: backend
+        run: mvn -q -B test
+
+  frontend:
+    name: Frontend tests + secret scan (QA2 + AC #10)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Unit / critical-flow tests (headless Chrome)
+        working-directory: frontend
+        run: npm run test:ci
+      - name: Production build
+        working-directory: frontend
+        run: npm run build
+      - name: Secret scan over built bundle (AC #10)
+        run: bash scripts/scan-frontend-secrets.sh frontend/dist/investguide-frontend

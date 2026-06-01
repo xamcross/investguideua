@@ -1,0 +1,24 @@
+# Normalize text files; let Git handle EOL in the working tree per-platform.
+* text=auto
+
+# Files consumed inside Linux containers MUST stay LF, even when checked out on Windows —
+# CRLF in a Dockerfile RUN line or shell/conf file breaks the build/runtime.
+Dockerfile      text eol=lf
+*.sh            text eol=lf
+mvnw            text eol=lf
+*.conf          text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+.env            text eol=lf
+.env.example    text eol=lf
+
+# Windows-only scripts stay CRLF.
+*.cmd           text eol=crlf
+*.bat           text eol=crlf
+*.ps1           text eol=crlf
+
+# Binary assets — never normalize.
+*.jar           binary
+*.png           binary
+*.jpg           binary
+*.ico           binary
