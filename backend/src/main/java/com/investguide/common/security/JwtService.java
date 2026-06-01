@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Issues and validates JWTs (SPECIFICATION §2, §4.1, §10).
@@ -57,6 +58,14 @@ public class JwtService {
         return Jwts.builder()
                 .issuer(props.jwtIssuer())
                 .subject(subject)
+                // Random JWT ID (jti): JWT timestamps have only one-second resolution and HMAC
+                // signing is deterministic, so without this two tokens minted for the same subject
+                // within the same second would be byte-for-byte identical. Refresh tokens are then
+                // persisted by their SHA-256 hash under a UNIQUE index (refreshTokens.tokenHash);
+                // an identical token therefore triggers an E11000 duplicate-key error on re-issue
+                // (login then an immediate /auth/refresh), surfacing as a 500. A per-token random
+                // jti guarantees uniqueness and removes the collision.
+                .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(ttlMs)))
                 .claim(CLAIM_TYPE, type)

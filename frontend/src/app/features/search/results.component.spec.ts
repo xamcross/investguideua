@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { ResultsComponent } from './results.component';
 import { SearchResponse } from '../../core/investment/investment.models';
 
@@ -38,7 +39,24 @@ describe('ResultsComponent (QA2: disclaimer rendering / AC #5)', () => {
   });
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ResultsComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ResultsComponent],
+      providers: [provideTranslateService({ fallbackLang: 'en', lang: 'en' })],
+    }).compileComponents();
+    // Seed just the keys this component renders so the `translate` pipe resolves to real copy
+    // (no HTTP loader in unit tests).
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      results: {
+        noOptions: 'No matching options for these inputs. Try a different amount, currency, or preferences.',
+        expectedReturn: 'Expected return',
+        currency: 'Currency',
+        minAmount: 'Min amount',
+        liquidity: 'Liquidity',
+      },
+      common: { officialSource: 'Official source', perYear: '/ yr' },
+    });
+    translate.use('en');
     fixture = TestBed.createComponent(ResultsComponent);
   });
 

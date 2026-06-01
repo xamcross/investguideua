@@ -1,0 +1,293 @@
+{
+  "lang": {
+    "toEnglish": "Switch language to English",
+    "toUkrainian": "Перемкнути мову на українську",
+    "announced": "Language changed to English"
+  },
+  "nav": {
+    "search": "Search",
+    "history": "History",
+    "providers": "Providers",
+    "account": "Account",
+    "signOut": "Sign out",
+    "signIn": "Sign in",
+    "register": "Register",
+    "balanceTitle": "Token balance"
+  },
+  "common": {
+    "loading": "Loading...",
+    "backToHome": "Back to home",
+    "officialSource": "Official source",
+    "perYear": "/ yr",
+    "dash": "-"
+  },
+  "units": {
+    "token": { "one": "token", "few": "tokens", "many": "tokens" },
+    "option": { "one": "option", "few": "options", "many": "options" }
+  },
+  "title": {
+    "home": "InvestGuideUA",
+    "register": "Register - InvestGuideUA",
+    "signIn": "Sign in - InvestGuideUA",
+    "verify": "Verify email - InvestGuideUA",
+    "search": "Search - InvestGuideUA",
+    "history": "History - InvestGuideUA",
+    "historyDetail": "Search detail - InvestGuideUA",
+    "tokens": "Buy tokens - InvestGuideUA",
+    "paymentStatus": "Payment status - InvestGuideUA",
+    "account": "Account - InvestGuideUA",
+    "providers": "Providers - InvestGuideUA",
+    "notFound": "Page not found - InvestGuideUA"
+  },
+  "landing": {
+    "title": "Invest in Ukraine, for Ukrainians",
+    "lead": "Tell us how much you want to invest and get curated, catalog-grounded options from vetted Ukrainian banks and providers - in plain language.",
+    "ctaStart": "Get started - 5 free tokens",
+    "ctaSignIn": "Sign in",
+    "hint": "Free tokens are granted after you verify your email.",
+    "step1Title": "Enter an amount",
+    "step1Body": "Choose how much you want to invest and your currency, horizon and risk.",
+    "step2Title": "Get curated options",
+    "step2Body": "We match you against a transparent catalog of real providers - no hype.",
+    "step3Title": "Decide with clarity",
+    "step3Body": "Each option links to the official source. Each search costs one token.",
+    "disclaimer": "InvestGuideUA provides information only, not financial advice. Always verify details with the provider before investing."
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submitting": "Signing in...",
+    "submit": "Sign in",
+    "newHere": "New here?",
+    "createAccount": "Create an account",
+    "invalidCredentials": "Invalid email or password."
+  },
+  "register": {
+    "checkEmailTitle": "Check your email",
+    "sentLink": "We sent a verification link to {{email}}.",
+    "verifyToActivate": "Verify your email to activate your account and receive your 5 free tokens. Tokens are granted only after verification.",
+    "didntGet": "Didn't get it? In this MVP the verification link is written to the backend log.",
+    "goToSignIn": "Go to sign in",
+    "createTitle": "Create your account",
+    "subtitle": "Register to get 5 free tokens after email verification.",
+    "email": "Email",
+    "emailError": "Enter a valid email address.",
+    "password": "Password",
+    "passwordError": "At least 8 characters, including a letter and a digit.",
+    "submitting": "Creating account...",
+    "submit": "Create account",
+    "alreadyHave": "Already have an account?",
+    "signIn": "Sign in",
+    "emailTaken": "That email is already registered. Try signing in instead.",
+    "validationError": "Please check your email and password and try again."
+  },
+  "verify": {
+    "title": "Email verification",
+    "verifying": "Verifying your email...",
+    "success": "Your email is verified. {{tokens}} have been added to your account.",
+    "signInToStart": "Sign in to start",
+    "already": "This email is already verified.",
+    "noAdditional": "No additional tokens were added.",
+    "goToSignIn": "Go to sign in",
+    "invalidHint": "The link may be expired or already used. Register again to receive a fresh link.",
+    "backToRegister": "Back to register",
+    "missing": "No verification token was provided in the link.",
+    "defaultError": "This verification link is invalid or has expired."
+  },
+  "search": {
+    "title": "Find ways to invest",
+    "intro": "Enter an amount to get catalog-grounded options. Each search costs 1 token. You have {{balance}}.",
+    "outOfTokens": "You're out of tokens.",
+    "buyMore": "Buy more tokens",
+    "buyMoreSuffix": "to run a search.",
+    "amount": "Amount",
+    "amountError": "Enter an amount greater than 0.",
+    "currency": "Currency",
+    "horizon": "Horizon (optional)",
+    "risk": "Risk tolerance (optional)",
+    "any": "Any",
+    "horizonShort": "Short",
+    "horizonMedium": "Medium",
+    "horizonLong": "Long",
+    "riskLow": "Low",
+    "riskModerate": "Moderate",
+    "riskHigh": "High",
+    "goals": "Goals (optional)",
+    "goalsPlaceholder": "e.g. stable income with low risk",
+    "submitting": "Searching... (up to ~8s)",
+    "submit": "Search (1 token)",
+    "optionsFor": "Options for {{amount}} {{currency}}",
+    "buyTokens": "Buy tokens",
+    "verifyEmail": "Verify your email",
+    "errOutOfTokens": "You're out of tokens.",
+    "errAdvisorBusy": "The advisor is busy right now and no token was charged. Please try again shortly.",
+    "errRateLimited": "Too many searches just now. Please wait a moment and try again.",
+    "errEmailNotVerified": "You need to verify your email before searching.",
+    "errValidation": "Please check your inputs and try again."
+  },
+  "results": {
+    "noOptions": "No matching options for these inputs. Try a different amount, currency, or preferences.",
+    "expectedReturn": "Expected return",
+    "currency": "Currency",
+    "minAmount": "Min amount",
+    "liquidity": "Liquidity"
+  },
+  "history": {
+    "title": "Your search history",
+    "empty": "No searches yet.",
+    "runFirst": "Run your first search",
+    "statusPending": "pending",
+    "statusCompleted": "completed",
+    "statusFailed": "failed",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{current}} of {{total}}",
+    "loadError": "Could not load your history. Please try again."
+  },
+  "historyDetail": {
+    "notFoundTitle": "Search not found",
+    "notFoundBody": "This search doesn't exist or isn't yours.",
+    "backToHistory": "Back to history",
+    "backToHistoryArrow": "Back to history",
+    "loadError": "Could not load this search. Please try again."
+  },
+  "providers": {
+    "title": "Provider catalog",
+    "intro": "These are the active providers our recommendations are drawn from. Recommendations never go outside this list. Figures are indicative - always confirm on the provider's official page.",
+    "loading": "Loading providers...",
+    "empty": "No providers are listed right now.",
+    "typicalReturn": "Typical return",
+    "risk": "Risk",
+    "currencies": "Currencies",
+    "minAmount": "Min amount",
+    "backToSearch": "Back to search",
+    "loadError": "Could not load the provider catalog. Please try again.",
+    "categoryBankDeposit": "Bank deposit",
+    "categoryGovBond": "Government bond",
+    "categoryBroker": "Broker",
+    "categoryFund": "Fund",
+    "categoryOther": "Other",
+    "riskLow": "Low",
+    "riskModerate": "Moderate",
+    "riskHigh": "High"
+  },
+  "account": {
+    "title": "Your account",
+    "loading": "Loading your profile...",
+    "email": "Email",
+    "emailStatus": "Email status",
+    "verified": "Verified",
+    "notVerified": "Not verified",
+    "verifyNow": "Verify now",
+    "tokenBalance": "Token balance",
+    "buyMore": "Buy more",
+    "roles": "Roles",
+    "signOut": "Sign out",
+    "deleteTitle": "Delete your account",
+    "deleteBody": "We keep only what's needed to run your account. To request deletion of your account and associated data, send us a request and we'll process it.",
+    "requestDeletion": "Request account deletion",
+    "sentRequest": "I've sent the request",
+    "deletionThanks": "Thanks - we'll process your deletion request and confirm by email.",
+    "loadError": "We couldn't load your profile.",
+    "signInAgain": "Sign in again",
+    "mailtoSubject": "Account deletion request - InvestGuideUA",
+    "mailtoBody": "Please delete my InvestGuideUA account and associated data.\n\nAccount email: {{email}}"
+  },
+  "tokens": {
+    "title": "Buy tokens",
+    "intro": "Each investment search costs 1 token. You currently have {{balance}}.",
+    "loadingPacks": "Loading packs...",
+    "empty": "No token packs are available right now.",
+    "packTokens": "{{tokens}}",
+    "perToken": "{{price}} / token",
+    "buy": "Buy",
+    "redirecting": "Redirecting...",
+    "fineprint": "Payments are processed securely by monobank (Plata by mono). A fiscal receipt is emailed to you on success.",
+    "backToSearch": "Back to search",
+    "loadError": "Could not load token packs. Please try again."
+  },
+  "paymentResult": {
+    "title": "Payment status",
+    "polling": "Confirming your payment...",
+    "pollingHint": "This can take a few seconds.",
+    "success": "Payment confirmed. {{tokens}} have been added.",
+    "balanceNow": "Your balance is now {{balance}}.",
+    "startSearch": "Start a search",
+    "failed": "Your payment did not go through. No tokens were added and you were not charged.",
+    "tryAgain": "Try again",
+    "processing": "Still processing - we'll update your balance shortly. You can safely leave this page; your tokens will appear once the payment is confirmed.",
+    "viewAccount": "View account",
+    "goToSearch": "Go to search",
+    "missing": "We couldn't find a payment to confirm. If you just paid, check your balance on the",
+    "accountPage": "account page",
+    "backToBuy": "Back to buy tokens"
+  },
+  "notFound": {
+    "title": "404 - Page not found",
+    "body": "The page you are looking for does not exist."
+  },
+  "placeholder": {
+    "comingSoon": "Coming soon",
+    "body": "This area is part of a later delivery milestone and is not built yet."
+  },
+  "toast": {
+    "dismiss": "Dismiss",
+    "copyRef": "Copy reference {{id}}",
+    "ref": "Ref: {{id}}"
+  },
+  "error": {
+    "insufficientTokens": {
+      "title": "Out of tokens",
+      "message": "You don't have enough tokens to run that search.",
+      "action": "Buy tokens"
+    },
+    "rateLimited": {
+      "title": "Slow down a moment",
+      "message": "Too many requests just now. Please wait a little and try again."
+    },
+    "emailNotVerified": {
+      "title": "Verify your email",
+      "message": "Verify your email address to use this feature. Check your inbox for the link.",
+      "action": "Verify email"
+    },
+    "advisorUnavailable": {
+      "title": "Advisor is busy",
+      "message": "The advisor is unavailable right now and no token was charged. Please try again shortly."
+    },
+    "validation": {
+      "title": "Check your input",
+      "message": "Some fields need attention. Please review and try again."
+    },
+    "emailTaken": {
+      "title": "Email already registered",
+      "message": "That email is already registered. Try signing in instead.",
+      "action": "Sign in"
+    },
+    "unauthorized": {
+      "title": "Please sign in",
+      "message": "Your session has expired. Please sign in again.",
+      "action": "Sign in"
+    },
+    "forbidden": {
+      "title": "Not allowed",
+      "message": "You don't have permission to do that."
+    },
+    "notFound": {
+      "title": "Not found",
+      "message": "We couldn't find what you were looking for."
+    },
+    "payment": {
+      "title": "Payment problem",
+      "message": "We could not start that payment. Please try again."
+    },
+    "network": {
+      "title": "Connection problem",
+      "message": "Cannot reach the server. Check your connection and try again."
+    },
+    "default": {
+      "title": "Something went wrong",
+      "message": "An unexpected error occurred. Please try again."
+    }
+  }
+}

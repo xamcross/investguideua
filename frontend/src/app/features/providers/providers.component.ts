@@ -1,22 +1,24 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProviderService } from '../../core/catalog/provider.service';
 import { Provider } from '../../core/catalog/provider.models';
 import { ProviderCategory, RiskLevel } from '../../core/investment/investment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
 
-const CATEGORY_LABELS: Record<ProviderCategory, string> = {
-  BANK_DEPOSIT: 'Bank deposit',
-  GOV_BOND: 'Government bond',
-  BROKER: 'Broker',
-  FUND: 'Fund',
-  OTHER: 'Other',
+/** Maps backend enums to translation keys (resolved live so they re-translate on language switch). */
+const CATEGORY_KEYS: Record<ProviderCategory, string> = {
+  BANK_DEPOSIT: 'providers.categoryBankDeposit',
+  GOV_BOND: 'providers.categoryGovBond',
+  BROKER: 'providers.categoryBroker',
+  FUND: 'providers.categoryFund',
+  OTHER: 'providers.categoryOther',
 };
 
-const RISK_LABELS: Record<RiskLevel, string> = {
-  LOW: 'Low',
-  MODERATE: 'Moderate',
-  HIGH: 'High',
+const RISK_KEYS: Record<RiskLevel, string> = {
+  LOW: 'providers.riskLow',
+  MODERATE: 'providers.riskModerate',
+  HIGH: 'providers.riskHigh',
 };
 
 /**
@@ -30,45 +32,42 @@ const RISK_LABELS: Record<RiskLevel, string> = {
   selector: 'ig-providers',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
     <section class="ig-card">
-      <h1>Provider catalog</h1>
-      <p class="ig-muted">
-        These are the active providers our recommendations are drawn from. Recommendations never go
-        outside this list. Figures are indicative — always confirm on the provider's official page.
-      </p>
+      <h1>{{ 'providers.title' | translate }}</h1>
+      <p class="ig-muted">{{ 'providers.intro' | translate }}</p>
 
       @if (loading()) {
-        <p class="ig-muted">Loading providers…</p>
+        <p class="ig-muted">{{ 'providers.loading' | translate }}</p>
       } @else if (loadError()) {
         <div class="ig-alert ig-alert--error">{{ loadError() }}</div>
       } @else if (providers().length === 0) {
-        <div class="ig-alert ig-alert--info">No providers are listed right now.</div>
+        <div class="ig-alert ig-alert--info">{{ 'providers.empty' | translate }}</div>
       } @else {
         <ul class="ig-providers">
           @for (p of providers(); track p.id) {
             <li class="ig-provider">
               <div class="ig-provider__head">
                 <h2 class="ig-provider__name">{{ p.name }}</h2>
-                <span class="ig-chip">{{ categoryLabel(p.category) }}</span>
+                <span class="ig-chip">{{ categoryLabel(p.category) | translate }}</span>
               </div>
               <p class="ig-provider__desc">{{ p.description }}</p>
               <dl class="ig-provider__meta">
-                <div><dt>Typical return</dt><dd>{{ returnRange(p) }}</dd></div>
-                <div><dt>Risk</dt><dd>{{ riskLabel(p.riskLevel) }}</dd></div>
-                <div><dt>Currencies</dt><dd>{{ p.currencies.join(', ') }}</dd></div>
-                <div><dt>Min amount</dt><dd>{{ minAmount(p) }}</dd></div>
+                <div><dt>{{ 'providers.typicalReturn' | translate }}</dt><dd>{{ returnRange(p) }}</dd></div>
+                <div><dt>{{ 'providers.risk' | translate }}</dt><dd>{{ riskLabel(p.riskLevel) | translate }}</dd></div>
+                <div><dt>{{ 'providers.currencies' | translate }}</dt><dd>{{ p.currencies.join(', ') }}</dd></div>
+                <div><dt>{{ 'providers.minAmount' | translate }}</dt><dd>{{ minAmount(p) }}</dd></div>
               </dl>
               <a class="ig-provider__src" [href]="p.sourceUrl" target="_blank" rel="noopener noreferrer">
-                Official source ↗
+                {{ 'common.officialSource' | translate }} ↗
               </a>
             </li>
           }
         </ul>
       }
 
-      <p class="ig-back"><a routerLink="/search">Back to search</a></p>
+      <p class="ig-back"><a routerLink="/search">{{ 'providers.backToSearch' | translate }}</a></p>
     </section>
   `,
   styles: [
@@ -96,6 +95,7 @@ const RISK_LABELS: Record<RiskLevel, string> = {
 })
 export class ProvidersComponent implements OnInit {
   private readonly providerService = inject(ProviderService);
+  private readonly translate = inject(TranslateService);
 
   protected readonly providers = signal<Provider[]>([]);
   protected readonly loading = signal(true);
@@ -108,18 +108,20 @@ export class ProvidersComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.loadError.set('Could not load the provider catalog. Please try again.');
+        this.loadError.set(this.translate.instant('providers.loadError'));
         this.loading.set(false);
       },
     });
   }
 
+  /** Returns the translation key for the category (resolved by the `translate` pipe in the template). */
   categoryLabel(category: ProviderCategory): string {
-    return CATEGORY_LABELS[category] ?? category;
+    return CATEGORY_KEYS[category] ?? category;
   }
 
+  /** Returns the translation key for the risk level. */
   riskLabel(risk: RiskLevel): string {
-    return RISK_LABELS[risk] ?? risk;
+    return RISK_KEYS[risk] ?? risk;
   }
 
   returnRange(p: Provider): string {

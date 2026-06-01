@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { HistoryPage } from '../../core/investment/investment.models';
+import { PluralPipe } from '../../core/i18n/plural.pipe';
 
 /**
  * Paginated search history (ticket FE-HIST1, §4.4, §5.1). Newest first, owner-scoped by the backend.
@@ -12,18 +14,18 @@ import { HistoryPage } from '../../core/investment/investment.models';
   selector: 'ig-history',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, DecimalPipe],
+  imports: [RouterLink, DatePipe, DecimalPipe, TranslatePipe, PluralPipe],
   template: `
     <section class="ig-card">
-      <h1>Your search history</h1>
+      <h1>{{ 'history.title' | translate }}</h1>
 
       @if (loading()) {
-        <p class="ig-muted">Loading…</p>
+        <p class="ig-muted">{{ 'common.loading' | translate }}</p>
       } @else if (error()) {
         <div class="ig-alert ig-alert--error">{{ error() }}</div>
       } @else if (page() && page()!.items.length === 0) {
         <div class="ig-alert ig-alert--info">
-          No searches yet. <a routerLink="/search">Run your first search</a>.
+          {{ 'history.empty' | translate }} <a routerLink="/search">{{ 'history.runFirst' | translate }}</a>.
         </div>
       } @else if (page()) {
         <ul class="ig-hist">
@@ -35,8 +37,8 @@ import { HistoryPage } from '../../core/investment/investment.models';
                 </span>
                 <span class="ig-hist__meta">
                   {{ item.createdAt | date: 'medium' }} ·
-                  <span class="ig-hist__status" [attr.data-status]="item.status">{{ item.status }}</span>
-                  · {{ item.optionCount }} {{ item.optionCount === 1 ? 'option' : 'options' }}
+                  <span class="ig-hist__status" [attr.data-status]="item.status">{{ statusKey(item.status) | translate }}</span>
+                  · {{ item.optionCount | igPlural: 'option' }}
                 </span>
               </a>
             </li>
@@ -46,12 +48,12 @@ import { HistoryPage } from '../../core/investment/investment.models';
         <div class="ig-pager">
           <button type="button" class="ig-btn ig-btn--ghost"
                   [disabled]="page()!.page === 0" (click)="go(page()!.page - 1)">
-            Previous
+            {{ 'history.previous' | translate }}
           </button>
-          <span class="ig-muted">Page {{ page()!.page + 1 }} of {{ Math.max(page()!.totalPages, 1) }}</span>
+          <span class="ig-muted">{{ 'history.pageOf' | translate: { current: page()!.page + 1, total: Math.max(page()!.totalPages, 1) } }}</span>
           <button type="button" class="ig-btn ig-btn--ghost"
                   [disabled]="page()!.page + 1 >= page()!.totalPages" (click)="go(page()!.page + 1)">
-            Next
+            {{ 'history.next' | translate }}
           </button>
         </div>
       }
@@ -74,8 +76,14 @@ import { HistoryPage } from '../../core/investment/investment.models';
 })
 export class HistoryComponent implements OnInit {
   private readonly investments = inject(InvestmentService);
+  private readonly translate = inject(TranslateService);
   protected readonly Math = Math;
   private static readonly PAGE_SIZE = 10;
+
+  /** Maps a backend status to its translation key, e.g. 'pending' -> 'history.statusPending'. */
+  statusKey(status: string): string {
+    return 'history.status' + status.charAt(0).toUpperCase() + status.slice(1);
+  }
 
   readonly page = signal<HistoryPage | null>(null);
   readonly loading = signal(true);
@@ -94,7 +102,7 @@ export class HistoryComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Could not load your history. Please try again.');
+        this.error.set(this.translate.instant('history.loadError'));
         this.loading.set(false);
       },
     });

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 
 /**
@@ -11,43 +12,37 @@ import { AuthService } from '../../core/auth/auth.service';
   selector: 'ig-landing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
     <section class="ig-hero ig-card">
-      <h1>Invest in Ukraine, for Ukrainians</h1>
-      <p class="ig-lead">
-        Tell us how much you want to invest and get curated, catalog-grounded options from
-        vetted Ukrainian banks and providers - in plain language.
-      </p>
+      <h1>{{ 'landing.title' | translate }}</h1>
+      <p class="ig-lead">{{ 'landing.lead' | translate }}</p>
       <div class="ig-cta">
-        <a routerLink="/register" class="ig-btn">Get started - 5 free tokens</a>
-        <a routerLink="/login" class="ig-btn ig-btn--ghost">Sign in</a>
+        <a routerLink="/register" class="ig-btn">{{ 'landing.ctaStart' | translate }}</a>
+        <a routerLink="/login" class="ig-btn ig-btn--ghost">{{ 'landing.ctaSignIn' | translate }}</a>
       </div>
-      <p class="ig-hint">Free tokens are granted after you verify your email.</p>
+      <p class="ig-hint">{{ 'landing.hint' | translate }}</p>
     </section>
 
     <section class="ig-steps">
       <div class="ig-card ig-step">
         <span class="ig-step__num">1</span>
-        <h3>Enter an amount</h3>
-        <p class="ig-muted">Choose how much you want to invest and your currency, horizon and risk.</p>
+        <h3>{{ 'landing.step1Title' | translate }}</h3>
+        <p class="ig-muted">{{ 'landing.step1Body' | translate }}</p>
       </div>
       <div class="ig-card ig-step">
         <span class="ig-step__num">2</span>
-        <h3>Get curated options</h3>
-        <p class="ig-muted">We match you against a transparent catalog of real providers - no hype.</p>
+        <h3>{{ 'landing.step2Title' | translate }}</h3>
+        <p class="ig-muted">{{ 'landing.step2Body' | translate }}</p>
       </div>
       <div class="ig-card ig-step">
         <span class="ig-step__num">3</span>
-        <h3>Decide with clarity</h3>
-        <p class="ig-muted">Each option links to the official source. Each search costs one token.</p>
+        <h3>{{ 'landing.step3Title' | translate }}</h3>
+        <p class="ig-muted">{{ 'landing.step3Body' | translate }}</p>
       </div>
     </section>
 
-    <p class="ig-disclaimer ig-muted">
-      InvestGuideUA provides information only, not financial advice. Always verify details with the
-      provider before investing.
-    </p>
+    <p class="ig-disclaimer ig-muted">{{ 'landing.disclaimer' | translate }}</p>
   `,
   styles: [
     `

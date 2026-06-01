@@ -3,6 +3,8 @@
 export type SearchCurrency = 'UAH' | 'USD';
 export type InvestmentHorizon = 'SHORT' | 'MEDIUM' | 'LONG';
 export type RiskLevel = 'LOW' | 'MODERATE' | 'HIGH';
+/** Advisor free-text output language; mirrors the backend SearchLanguage enum. */
+export type SearchLanguage = 'UK' | 'EN';
 export type ProviderCategory = 'BANK_DEPOSIT' | 'GOV_BOND' | 'BROKER' | 'FUND' | 'OTHER';
 export type SearchStatus = 'pending' | 'completed' | 'failed';
 
@@ -22,6 +24,8 @@ export interface SearchRequestBody {
   horizon?: InvestmentHorizon | null;
   riskTolerance?: RiskLevel | null;
   goals?: string | null;
+  /** Selected UI language; the advisor returns instrument/rationale text in this language. */
+  language?: SearchLanguage;
 }
 
 export interface InvestmentOption {

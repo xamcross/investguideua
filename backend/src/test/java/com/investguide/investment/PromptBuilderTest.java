@@ -25,7 +25,7 @@ class PromptBuilderTest {
 
     private SearchInput input(String goals) {
         return new SearchInput(500_000L, SearchCurrency.UAH, InvestmentHorizon.MEDIUM,
-                RiskLevel.MODERATE, goals);
+                RiskLevel.MODERATE, goals, SearchLanguage.UK);
     }
 
     @Test

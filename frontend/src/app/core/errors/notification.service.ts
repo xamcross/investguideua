@@ -3,8 +3,12 @@ import { ErrorAction, ErrorSeverity, ErrorUx } from './error-ux.util';
 
 export interface Notification {
   id: number;
+  /** Translation key for the title. */
   title: string;
+  /** Translation key for the message. */
   message: string;
+  /** Raw server-provided message; shown verbatim instead of translating `message` when present. */
+  messageText?: string;
   severity: ErrorSeverity;
   action?: ErrorAction;
   requestId?: string;
@@ -29,6 +33,7 @@ export class NotificationService {
       id,
       title: ux.title,
       message: ux.message,
+      messageText: ux.messageText,
       severity: ux.severity,
       action: ux.action,
       requestId: ux.requestId,

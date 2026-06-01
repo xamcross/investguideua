@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { InvestmentOption, SearchResponse } from '../../core/investment/investment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
 
@@ -12,12 +13,11 @@ import { formatMinorUnits } from '../../core/investment/money.util';
   selector: 'ig-results',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TranslatePipe],
   template: `
     @if (result) {
       @if (result.options.length === 0) {
-        <div class="ig-alert ig-alert--info">
-          No matching options for these inputs. Try a different amount, currency, or preferences.
-        </div>
+        <div class="ig-alert ig-alert--info">{{ 'results.noOptions' | translate }}</div>
       } @else {
         <ul class="ig-options">
           @for (opt of result.options; track opt.providerId + opt.instrument) {
@@ -32,19 +32,19 @@ import { formatMinorUnits } from '../../core/investment/money.util';
               <div class="ig-option__instrument">{{ opt.instrument }}</div>
               <dl class="ig-option__facts">
                 <div>
-                  <dt>Expected return</dt>
-                  <dd>{{ opt.expectedReturnPct.min }}–{{ opt.expectedReturnPct.max }}% / рік</dd>
+                  <dt>{{ 'results.expectedReturn' | translate }}</dt>
+                  <dd>{{ opt.expectedReturnPct.min }}–{{ opt.expectedReturnPct.max }}% {{ 'common.perYear' | translate }}</dd>
                 </div>
                 <div>
-                  <dt>Currency</dt>
+                  <dt>{{ 'results.currency' | translate }}</dt>
                   <dd>{{ opt.currency }}</dd>
                 </div>
                 <div>
-                  <dt>Min amount</dt>
+                  <dt>{{ 'results.minAmount' | translate }}</dt>
                   <dd>{{ formatMoney(opt) }}</dd>
                 </div>
                 <div>
-                  <dt>Liquidity</dt>
+                  <dt>{{ 'results.liquidity' | translate }}</dt>
                   <dd>{{ opt.liquidity || '—' }}</dd>
                 </div>
               </dl>
@@ -52,7 +52,7 @@ import { formatMinorUnits } from '../../core/investment/money.util';
                 <p class="ig-option__rationale">{{ opt.rationale }}</p>
               }
               <a class="ig-option__src" [href]="opt.sourceUrl" target="_blank" rel="noopener noreferrer">
-                Official source ↗
+                {{ 'common.officialSource' | translate }} ↗
               </a>
             </li>
           }

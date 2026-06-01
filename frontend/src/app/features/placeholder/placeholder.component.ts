@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Lightweight stand-in for §12 pages whose feature tickets are not yet implemented (Search,
@@ -10,12 +11,12 @@ import { RouterLink } from '@angular/router';
   selector: 'ig-placeholder',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
     <section class="ig-card">
-      <h1>{{ heading || 'Coming soon' }}</h1>
-      <p class="ig-muted">This area is part of a later delivery milestone and is not built yet.</p>
-      <p><a routerLink="/">Back to home</a></p>
+      <h1>{{ heading || ('placeholder.comingSoon' | translate) }}</h1>
+      <p class="ig-muted">{{ 'placeholder.body' | translate }}</p>
+      <p><a routerLink="/">{{ 'common.backToHome' | translate }}</a></p>
     </section>
   `,
 })

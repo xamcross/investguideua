@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NotificationService } from './notification.service';
 
 /**
@@ -12,7 +13,7 @@ import { NotificationService } from './notification.service';
   selector: 'ig-notification-host',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
     <div class="ig-toasts" aria-live="polite" aria-atomic="true">
       @for (toast of notifications.toasts(); track toast.id) {
@@ -20,22 +21,22 @@ import { NotificationService } from './notification.service';
              [class.ig-toast--warning]="toast.severity === 'warning'"
              [class.ig-toast--info]="toast.severity === 'info'" role="status">
           <div class="ig-toast__body">
-            <strong class="ig-toast__title">{{ toast.title }}</strong>
-            <span class="ig-toast__msg">{{ toast.message }}</span>
+            <strong class="ig-toast__title">{{ toast.title | translate }}</strong>
+            <span class="ig-toast__msg">{{ toast.messageText || (toast.message | translate) }}</span>
             <div class="ig-toast__row">
               @if (toast.action) {
                 <a class="ig-toast__action" [routerLink]="toast.action.route"
-                   (click)="notifications.dismiss(toast.id)">{{ toast.action.label }}</a>
+                   (click)="notifications.dismiss(toast.id)">{{ toast.action.label | translate }}</a>
               }
               @if (toast.requestId) {
                 <button type="button" class="ig-toast__ref" (click)="copyRef(toast.requestId!)"
-                        [title]="'Copy reference ' + toast.requestId">
-                  Ref: {{ shortRef(toast.requestId) }}{{ copiedId() === toast.requestId ? ' ✓' : '' }}
+                        [title]="'toast.copyRef' | translate: { id: toast.requestId }">
+                  {{ 'toast.ref' | translate: { id: shortRef(toast.requestId) } }}{{ copiedId() === toast.requestId ? ' ✓' : '' }}
                 </button>
               }
             </div>
           </div>
-          <button type="button" class="ig-toast__close" aria-label="Dismiss"
+          <button type="button" class="ig-toast__close" [attr.aria-label]="'toast.dismiss' | translate"
                   (click)="notifications.dismiss(toast.id)">&times;</button>
         </div>
       }

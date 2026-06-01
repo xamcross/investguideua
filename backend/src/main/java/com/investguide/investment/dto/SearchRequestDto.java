@@ -3,6 +3,7 @@ package com.investguide.investment.dto;
 import com.investguide.catalog.RiskLevel;
 import com.investguide.investment.InvestmentHorizon;
 import com.investguide.investment.SearchCurrency;
+import com.investguide.investment.SearchLanguage;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,8 @@ import jakarta.validation.constraints.Size;
  * @param horizon       optional time horizon ({@link InvestmentHorizon})
  * @param riskTolerance optional risk tolerance ({@link RiskLevel})
  * @param goals         optional free text, max 280 chars; wrapped as data before prompting (§8.4)
+ * @param language      optional UI language ({@link SearchLanguage}); steers the advisor's free-text
+ *                      output language. Defaults to Ukrainian when omitted (see {@link com.investguide.investment.SearchInput#from}).
  */
 public record SearchRequestDto(
         @NotNull(message = "amount is required")
@@ -42,6 +45,8 @@ public record SearchRequestDto(
         RiskLevel riskTolerance,
 
         @Size(max = 280, message = "goals must be at most 280 characters")
-        String goals
+        String goals,
+
+        SearchLanguage language
 ) {
 }

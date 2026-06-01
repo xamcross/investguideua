@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { parseApiError } from '../../core/api/api-error.util';
 
@@ -16,40 +17,35 @@ import { parseApiError } from '../../core/api/api-error.util';
   selector: 'ig-register',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   template: `
     <section class="ig-card ig-auth">
       @if (registeredEmail()) {
-        <h1>Check your email</h1>
+        <h1>{{ 'register.checkEmailTitle' | translate }}</h1>
         <div class="ig-alert ig-alert--success">
-          We sent a verification link to <strong>{{ registeredEmail() }}</strong>.
+          {{ 'register.sentLink' | translate: { email: registeredEmail() } }}
         </div>
-        <p>
-          Verify your email to activate your account and receive your
-          <strong>5 free tokens</strong>. Tokens are granted only after verification.
-        </p>
-        <p class="ig-hint">
-          Didn't get it? In this MVP the verification link is written to the backend log.
-        </p>
-        <p><a routerLink="/login">Go to sign in</a></p>
+        <p>{{ 'register.verifyToActivate' | translate }}</p>
+        <p class="ig-hint">{{ 'register.didntGet' | translate }}</p>
+        <p><a routerLink="/login">{{ 'register.goToSignIn' | translate }}</a></p>
       } @else {
-        <h1>Create your account</h1>
-        <p class="ig-muted">Register to get 5 free tokens after email verification.</p>
+        <h1>{{ 'register.createTitle' | translate }}</h1>
+        <p class="ig-muted">{{ 'register.subtitle' | translate }}</p>
 
         <form class="ig-form" [formGroup]="form" (ngSubmit)="submit()">
           <div class="ig-field">
-            <label for="email">Email</label>
+            <label for="email">{{ 'register.email' | translate }}</label>
             <input id="email" type="email" formControlName="email" autocomplete="email" />
             @if (showError('email')) {
-              <span class="ig-error">Enter a valid email address.</span>
+              <span class="ig-error">{{ 'register.emailError' | translate }}</span>
             }
           </div>
 
           <div class="ig-field">
-            <label for="password">Password</label>
+            <label for="password">{{ 'register.password' | translate }}</label>
             <input id="password" type="password" formControlName="password" autocomplete="new-password" />
             @if (showError('password')) {
-              <span class="ig-error">At least 8 characters, including a letter and a digit.</span>
+              <span class="ig-error">{{ 'register.passwordError' | translate }}</span>
             }
           </div>
 
@@ -58,11 +54,11 @@ import { parseApiError } from '../../core/api/api-error.util';
           }
 
           <button type="submit" class="ig-btn" [disabled]="submitting()">
-            {{ submitting() ? 'Creating account...' : 'Create account' }}
+            {{ (submitting() ? 'register.submitting' : 'register.submit') | translate }}
           </button>
         </form>
 
-        <p class="ig-hint">Already have an account? <a routerLink="/login">Sign in</a></p>
+        <p class="ig-hint">{{ 'register.alreadyHave' | translate }} <a routerLink="/login">{{ 'register.signIn' | translate }}</a></p>
       }
     </section>
   `,
@@ -71,6 +67,7 @@ import { parseApiError } from '../../core/api/api-error.util';
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly translate = inject(TranslateService);
 
   // Mirror server policy: >= 1 letter, >= 1 digit, >= 8 chars.
   private static readonly PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -106,9 +103,9 @@ export class RegisterComponent {
         this.submitting.set(false);
         const parsed = parseApiError(err);
         if (parsed.code === 'EMAIL_TAKEN') {
-          this.serverError.set('That email is already registered. Try signing in instead.');
+          this.serverError.set(this.translate.instant('register.emailTaken'));
         } else if (parsed.code === 'VALIDATION_ERROR') {
-          this.serverError.set('Please check your email and password and try again.');
+          this.serverError.set(this.translate.instant('register.validationError'));
         } else {
           this.serverError.set(parsed.message);
         }

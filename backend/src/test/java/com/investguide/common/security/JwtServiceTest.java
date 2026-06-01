@@ -61,4 +61,21 @@ class JwtServiceTest {
         SecurityProperties weak = new SecurityProperties("short", "investguide", 900_000L, 1_000_000L, COOKIE);
         assertThatThrownBy(() -> new JwtService(weak)).isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void refreshTokensIssuedInSameSecondAreDistinctAndHashDifferently() {
+        // Regression for the /auth/refresh 500: JWT timestamps have one-second resolution and HMAC
+        // signing is deterministic, so without a per-token random jti, two refresh tokens minted for
+        // the same user within the same second were byte-for-byte identical -> identical SHA-256 ->
+        // E11000 duplicate-key error on the UNIQUE refreshTokens.tokenHash index (login followed by
+        // an immediate silent refresh). The jti must keep successive tokens (and their hashes) distinct.
+        JwtService svc = service(900_000L);
+        String a = svc.generateRefreshToken("user-1");
+        String b = svc.generateRefreshToken("user-1");
+        assertThat(a).isNotEqualTo(b);
+        assertThat(TokenHashing.sha256Hex(a)).isNotEqualTo(TokenHashing.sha256Hex(b));
+        // Both must still verify as refresh tokens for the same subject.
+        assertThat(svc.parseRefreshToken(a).getSubject()).isEqualTo("user-1");
+        assertThat(svc.parseRefreshToken(b).getSubject()).isEqualTo("user-1");
+    }
 }

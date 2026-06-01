@@ -24,7 +24,9 @@
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": [],
+            "assets": [
+              { "glob": "**/*", "input": "public/i18n", "output": "/i18n" }
+            ],
             "styles": ["src/styles.css"],
             "scripts": []
           },

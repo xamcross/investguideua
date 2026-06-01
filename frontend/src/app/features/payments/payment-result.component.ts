@@ -8,8 +8,10 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { PaymentService } from '../../core/payments/payment.service';
+import { PluralPipe } from '../../core/i18n/plural.pipe';
 import { PaymentStatusResponse } from '../../core/payments/payment.models';
 import { PENDING_PAYMENT_KEY } from './tokens.component';
 
@@ -29,47 +31,42 @@ type ResultState = 'polling' | 'success' | 'failed' | 'processing' | 'missing';
   selector: 'ig-payment-result',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, PluralPipe],
   template: `
     <section class="ig-card ig-result">
-      <h1>Payment status</h1>
+      <h1>{{ 'paymentResult.title' | translate }}</h1>
 
       @switch (state()) {
         @case ('polling') {
-          <p class="ig-muted">Confirming your payment...</p>
-          <p class="ig-muted ig-fineprint">This can take a few seconds.</p>
+          <p class="ig-muted">{{ 'paymentResult.polling' | translate }}</p>
+          <p class="ig-muted ig-fineprint">{{ 'paymentResult.pollingHint' | translate }}</p>
         }
         @case ('success') {
           <div class="ig-alert ig-alert--success">
-            Payment confirmed. <strong>{{ payment()?.tokensToCredit }} tokens</strong> have been added.
+            {{ 'paymentResult.success' | translate: { tokens: (payment()?.tokensToCredit | igPlural: 'token') } }}
             @if (balanceRefreshed()) {
-              Your balance is now <strong>{{ auth.tokenBalance() }}</strong>.
+              {{ 'paymentResult.balanceNow' | translate: { balance: (auth.tokenBalance() | igPlural: 'token') } }}
             }
           </div>
-          <p><a class="ig-btn ig-btn--primary" routerLink="/search">Start a search</a></p>
+          <p><a class="ig-btn ig-btn--primary" routerLink="/search">{{ 'paymentResult.startSearch' | translate }}</a></p>
         }
         @case ('failed') {
-          <div class="ig-alert ig-alert--error">
-            Your payment did not go through. No tokens were added and you were not charged.
-          </div>
-          <p><a class="ig-btn ig-btn--primary" routerLink="/tokens">Try again</a></p>
+          <div class="ig-alert ig-alert--error">{{ 'paymentResult.failed' | translate }}</div>
+          <p><a class="ig-btn ig-btn--primary" routerLink="/tokens">{{ 'paymentResult.tryAgain' | translate }}</a></p>
         }
         @case ('processing') {
-          <div class="ig-alert ig-alert--info">
-            Still processing — we'll update your balance shortly. You can safely leave this page; your
-            tokens will appear once the payment is confirmed.
-          </div>
+          <div class="ig-alert ig-alert--info">{{ 'paymentResult.processing' | translate }}</div>
           <p>
-            <a class="ig-btn ig-btn--ghost" routerLink="/account">View account</a>
-            <a class="ig-btn ig-btn--ghost" routerLink="/search">Go to search</a>
+            <a class="ig-btn ig-btn--ghost" routerLink="/account">{{ 'paymentResult.viewAccount' | translate }}</a>
+            <a class="ig-btn ig-btn--ghost" routerLink="/search">{{ 'paymentResult.goToSearch' | translate }}</a>
           </p>
         }
         @case ('missing') {
           <div class="ig-alert ig-alert--info">
-            We couldn't find a payment to confirm. If you just paid, check your balance on the
-            <a routerLink="/account">account page</a>.
+            {{ 'paymentResult.missing' | translate }}
+            <a routerLink="/account">{{ 'paymentResult.accountPage' | translate }}</a>.
           </div>
-          <p><a routerLink="/tokens">Back to buy tokens</a></p>
+          <p><a routerLink="/tokens">{{ 'paymentResult.backToBuy' | translate }}</a></p>
         }
       }
     </section>

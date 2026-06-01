@@ -70,7 +70,7 @@ class InvestmentSearchServiceTest {
 
     private static SearchRequestDto request() {
         return new SearchRequestDto(500_000L, SearchCurrency.UAH, InvestmentHorizon.MEDIUM,
-                RiskLevel.MODERATE, "стабільний дохід");
+                RiskLevel.MODERATE, "стабільний дохід", SearchLanguage.UK);
     }
 
     private static User verifiedUser(int balance) {

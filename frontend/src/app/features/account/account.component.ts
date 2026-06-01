@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
+import { PluralPipe } from '../../core/i18n/plural.pipe';
 
 /**
  * Account page (ticket FE-ACCT1, §5.1 `/me`, §10).
@@ -14,64 +16,59 @@ import { AuthService } from '../../core/auth/auth.service';
   selector: 'ig-account',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, PluralPipe],
   template: `
     <section class="ig-card">
-      <h1>Your account</h1>
+      <h1>{{ 'account.title' | translate }}</h1>
 
       @if (loading()) {
-        <p class="ig-muted">Loading your profile…</p>
+        <p class="ig-muted">{{ 'account.loading' | translate }}</p>
       } @else if (user()) {
         @if (user(); as u) {
         <dl class="ig-profile">
-          <dt>Email</dt>
+          <dt>{{ 'account.email' | translate }}</dt>
           <dd>{{ u.email }}</dd>
 
-          <dt>Email status</dt>
+          <dt>{{ 'account.emailStatus' | translate }}</dt>
           <dd>
             @if (u.emailVerified) {
-              <span class="ig-badge ig-badge--ok">Verified</span>
+              <span class="ig-badge ig-badge--ok">{{ 'account.verified' | translate }}</span>
             } @else {
-              <span class="ig-badge ig-badge--warn">Not verified</span>
-              <a routerLink="/verify" class="ig-inline-link">Verify now</a>
+              <span class="ig-badge ig-badge--warn">{{ 'account.notVerified' | translate }}</span>
+              <a routerLink="/verify" class="ig-inline-link">{{ 'account.verifyNow' | translate }}</a>
             }
           </dd>
 
-          <dt>Token balance</dt>
+          <dt>{{ 'account.tokenBalance' | translate }}</dt>
           <dd>
-            <strong>{{ u.tokenBalance }}</strong> {{ u.tokenBalance === 1 ? 'token' : 'tokens' }}
-            <a routerLink="/tokens" class="ig-inline-link">Buy more</a>
+            {{ u.tokenBalance | igPlural: 'token' }}
+            <a routerLink="/tokens" class="ig-inline-link">{{ 'account.buyMore' | translate }}</a>
           </dd>
 
-          <dt>Roles</dt>
+          <dt>{{ 'account.roles' | translate }}</dt>
           <dd>{{ u.roles.join(', ') }}</dd>
         </dl>
 
         <div class="ig-actions">
-          <button type="button" class="ig-btn ig-btn--primary" (click)="logout()">Sign out</button>
+          <button type="button" class="ig-btn ig-btn--primary" (click)="logout()">{{ 'account.signOut' | translate }}</button>
         </div>
 
         <div class="ig-danger-zone">
-          <h2>Delete your account</h2>
-          <p class="ig-muted">
-            We keep only what's needed to run your account (§10). To request deletion of your account
-            and associated data, send us a request and we'll process it.
-          </p>
+          <h2>{{ 'account.deleteTitle' | translate }}</h2>
+          <p class="ig-muted">{{ 'account.deleteBody' | translate }}</p>
           @if (!deletionRequested()) {
-            <a class="ig-btn ig-btn--ghost" [href]="deletionMailto()">Request account deletion</a>
+            <a class="ig-btn ig-btn--ghost" [href]="deletionMailto()">{{ 'account.requestDeletion' | translate }}</a>
             <button type="button" class="ig-linkbtn" (click)="deletionRequested.set(true)">
-              I've sent the request
+              {{ 'account.sentRequest' | translate }}
             </button>
           } @else {
-            <div class="ig-alert ig-alert--info">
-              Thanks — we'll process your deletion request and confirm by email.
-            </div>
+            <div class="ig-alert ig-alert--info">{{ 'account.deletionThanks' | translate }}</div>
           }
         </div>
         }
       } @else {
         <div class="ig-alert ig-alert--error">
-          We couldn't load your profile. <a routerLink="/login">Sign in again</a>.
+          {{ 'account.loadError' | translate }} <a routerLink="/login">{{ 'account.signInAgain' | translate }}</a>.
         </div>
       }
     </section>
@@ -116,6 +113,7 @@ import { AuthService } from '../../core/auth/auth.service';
 export class AccountComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   protected readonly user = this.auth.user;
   protected readonly loading = signal(true);
@@ -131,10 +129,8 @@ export class AccountComponent implements OnInit {
 
   deletionMailto(): string {
     const email = this.user()?.email ?? '';
-    const subject = encodeURIComponent('Account deletion request - InvestGuideUA');
-    const body = encodeURIComponent(
-      `Please delete my InvestGuideUA account and associated data.\n\nAccount email: ${email}`,
-    );
+    const subject = encodeURIComponent(this.translate.instant('account.mailtoSubject'));
+    const body = encodeURIComponent(this.translate.instant('account.mailtoBody', { email }));
     return `mailto:privacy@investguide.ua?subject=${subject}&body=${body}`;
   }
 

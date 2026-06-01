@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } fro
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { SearchResponse } from '../../core/investment/investment.models';
 import { parseApiError } from '../../core/api/api-error.util';
@@ -16,17 +17,17 @@ import { ResultsComponent } from '../search/results.component';
   selector: 'ig-history-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ResultsComponent, DecimalPipe],
+  imports: [RouterLink, ResultsComponent, DecimalPipe, TranslatePipe],
   template: `
     <section class="ig-card">
       @if (loading()) {
-        <p class="ig-muted">Loading…</p>
+        <p class="ig-muted">{{ 'common.loading' | translate }}</p>
       } @else if (notFound()) {
-        <h1>Search not found</h1>
-        <p class="ig-muted">This search doesn't exist or isn't yours.</p>
-        <p><a routerLink="/history">Back to history</a></p>
+        <h1>{{ 'historyDetail.notFoundTitle' | translate }}</h1>
+        <p class="ig-muted">{{ 'historyDetail.notFoundBody' | translate }}</p>
+        <p><a routerLink="/history">{{ 'historyDetail.backToHistory' | translate }}</a></p>
       } @else if (result()) {
-        <p><a routerLink="/history">← Back to history</a></p>
+        <p><a routerLink="/history">← {{ 'historyDetail.backToHistoryArrow' | translate }}</a></p>
         <h1>{{ result()!.amount / 100 | number: '1.2-2' }} {{ result()!.currency }}</h1>
         <ig-results [result]="result()!" />
       } @else if (error()) {
@@ -37,6 +38,7 @@ import { ResultsComponent } from '../search/results.component';
 })
 export class HistoryDetailComponent implements OnInit {
   private readonly investments = inject(InvestmentService);
+  private readonly translate = inject(TranslateService);
 
   /** Bound from the `:id` route param (withComponentInputBinding). */
   @Input() id?: string;
@@ -68,7 +70,7 @@ export class HistoryDetailComponent implements OnInit {
         if (is404) {
           this.notFound.set(true);
         } else {
-          this.error.set('Could not load this search. Please try again.');
+          this.error.set(this.translate.instant('historyDetail.loadError'));
         }
       },
     });

@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { parseApiError } from '../../core/api/api-error.util';
+import { PluralPipe } from '../../core/i18n/plural.pipe';
 
 type VerifyState = 'verifying' | 'success' | 'already' | 'invalid' | 'missing';
 
@@ -17,37 +19,34 @@ type VerifyState = 'verifying' | 'success' | 'already' | 'invalid' | 'missing';
   selector: 'ig-verify',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, PluralPipe],
   template: `
     <section class="ig-card ig-auth">
-      <h1>Email verification</h1>
+      <h1>{{ 'verify.title' | translate }}</h1>
 
       @switch (state()) {
         @case ('verifying') {
-          <p class="ig-muted">Verifying your email...</p>
+          <p class="ig-muted">{{ 'verify.verifying' | translate }}</p>
         }
         @case ('success') {
           <div class="ig-alert ig-alert--success">
-            Your email is verified. <strong>{{ balance() }} tokens</strong> have been added to your
-            account.
+            {{ 'verify.success' | translate: { tokens: (balance() | igPlural: 'token') } }}
           </div>
-          <p><a routerLink="/login">Sign in to start</a></p>
+          <p><a routerLink="/login">{{ 'verify.signInToStart' | translate }}</a></p>
         }
         @case ('already') {
-          <div class="ig-alert ig-alert--success">This email is already verified.</div>
-          <p class="ig-muted">No additional tokens were added.</p>
-          <p><a routerLink="/login">Go to sign in</a></p>
+          <div class="ig-alert ig-alert--success">{{ 'verify.already' | translate }}</div>
+          <p class="ig-muted">{{ 'verify.noAdditional' | translate }}</p>
+          <p><a routerLink="/login">{{ 'verify.goToSignIn' | translate }}</a></p>
         }
         @case ('invalid') {
-          <div class="ig-alert ig-alert--error">{{ errorMessage() }}</div>
-          <p class="ig-muted">
-            The link may be expired or already used. Register again to receive a fresh link.
-          </p>
-          <p><a routerLink="/register">Back to register</a></p>
+          <div class="ig-alert ig-alert--error">{{ errorMessage() || ('verify.defaultError' | translate) }}</div>
+          <p class="ig-muted">{{ 'verify.invalidHint' | translate }}</p>
+          <p><a routerLink="/register">{{ 'verify.backToRegister' | translate }}</a></p>
         }
         @case ('missing') {
-          <div class="ig-alert ig-alert--error">No verification token was provided in the link.</div>
-          <p><a routerLink="/register">Back to register</a></p>
+          <div class="ig-alert ig-alert--error">{{ 'verify.missing' | translate }}</div>
+          <p><a routerLink="/register">{{ 'verify.backToRegister' | translate }}</a></p>
         }
       }
     </section>
@@ -62,7 +61,8 @@ export class VerifyComponent implements OnInit {
 
   readonly state = signal<VerifyState>('verifying');
   readonly balance = signal(0);
-  readonly errorMessage = signal('This verification link is invalid or has expired.');
+  /** Empty by default; the invalid state shows the server message, else a translated fallback. */
+  readonly errorMessage = signal('');
 
   ngOnInit(): void {
     const token = (this.token ?? '').trim();

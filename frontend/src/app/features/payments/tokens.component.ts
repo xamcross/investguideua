@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { PaymentService } from '../../core/payments/payment.service';
 import { TokenPack } from '../../core/payments/payment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
 import { parseApiError } from '../../core/api/api-error.util';
+import { PluralPipe } from '../../core/i18n/plural.pipe';
 
 /** sessionStorage key carrying the paymentId across the monobank redirect to the result page. */
 export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
@@ -22,21 +24,18 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
   selector: 'ig-tokens',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, PluralPipe],
   template: `
     <section class="ig-card">
-      <h1>Buy tokens</h1>
-      <p class="ig-muted">
-        Each investment search costs 1 token. You currently have
-        <strong>{{ auth.tokenBalance() }}</strong> tokens.
-      </p>
+      <h1>{{ 'tokens.title' | translate }}</h1>
+      <p class="ig-muted">{{ 'tokens.intro' | translate: { balance: (auth.tokenBalance() | igPlural: 'token') } }}</p>
 
       @if (loading()) {
-        <p class="ig-muted">Loading packs...</p>
+        <p class="ig-muted">{{ 'tokens.loadingPacks' | translate }}</p>
       } @else if (loadError()) {
         <div class="ig-alert ig-alert--error">{{ loadError() }}</div>
       } @else if (packs().length === 0) {
-        <div class="ig-alert ig-alert--info">No token packs are available right now.</div>
+        <div class="ig-alert ig-alert--info">{{ 'tokens.empty' | translate }}</div>
       } @else {
         @if (buyError()) {
           <div class="ig-alert ig-alert--error">{{ buyError() }}</div>
@@ -44,27 +43,24 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
         <ul class="ig-packs">
           @for (pack of packs(); track pack.id) {
             <li class="ig-pack">
-              <div class="ig-pack__tokens">{{ pack.tokens }} tokens</div>
+              <div class="ig-pack__tokens">{{ pack.tokens | igPlural: 'token' }}</div>
               <div class="ig-pack__price">{{ price(pack) }}</div>
-              <div class="ig-pack__per">{{ perToken(pack) }} / token</div>
+              <div class="ig-pack__per">{{ 'tokens.perToken' | translate: { price: perToken(pack) } }}</div>
               <button
                 type="button"
                 class="ig-btn ig-btn--primary"
                 [disabled]="buyingId() !== null"
                 (click)="buy(pack)"
               >
-                {{ buyingId() === pack.id ? 'Redirecting...' : 'Buy' }}
+                {{ (buyingId() === pack.id ? 'tokens.redirecting' : 'tokens.buy') | translate }}
               </button>
             </li>
           }
         </ul>
-        <p class="ig-muted ig-fineprint">
-          Payments are processed securely by monobank (Plata by mono). A fiscal receipt is emailed to
-          you on success.
-        </p>
+        <p class="ig-muted ig-fineprint">{{ 'tokens.fineprint' | translate }}</p>
       }
 
-      <p class="ig-back"><a routerLink="/search">Back to search</a></p>
+      <p class="ig-back"><a routerLink="/search">{{ 'tokens.backToSearch' | translate }}</a></p>
     </section>
   `,
   styles: [
@@ -104,6 +100,7 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
 export class TokensComponent implements OnInit {
   protected readonly auth = inject(AuthService);
   private readonly payments = inject(PaymentService);
+  private readonly translate = inject(TranslateService);
 
   readonly packs = signal<TokenPack[]>([]);
   readonly loading = signal(true);
@@ -118,7 +115,7 @@ export class TokensComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.loadError.set('Could not load token packs. Please try again.');
+        this.loadError.set(this.translate.instant('tokens.loadError'));
         this.loading.set(false);
       },
     });
