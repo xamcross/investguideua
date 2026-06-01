@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { HistoryPage } from '../../core/investment/investment.models';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
@@ -14,7 +14,7 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   selector: 'ig-history',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, DecimalPipe, TranslatePipe, PluralPipe],
+  imports: [RouterLink, DatePipe, DecimalPipe, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card">
       <h1>{{ 'history.title' | translate }}</h1>

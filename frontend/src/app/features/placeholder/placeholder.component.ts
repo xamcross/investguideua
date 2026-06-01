@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Lightweight stand-in for §12 pages whose feature tickets are not yet implemented (Search,
@@ -11,7 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'ig-placeholder',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   template: `
     <section class="ig-card">
       <h1>{{ heading || ('placeholder.comingSoon' | translate) }}</h1>

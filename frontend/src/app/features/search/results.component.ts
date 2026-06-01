@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { InvestmentOption, SearchResponse } from '../../core/investment/investment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
 
@@ -13,7 +13,7 @@ import { formatMinorUnits } from '../../core/investment/money.util';
   selector: 'ig-results',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   template: `
     @if (result) {
       @if (result.options.length === 0) {

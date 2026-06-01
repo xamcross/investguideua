@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from './core/auth/auth.service';
 import { NotificationHostComponent } from './core/errors/notification-host.component';
 import { LanguageService } from './core/i18n/language.service';
@@ -23,7 +23,7 @@ import { PluralPipe } from './core/i18n/plural.pipe';
     RouterLink,
     RouterLinkActive,
     NotificationHostComponent,
-    TranslatePipe,
+    TranslateModule,
     PluralPipe,
   ],
   template: `
@@ -35,6 +35,7 @@ import { PluralPipe } from './core/i18n/plural.pipe';
         </a>
 
         <nav class="ig-nav">
+          <div class="ig-nav__actions">
           @if (auth.isAuthenticated()) {
             <a routerLink="/search" routerLinkActive="is-active">{{ 'nav.search' | translate }}</a>
             <a routerLink="/history" routerLinkActive="is-active">{{ 'nav.history' | translate }}</a>
@@ -49,6 +50,7 @@ import { PluralPipe } from './core/i18n/plural.pipe';
             <a routerLink="/login" routerLinkActive="is-active">{{ 'nav.signIn' | translate }}</a>
             <a routerLink="/register" routerLinkActive="is-active" class="ig-btn ig-btn--nav">{{ 'nav.register' | translate }}</a>
           }
+          </div>
 
           <button type="button" class="ig-lang" (click)="lang.toggle()"
                   [attr.aria-label]="(lang.current() === 'uk' ? 'lang.toEnglish' : 'lang.toUkrainian') | translate">
@@ -83,7 +85,8 @@ import { PluralPipe } from './core/i18n/plural.pipe';
         width: 14px; height: 14px; border-radius: 50%;
         background: linear-gradient(180deg, var(--ig-blue) 50%, var(--ig-yellow) 50%);
       }
-      .ig-nav { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+      .ig-nav { display: flex; align-items: center; gap: 1rem; }
+      .ig-nav__actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
       .ig-nav a { text-decoration: none; color: var(--ig-muted); font-weight: 600; font-size: 0.92rem; }
       .ig-nav a.is-active { color: var(--ig-blue); }
       .ig-balance { background: rgba(0, 87, 183, 0.08); padding: 0.25rem 0.6rem; border-radius: 999px; color: var(--ig-blue) !important; }
@@ -92,13 +95,24 @@ import { PluralPipe } from './core/i18n/plural.pipe';
       .ig-linkbtn:hover { color: var(--ig-danger); }
       .ig-nav a, .ig-nav button { white-space: nowrap; }
       .ig-lang {
-        display: inline-flex; align-items: center; gap: 0.1rem; min-height: 32px;
-        padding: 0.2rem 0.55rem; border: 1px solid var(--ig-border); border-radius: 999px;
-        background: none; font: inherit; font-size: 0.82rem; font-weight: 700;
-        color: var(--ig-muted); cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.1rem;
+        min-height: 44px; padding: 0.4rem 0.7rem; border: 1px solid var(--ig-border);
+        border-radius: 999px; background: none; font: inherit; font-size: 0.82rem;
+        font-weight: 700; color: var(--ig-muted); cursor: pointer;
       }
       .ig-lang span.is-active { color: var(--ig-blue); }
       .ig-lang:focus-visible { outline: 2px solid var(--ig-blue); outline-offset: 2px; }
+      @media (max-width: 560px) {
+        /* Fixed two-row grid so the structure is IDENTICAL in every language: row 1 = brand + UA/EN
+           toggle, row 2 = the full-width actions (they get the whole row, so longer Ukrainian labels
+           still fit on one line and never reflow the header). The brand spans both rows and is
+           vertically centred against them. */
+        .ig-topbar__inner { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 0.75rem; row-gap: 0.5rem; }
+        .ig-brand { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
+        .ig-nav { display: contents; }
+        .ig-lang { grid-column: 2; grid-row: 1; justify-self: end; }
+        .ig-nav__actions { grid-column: 1 / -1; grid-row: 2; justify-content: flex-end; align-self: end; gap: 0.6rem 0.75rem; }
+      }
       .ig-flag { height: 4px; background: linear-gradient(90deg, var(--ig-blue) 50%, var(--ig-yellow) 50%); }
       .ig-sr-only {
         position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

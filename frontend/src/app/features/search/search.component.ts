@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { SearchRequestBody, SearchResponse } from '../../core/investment/investment.models';
@@ -29,7 +29,7 @@ import { ResultsComponent } from './results.component';
   selector: 'ig-search',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ResultsComponent, DecimalPipe, TranslatePipe, PluralPipe],
+  imports: [ReactiveFormsModule, RouterLink, ResultsComponent, DecimalPipe, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card">
       <h1>{{ 'search.title' | translate }}</h1>

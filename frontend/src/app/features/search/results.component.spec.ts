@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideTranslateService, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ResultsComponent } from './results.component';
 import { SearchResponse } from '../../core/investment/investment.models';
 
@@ -40,8 +40,7 @@ describe('ResultsComponent (QA2: disclaimer rendering / AC #5)', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultsComponent],
-      providers: [provideTranslateService({ fallbackLang: 'en', lang: 'en' })],
+      imports: [ResultsComponent, TranslateModule.forRoot()],
     }).compileComponents();
     // Seed just the keys this component renders so the `translate` pipe resolves to real copy
     // (no HTTP loader in unit tests).

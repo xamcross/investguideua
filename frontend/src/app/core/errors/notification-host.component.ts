@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from './notification.service';
 
 /**
@@ -13,7 +13,7 @@ import { NotificationService } from './notification.service';
   selector: 'ig-notification-host',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   template: `
     <div class="ig-toasts" aria-live="polite" aria-atomic="true">
       @for (toast of notifications.toasts(); track toast.id) {

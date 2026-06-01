@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProviderService } from '../../core/catalog/provider.service';
 import { Provider } from '../../core/catalog/provider.models';
 import { ProviderCategory, RiskLevel } from '../../core/investment/investment.models';
@@ -32,7 +32,7 @@ const RISK_KEYS: Record<RiskLevel, string> = {
   selector: 'ig-providers',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   template: `
     <section class="ig-card">
       <h1>{{ 'providers.title' | translate }}</h1>

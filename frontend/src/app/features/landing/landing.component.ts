@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 
 /**
@@ -12,7 +12,7 @@ import { AuthService } from '../../core/auth/auth.service';
   selector: 'ig-landing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   template: `
     <section class="ig-hero ig-card">
       <h1>{{ 'landing.title' | translate }}</h1>

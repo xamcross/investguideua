@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } fro
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { SearchResponse } from '../../core/investment/investment.models';
 import { parseApiError } from '../../core/api/api-error.util';
@@ -17,7 +17,7 @@ import { ResultsComponent } from '../search/results.component';
   selector: 'ig-history-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ResultsComponent, DecimalPipe, TranslatePipe],
+  imports: [RouterLink, ResultsComponent, DecimalPipe, TranslateModule],
   template: `
     <section class="ig-card">
       @if (loading()) {

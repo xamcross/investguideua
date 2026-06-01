@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { PaymentService } from '../../core/payments/payment.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
@@ -31,7 +31,7 @@ type ResultState = 'polling' | 'success' | 'failed' | 'processing' | 'missing';
   selector: 'ig-payment-result',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card ig-result">
       <h1>{{ 'paymentResult.title' | translate }}</h1>

@@ -36,7 +36,7 @@ export class LanguageService {
   /** Wire ngx-translate and apply the resolved startup language. Call once at app start. */
   init(): void {
     this.translate.addLangs([...SUPPORTED_LANGS]);
-    this.translate.setFallbackLang(DEFAULT_LANG);
+    this.translate.setDefaultLang(DEFAULT_LANG);
     this.apply(this.resolveInitial(), false);
   }
 

@@ -1,8 +1,8 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding, TitleStrategy } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { provideTranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpBackend, HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { globalErrorInterceptor } from './core/errors/global-error.interceptor';
@@ -10,14 +10,33 @@ import { DEFAULT_LANG } from './core/i18n/language.service';
 import { TranslatedTitleStrategy } from './core/i18n/translated-title.strategy';
 
 /**
+ * Builds the runtime translation loader. Dictionaries are fetched from `/i18n/<lang>.json`
+ * (served from `public/i18n` via the `angular.json` assets entry).
+ *
+ * It is built on HttpBackend (the raw handler), NOT HttpClient, so translation-file requests bypass
+ * the auth + global-error interceptors. That is both correct (static assets need no auth header and
+ * must not raise the global error toast) and necessary: routing HttpClient through authInterceptor
+ * (which injects Router) while the TitleStrategy -> TranslateService chain is constructed during
+ * Router creation forms an NG0200 circular dependency. HttpBackend severs that cycle.
+ *
+ * ngx-translate is pinned to the 15.x line because it is compiled against Angular 16 and links
+ * cleanly under Angular 17.3. The 16/17 majors are built against Angular 18/20 and their Ivy
+ * partial declarations are NOT linkable by the Angular 17 compiler (they crash app bootstrap with a
+ * DI "reading 'root'" error). 15.x is the correct version-matched choice for this app.
+ */
+export function createTranslateLoader(handler: HttpBackend): TranslateHttpLoader {
+  return new TranslateHttpLoader(new HttpClient(handler), 'i18n/', '.json');
+}
+
+/**
  * Root application providers (ticket FE-CORE1). Standalone bootstrap - no NgModules.
  * `withComponentInputBinding` lets routed components receive route/query params as @Input
  * (used by the Verify page to read `?token=`).
  *
  * i18n (ngx-translate): JSON dictionaries are loaded at runtime from `/i18n/<lang>.json` so the user
- * can switch language live with no rebuild. Ukrainian is the fallback/default; the resolved startup
- * language is applied by LanguageService.init in the shell. TranslatedTitleStrategy localizes the
- * document/tab title from a translation key on each route.
+ * can switch language live with no rebuild. Ukrainian is the default; the resolved startup language
+ * is applied by LanguageService.init in the shell. TranslatedTitleStrategy localizes the document
+ * title from a translation key on each route.
  */
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,11 +48,16 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([globalErrorInterceptor, authInterceptor]),
     ),
-    provideTranslateService({
-      fallbackLang: DEFAULT_LANG,
-      lang: DEFAULT_LANG,
-      loader: provideTranslateHttpLoader({ prefix: 'i18n/', suffix: '.json' }),
-    }),
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        defaultLanguage: DEFAULT_LANG,
+        loader: {
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader,
+          deps: [HttpBackend],
+        },
+      }),
+    ),
     { provide: TitleStrategy, useClass: TranslatedTitleStrategy },
   ],
 };

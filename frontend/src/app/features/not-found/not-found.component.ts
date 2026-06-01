@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 /** 404 fallback for unknown routes (FE-CORE1 DoD: unknown route -> a 404/redirect). */
 @Component({
   selector: 'ig-not-found',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   template: `
     <section class="ig-card">
       <h1>{{ 'notFound.title' | translate }}</h1>

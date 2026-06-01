@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { parseApiError } from '../../core/api/api-error.util';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
@@ -19,7 +19,7 @@ type VerifyState = 'verifying' | 'success' | 'already' | 'invalid' | 'missing';
   selector: 'ig-verify',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card ig-auth">
       <h1>{{ 'verify.title' | translate }}</h1>

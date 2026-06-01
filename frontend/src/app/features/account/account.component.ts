@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
 
@@ -16,7 +16,7 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   selector: 'ig-account',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card">
       <h1>{{ 'account.title' | translate }}</h1>

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { PaymentService } from '../../core/payments/payment.service';
 import { TokenPack } from '../../core/payments/payment.models';
@@ -24,7 +24,7 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
   selector: 'ig-tokens',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslatePipe, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card">
       <h1>{{ 'tokens.title' | translate }}</h1>
