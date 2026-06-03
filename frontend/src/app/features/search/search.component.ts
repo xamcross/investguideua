@@ -58,8 +58,8 @@ import { ResultsComponent } from './results.component';
           <div class="ig-field">
             <label for="currency">{{ 'search.currency' | translate }}</label>
             <select id="currency" class="ig-select" formControlName="currency">
-              <option value="UAH">UAH</option>
-              <option value="USD">USD</option>
+              <option value="UAH">{{ 'UAH' | igCurrency }}</option>
+              <option value="USD">{{ 'USD' | igCurrency }}</option>
             </select>
           </div>
         </div>
@@ -121,7 +121,11 @@ import { ResultsComponent } from './results.component';
     `
       .ig-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
       @media (max-width: 520px) { .ig-grid2 { grid-template-columns: 1fr; } }
-      .ig-form--wide { max-width: 560px; }
+      /* Fill the card width. This is an explicit override (not a deletion): the global
+         .ig-form rule caps width at 420px, so removing this line would make the form narrower
+         and re-introduce the "crammed left" defect (005-search-ui-fixes US3). The .ig-grid2
+         1fr/1fr columns then distribute the width evenly; the 520px rule keeps mobile legible. */
+      .ig-form--wide { max-width: none; }
       .ig-search__head h1 { margin-top: 0; }
     `,
   ],

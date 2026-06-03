@@ -27,21 +27,42 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiBaseUrl;
 
-  /** In-memory access token (never persisted). */
-  #accessToken: string | null = null;
+  /**
+   * In-memory access token (never persisted). Held in a SIGNAL so `isAuthenticated` and the shell
+   * nav react to login/refresh/logout. A plain field froze `isAuthenticated` (a computed with no
+   * signal dependency memoizes its first value), which let a logged-in user keep seeing the guest
+   * nav (005-search-ui-fixes US1).
+   */
+  readonly #accessToken = signal<string | null>(null);
+
+  /**
+   * Whether the startup silent refresh has settled (success OR failure). Until it has, `authStatus`
+   * is `unknown` so the shell can render a neutral nav and never flash guest CTAs at a logged-in
+   * user during session restore (US1-5).
+   */
+  readonly #authResolved = signal(false);
 
   /** Reactive current-user state for the shell/nav and guards. */
   private readonly _user = signal<UserProfile | null>(null);
   readonly user = this._user.asReadonly();
-  readonly isAuthenticated = computed(() => this.#accessToken !== null);
+  readonly isAuthenticated = computed(() => this.#accessToken() !== null);
   readonly tokenBalance = computed(() => this._user()?.tokenBalance ?? 0);
   readonly emailVerified = computed(() => this._user()?.emailVerified ?? false);
+
+  /**
+   * Tri-state session status for the shell nav: `unknown` before the startup refresh resolves,
+   * then `authenticated` / `guest`. Derived from the access-token signal (the source of truth) so a
+   * `loadMe()`-only profile without a token never reads as authenticated.
+   */
+  readonly authStatus = computed<'unknown' | 'authenticated' | 'guest'>(() =>
+    !this.#authResolved() ? 'unknown' : this.#accessToken() !== null ? 'authenticated' : 'guest',
+  );
 
   /** Single-flight refresh: while a refresh is in progress, all callers share this observable. */
   #refresh$: Observable<string> | null = null;
 
   get accessToken(): string | null {
-    return this.#accessToken;
+    return this.#accessToken();
   }
 
   // ---- public flows -------------------------------------------------------------------
@@ -118,8 +139,10 @@ export class AuthService {
 
   /** Drop in-memory session state (called on refresh failure / logout). */
   clearSession(): void {
-    this.#accessToken = null;
+    this.#accessToken.set(null);
     this._user.set(null);
+    // The session is now definitively resolved as "no session" -> nav can show guest CTAs.
+    this.#authResolved.set(true);
   }
 
   /**
@@ -134,7 +157,9 @@ export class AuthService {
   }
 
   private applySession(res: AuthResponse): void {
-    this.#accessToken = res.accessToken;
+    this.#accessToken.set(res.accessToken);
     this._user.set(res.user);
+    // A live session is established -> resolved as authenticated.
+    this.#authResolved.set(true);
   }
 }
