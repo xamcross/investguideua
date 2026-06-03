@@ -48,7 +48,8 @@ winget install Apache.Maven
 
 1. Install Docker Desktop (see above) and make sure it is running.
 2. `Copy-Item .env.example .env`  *(or run `.\scripts\setup-env.ps1`, which also generates `JWT_SECRET`)*
-3. Open `.env` and set `ANTHROPIC_API_KEY`, `LIQPAY_PUBLIC_KEY`, `LIQPAY_PRIVATE_KEY`.
+3. Open `.env` and set `ANTHROPIC_API_KEY`. `MONO_TOKEN` (the monobank "Plata by mono" merchant
+   X-Token) is optional at startup — leave it blank to run the app with payment creation disabled.
 4. If you did not run `setup-env.ps1`, generate a `JWT_SECRET` and paste it into `.env`:
    ```powershell
    $b=[byte[]]::new(48);[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b);[Convert]::ToBase64String($b)
@@ -75,7 +76,7 @@ Equivalent manual steps in PowerShell:
 
 ```powershell
 cd backend
-$env:ANTHROPIC_API_KEY="..."; $env:LIQPAY_PUBLIC_KEY="..."; $env:LIQPAY_PRIVATE_KEY="..."
+$env:ANTHROPIC_API_KEY="..."   # $env:MONO_TOKEN="..." is optional at startup
 $b=[byte[]]::new(48);[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
 $env:JWT_SECRET=[Convert]::ToBase64String($b)
 mvn -q -DskipTests package
@@ -90,10 +91,12 @@ needs no secrets or MongoDB.
 
 All `[CONFIG]` values live in typed `@ConfigurationProperties` beans under
 `com.investguide.config` and are overridable via environment without a rebuild (see
-`application.yml` and `.env.example`). The five secrets — `ANTHROPIC_API_KEY`,
-`LIQPAY_PUBLIC_KEY`, `LIQPAY_PRIVATE_KEY`, `JWT_SECRET`, `MONGODB_URI` — are read from the
-environment only. The app **fails fast at startup** with a clear message if a required secret is
-missing, and no secret is ever logged or shipped to the client.
+`application.yml` and `.env.example`). Four secrets — `ANTHROPIC_API_KEY`, `JWT_SECRET`,
+`MONGODB_URI`, and `MONO_TOKEN` (monobank merchant X-Token) — are read from the environment only.
+The app **fails fast at startup** with a clear message if a required secret (`ANTHROPIC_API_KEY`,
+`JWT_SECRET`, or `MONGODB_URI`) is missing; `MONO_TOKEN` is intentionally optional at startup
+(payment creation returns `502` until it is set, while the rest of the app runs). No secret is
+ever logged or shipped to the client.
 
 ## Error envelope (X3)
 
