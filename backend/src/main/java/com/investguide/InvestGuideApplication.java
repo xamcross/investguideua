@@ -2,6 +2,7 @@ package com.investguide;
 
 import com.investguide.config.AppProperties;
 import com.investguide.config.LlmProperties;
+import com.investguide.config.MailProperties;
 import com.investguide.config.PaymentProperties;
 import com.investguide.config.SecurityProperties;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +19,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties({
         AppProperties.class,
         LlmProperties.class,
+        MailProperties.class,
         PaymentProperties.class,
         SecurityProperties.class
 })

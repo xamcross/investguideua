@@ -109,6 +109,8 @@ class AuthServiceTest {
                 .extracting(e -> ((ApiException) e).code())
                 .isEqualTo(ErrorCode.EMAIL_TAKEN);
         verify(userRepository, never()).save(any());
+        // FR-010 (003): a rejected registration must never trigger a verification email.
+        verify(verificationNotifier, never()).sendVerification(anyString(), anyString());
     }
 
     // ---- BE-A3 ---------------------------------------------------------------------------

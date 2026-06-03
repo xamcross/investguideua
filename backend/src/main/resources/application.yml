@@ -33,6 +33,12 @@ management:
       probes:
         enabled: true
       show-details: never                # no internal detail to unauthenticated callers
+  health:
+    # Email is a SOFT dependency (003): spring-boot-starter-mail would otherwise auto-register a
+    # MailHealthIndicator that pings SMTP and flips /actuator/health DOWN when mail is unreachable/
+    # misconfigured, failing the compose healthcheck. Disable it so mail never gates liveness (FR-004).
+    mail:
+      enabled: false
 
 app:
   version: 1.0.0
@@ -56,6 +62,23 @@ app:
     uah-per-usd: 44.5                      # USD->UAH estimate for seed-time cost check (~44.3 May 2026)
   cors:
     allowed-origin: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:4200}
+
+mail:
+  # Verification-email delivery (003). OPTIONAL: default OFF so the app builds, starts, and registers
+  # users with email disabled (a descriptive line is logged once at startup). Set enabled=true AND
+  # host/from (+ creds) to actually send; incomplete config degrades to disabled + a WARN (FR-004).
+  enabled: ${MAIL_ENABLED:false}
+  host: ${MAIL_HOST:}                     # required when enabled=true; blank == absent
+  port: ${MAIL_PORT:587}                  # bound blank-safe (String) so a blank MAIL_PORT cannot crash startup
+  username: ${MAIL_USERNAME:}             # SECRET (env only) - never logged
+  password: ${MAIL_PASSWORD:}             # SECRET (env only) - never logged
+  from: ${MAIL_FROM:}                     # sender address; required when enabled=true
+  start-tls: ${MAIL_START_TLS:true}
+  connect-timeout-ms: 7000                # bound a slow/hung SMTP server (mirrors mono/llm 7s)
+  read-timeout-ms: 7000
+  # DEV ONLY: when true, the disabled/fallback notifier logs the raw verification link for local
+  # testing. MUST remain false in production (SC-005).
+  log-link: ${MAIL_LOG_LINK:false}
 
 llm:
   api-key: ${ANTHROPIC_API_KEY}          # SECRET — required, no default (fail fast)
