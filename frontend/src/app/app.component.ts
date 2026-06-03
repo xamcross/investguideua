@@ -14,6 +14,12 @@ import { PluralPipe } from './core/i18n/plural.pipe';
  * Because the access token is in-memory only (FE-CORE2), a full page reload loses it. On startup
  * we attempt a single silent `/auth/refresh`: if the HttpOnly refresh cookie is present and valid,
  * the session is transparently restored; otherwise the user stays logged out (no error shown).
+ *
+ * The nav branches on the tri-state `auth.authStatus()`: while the startup refresh is still
+ * in flight the status is `unknown` and the action area renders neither the account menu nor the
+ * guest CTAs, so a logged-in user never flashes "Sign in / Register" during restore (005 US1-5).
+ * Once the refresh settles (success -> `applySession`, failure -> `clearSession`, both of which
+ * mark the session resolved) the status flips to `authenticated` / `guest` reactively.
  */
 @Component({
   selector: 'ig-root',
@@ -38,7 +44,7 @@ import { PluralPipe } from './core/i18n/plural.pipe';
 
         <nav class="ig-nav" id="ig-primary-nav" [class.is-open]="menuOpen()">
           <div class="ig-nav__actions">
-          @if (auth.isAuthenticated()) {
+          @if (auth.authStatus() === 'authenticated') {
             <a routerLink="/search" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
             <a routerLink="/history" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
             <a routerLink="/providers" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
@@ -48,10 +54,12 @@ import { PluralPipe } from './core/i18n/plural.pipe';
             </a>
             <a routerLink="/account" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.account' | translate }}</a>
             <button type="button" class="ig-linkbtn" (click)="logout()">{{ 'nav.signOut' | translate }}</button>
-          } @else {
+          } @else if (auth.authStatus() === 'guest') {
             <a routerLink="/login" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.signIn' | translate }}</a>
             <a routerLink="/register" routerLinkActive="is-active" class="ig-btn ig-btn--nav" (click)="menuOpen.set(false)">{{ 'nav.register' | translate }}</a>
           }
+          <!-- authStatus 'unknown' (startup refresh in flight): render neither menu nor guest CTAs
+               so a logged-in user never flashes the Sign in / Register buttons (US1-5). -->
           </div>
         </nav>
 
