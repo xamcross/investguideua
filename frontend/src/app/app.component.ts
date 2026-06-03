@@ -104,15 +104,19 @@ import { PluralPipe } from './core/i18n/plural.pipe';
       }
       .ig-nav { flex: 1; display: flex; justify-content: flex-end; }
       .ig-nav__actions { display: flex; align-items: center; gap: 1.1rem; }
-      .ig-nav a {
+      /* Base nav-link styling targets plain text links only; the balance pill and the
+         register CTA keep their own padding/look (excluded so the more-specific .ig-nav a
+         rule does not strip their horizontal padding or add the underline). */
+      .ig-nav a:not(.ig-balance):not(.ig-btn--nav) {
         text-decoration: none; color: var(--muted); font-weight: 600; font-size: .92rem;
         position: relative; padding: .2rem 0; white-space: nowrap;
       }
-      .ig-nav a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
+      .ig-nav a:not(.ig-balance):not(.ig-btn--nav)::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
         background: var(--gold-500); transition: right .25s var(--ease); }
-      .ig-nav a:hover { color: var(--ink); text-decoration: none; }
-      .ig-nav a:hover::after, .ig-nav a.is-active::after { right: 0; }
-      .ig-nav a.is-active { color: var(--ink); }
+      .ig-nav a:not(.ig-balance):not(.ig-btn--nav):hover { color: var(--ink); text-decoration: none; }
+      .ig-nav a:not(.ig-balance):not(.ig-btn--nav):hover::after,
+      .ig-nav a:not(.ig-balance):not(.ig-btn--nav).is-active::after { right: 0; }
+      .ig-nav a:not(.ig-balance):not(.ig-btn--nav).is-active { color: var(--ink); }
       .ig-balance {
         font-family: var(--font-mono); font-weight: 700; font-size: .82rem; color: var(--navy-900) !important;
         background: linear-gradient(180deg, var(--gold-100), var(--gold-300));
