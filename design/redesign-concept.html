@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<title>InvestGuideUA — Redesign Concept</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Institutional-trust / Ukrainian-identity redesign concept for InvestGuideUA." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!--
+  Display:  Playfair Display  — high-contrast didone serif, full Cyrillic. Editorial gravitas.
+  UI/Body:  Manrope           — modern geometric-humanist sans, full Cyrillic. Trustworthy, clean.
+  Figures:  JetBrains Mono    — tabular numerals for money/returns. Precision / "ledger" feel.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;0,900;1,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================================
+   DESIGN TOKENS  — these are written to drop straight into Angular styles.css
+   ========================================================================== */
+:root {
+  /* Brand / identity */
+  --navy-900: #081427;   /* deepest institutional navy (hero, footer)            */
+  --navy-800: #0d1f3c;
+  --navy-700: #13294b;
+  --blue-600: #0057b7;   /* Ukraine flag blue — primary interactive             */
+  --blue-500: #1f6fd4;
+  --blue-300: #7fb0e8;
+
+  --gold-700: #7a5a0c;   /* dark gold — passes AA (>=4.5:1) for small text on paper */
+  --gold-600: #b8860b;
+  --gold-500: #d9a823;   /* refined wheat-gold accent (NOT lemon flag yellow)   */
+  --gold-300: #f0cf6b;
+  --gold-100: #f7ecc9;
+
+  /* Neutrals — warm "document paper", not clinical white */
+  --paper:    #f6f3ec;   /* page background                                     */
+  --surface:  #ffffff;
+  --surface-2:#fbf9f4;
+  --ink:      #101b30;   /* near-navy text                                      */
+  --muted:    #5c6678;
+  --line:     #e6dfd1;   /* warm hairline                                       */
+  --line-2:   #d8cfbb;
+
+  /* Status (kept distinct from gold so risk reads instantly) */
+  --risk-low-bg:#e7f3ea;  --risk-low-fg:#1e7a3c;
+  --risk-mod-bg:#fbf0d3;  --risk-mod-fg:#8a6310;
+  --risk-high-bg:#fbe4e1; --risk-high-fg:#b3261e;
+
+  --radius:   14px;
+  --radius-sm:9px;
+  --shadow-sm: 0 1px 2px rgba(8,20,39,.06), 0 2px 8px rgba(8,20,39,.04);
+  --shadow-md: 0 10px 30px -12px rgba(8,20,39,.25);
+  --shadow-lg: 0 30px 60px -20px rgba(8,20,39,.35);
+
+  --maxw: 1120px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Manrope", system-ui, sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+  /* Layered atmosphere: faint wheat-field topography + warm radial light + grain.
+     Solid color is the AI-slop default; depth is what makes it feel designed. */
+  background-image:
+    radial-gradient(120% 80% at 85% -10%, rgba(217,168,35,.10), transparent 55%),
+    radial-gradient(90% 60% at -10% 0%, rgba(0,87,183,.07), transparent 50%);
+  background-attachment: fixed;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Grain overlay — subtle film texture over the whole page */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 1;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a { color: var(--blue-600); text-decoration: none; }
+
+::selection { background: var(--gold-300); color: var(--navy-900); }
+
+:focus-visible {
+  outline: 2.5px solid var(--blue-500);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.shell { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+.skip {
+  position: absolute; left: -999px; top: 0;
+  background: var(--navy-900); color: #fff; padding: 12px 18px; border-radius: 0 0 8px 0;
+  z-index: 10000;
+}
+.skip:focus { left: 0; }
+
+/* ============================================================================
+   TOP BAR
+   ========================================================================== */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(246,243,236,.82);
+  backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar__row {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 72px; gap: 24px;
+}
+.brand { display: inline-flex; align-items: center; gap: 12px; }
+.brand__mark {
+  width: 30px; height: 30px; border-radius: 8px; position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--blue-600) 0 50%, var(--gold-500) 50% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.25), var(--shadow-sm);
+  transform: rotate(-6deg);
+}
+.brand__name {
+  font-family: "Playfair Display", serif;
+  font-weight: 800; font-size: 1.4rem; letter-spacing: -.01em; color: var(--ink);
+}
+.brand__name b { color: var(--blue-600); font-weight: 800; }
+
+.nav { display: flex; align-items: center; gap: 26px; }
+.nav__links { display: flex; align-items: center; gap: 22px; }
+.nav__links a {
+  color: var(--muted); font-weight: 600; font-size: .94rem; position: relative; padding: 4px 0;
+}
+.nav__links a::after {
+  content: ""; position: absolute; left: 0; bottom: -2px; height: 2px; width: 0;
+  background: var(--gold-500); transition: width .28s var(--ease);
+}
+.nav__links a:hover, .nav__links a.active { color: var(--ink); }
+.nav__links a:hover::after, .nav__links a.active::after { width: 100%; }
+
+.balance {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: .82rem;
+  color: var(--navy-800);
+  background: linear-gradient(180deg, var(--gold-100), #fff);
+  border: 1px solid var(--gold-300);
+  padding: 6px 12px; border-radius: 999px;
+}
+.balance .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-500); box-shadow: 0 0 0 3px rgba(217,168,35,.25); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: inherit; font-weight: 700; font-size: .95rem; cursor: pointer;
+  padding: 12px 22px; border-radius: 10px; border: 1px solid transparent;
+  transition: transform .18s var(--ease), box-shadow .25s var(--ease), background .2s;
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary {
+  background: var(--blue-600); color: #fff;
+  box-shadow: 0 6px 18px -6px rgba(0,87,183,.55);
+}
+.btn--primary:hover { background: var(--blue-500); box-shadow: 0 10px 26px -8px rgba(0,87,183,.6); transform: translateY(-1px); }
+.btn--ghost { background: transparent; color: var(--navy-800); border-color: var(--line-2); }
+.btn--ghost:hover { border-color: var(--navy-800); background: rgba(13,31,60,.04); }
+.btn--gold {
+  background: linear-gradient(180deg, var(--gold-500), var(--gold-600)); color: var(--navy-900);
+  box-shadow: 0 6px 18px -6px rgba(184,134,11,.6);
+}
+.btn--gold:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -8px rgba(184,134,11,.7); }
+
+.lang {
+  font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: .76rem;
+  background: none; border: 1px solid var(--line-2); border-radius: 999px;
+  padding: 7px 12px; cursor: pointer; color: var(--muted); letter-spacing: .04em;
+}
+.lang .on { color: var(--blue-600); }
+.lang:hover { border-color: var(--navy-800); }
+
+/* ============================================================================
+   HERO  — editorial, asymmetric, dark panel + overlapping trust card
+   ========================================================================== */
+.hero { padding: 64px 0 84px; position: relative; }
+.hero__grid {
+  display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--gold-700);
+  margin-bottom: 22px;
+}
+.eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--gold-500); }
+
+.hero h1 {
+  font-family: "Playfair Display", serif;
+  font-weight: 800; font-size: clamp(2.6rem, 5.2vw, 4.1rem); line-height: 1.04;
+  letter-spacing: -.015em; margin: 0 0 22px; color: var(--ink);
+}
+.hero h1 .accent {
+  font-style: italic; font-weight: 500; color: var(--blue-600);
+  position: relative; white-space: nowrap;
+}
+.hero h1 .accent::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 10px;
+  background: var(--gold-300); opacity: .55; z-index: -1; transform: skewX(-12deg);
+}
+.hero__lead { font-size: 1.18rem; color: var(--muted); max-width: 36ch; margin: 0 0 32px; }
+.hero__cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.hero__hint { font-size: .85rem; color: var(--muted); margin-top: 18px; display: flex; align-items: center; gap: 8px; }
+.hero__hint svg { flex: none; }
+
+/* Overlapping "trust ledger" card — the memorable element */
+.ledger {
+  position: relative;
+  background: var(--navy-900); color: #fff; border-radius: 20px; padding: 30px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden; isolation: isolate;
+}
+.ledger::before {            /* gradient mesh */
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(80% 60% at 100% 0%, rgba(217,168,35,.32), transparent 60%),
+    radial-gradient(90% 70% at 0% 100%, rgba(31,111,212,.4), transparent 55%);
+}
+.ledger::after {             /* gold corner seal rule */
+  content: ""; position: absolute; top: 18px; right: 18px; width: 54px; height: 54px;
+  border-top: 2px solid var(--gold-500); border-right: 2px solid var(--gold-500);
+  border-top-right-radius: 8px; opacity: .8;
+}
+.ledger__label {
+  font-family: "JetBrains Mono", monospace; font-size: .68rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--gold-300); margin-bottom: 6px;
+}
+.ledger__amount {
+  font-family: "Playfair Display", serif; font-weight: 800; font-size: 2.4rem; line-height: 1;
+}
+.ledger__amount span { font-size: 1.1rem; color: var(--blue-300); font-family: "JetBrains Mono", monospace; font-weight: 500; }
+.ledger__row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.ledger__row:last-child { border-bottom: 0; }
+.ledger__row .k { color: var(--blue-300); font-size: .82rem; }
+.ledger__row .v { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: .92rem; }
+.ledger__pct { color: var(--gold-300); }
+.ledger__foot {
+  margin-top: 16px; font-size: .72rem; color: rgba(255,255,255,.55);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* thin flag rule under hero */
+.flagrule { height: 5px; border-radius: 99px; background: linear-gradient(90deg, var(--blue-600) 50%, var(--gold-500) 50%); max-width: var(--maxw); margin: 0 auto; }
+
+/* ============================================================================
+   SECTION SCAFFOLD
+   ========================================================================== */
+.section { padding: 78px 0; }
+.section__head { max-width: 62ch; margin-bottom: 44px; }
+.section__kicker {
+  font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--blue-600); margin-bottom: 14px;
+}
+.section__title {
+  font-family: "Playfair Display", serif; font-weight: 700;
+  font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height: 1.1; letter-spacing: -.01em; margin: 0;
+}
+.section--dark { background: var(--navy-900); color: #fff; position: relative; overflow: hidden; }
+.section--dark::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(70% 50% at 80% 0%, rgba(217,168,35,.12), transparent 60%);
+}
+.section--dark .section__title { color: #fff; }
+.section--dark .section__kicker { color: var(--gold-300); }
+.section__sub { margin: 14px 0 0; font-size: 1rem; color: var(--muted); max-width: 54ch; }
+.section--dark .section__sub { color: rgba(255,255,255,.72); }
+
+/* ---- How it works: editorial numbered steps ---- */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.step {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 30px 26px 28px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s;
+}
+.step::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--blue-600), var(--gold-500));
+  transform: scaleY(0); transform-origin: top; transition: transform .4s var(--ease);
+}
+.step:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: var(--line-2); }
+.step:hover::before { transform: scaleY(1); }
+.step__num {
+  font-family: "Playfair Display", serif; font-style: italic; font-weight: 700;
+  font-size: 3rem; line-height: 1; color: var(--gold-500); opacity: .9; margin-bottom: 14px;
+}
+.step h3 { font-size: 1.15rem; margin: 0 0 8px; letter-spacing: -.01em; }
+.step p { color: var(--muted); font-size: .96rem; margin: 0; }
+
+/* ---- Results showcase: instrument cards ---- */
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+.opt {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 0; box-shadow: var(--shadow-sm); overflow: hidden; position: relative;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.opt:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.opt__top {
+  padding: 20px 22px 16px; background: var(--surface-2); border-bottom: 1px dashed var(--line-2);
+  position: relative;
+}
+.opt__provider { font-weight: 800; font-size: 1.1rem; letter-spacing: -.01em; }
+.opt__instrument { color: var(--muted); font-size: .92rem; margin-top: 3px; }
+.opt__badges { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
+.badge {
+  font-family: "JetBrains Mono", monospace; font-size: .66rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; padding: 4px 9px; border-radius: 6px;
+}
+.badge--cat { background: rgba(0,87,183,.1); color: var(--blue-600); }
+.badge--risk[data-risk="LOW"]      { background: var(--risk-low-bg);  color: var(--risk-low-fg); }
+.badge--risk[data-risk="MODERATE"] { background: var(--risk-mod-bg);  color: var(--risk-mod-fg); }
+.badge--risk[data-risk="HIGH"]     { background: var(--risk-high-bg); color: var(--risk-high-fg); }
+
+/* The signature: a big gold "return" figure, set like an engraving */
+.opt__return {
+  padding: 18px 22px; display: flex; align-items: baseline; gap: 8px 10px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+}
+.opt__return .fig {
+  font-family: "Playfair Display", serif; font-weight: 800; font-size: 1.9rem; line-height: 1;
+  color: var(--navy-900); white-space: nowrap;
+}
+.opt__return .unit { font-family: "JetBrains Mono", monospace; font-size: .78rem; color: var(--muted); white-space: nowrap; }
+.opt__return .lbl {
+  margin-left: auto; align-self: center; text-align: right; max-width: 11ch; line-height: 1.25;
+  font-family: "JetBrains Mono", monospace; font-size: .64rem;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--gold-700);
+}
+.opt__facts { padding: 16px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+.fact dt { font-family: "JetBrains Mono", monospace; font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.fact dd { margin: 2px 0 0; font-weight: 700; font-size: .95rem; }
+.opt__rationale { padding: 0 22px 16px; color: var(--muted); font-size: .92rem; }
+.opt__src {
+  display: flex; align-items: center; gap: 6px; padding: 14px 22px; border-top: 1px solid var(--line);
+  font-weight: 700; font-size: .85rem; color: var(--blue-600); background: var(--surface-2);
+}
+.opt__src:hover { color: var(--blue-500); }
+
+.disclaimer-bar {
+  margin-top: 28px; padding: 16px 20px; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-left: 4px solid var(--gold-500);
+  font-size: .85rem; color: var(--muted); display: flex; gap: 12px; align-items: flex-start;
+}
+.disclaimer-bar svg { flex: none; margin-top: 1px; }
+
+/* ---- Token packs (pricing) ---- */
+.packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.pack {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.14);
+  border-radius: var(--radius); padding: 28px 26px; position: relative; overflow: hidden;
+  transition: transform .3s var(--ease), border-color .3s, background .3s;
+}
+.pack:hover { transform: translateY(-5px); border-color: rgba(240,207,107,.5); background: rgba(255,255,255,.06); }
+.pack--featured { border-color: var(--gold-500); background: rgba(217,168,35,.07); }
+.pack--featured::after {
+  content: "Рекомендовано"; position: absolute; top: 16px; right: -38px; transform: rotate(38deg);
+  background: var(--gold-500); color: var(--navy-900); font-size: .62rem; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase; padding: 5px 40px; font-family: "JetBrains Mono", monospace;
+}
+.pack__tokens { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 1rem; color: var(--gold-300); }
+.pack__price { font-family: "Playfair Display", serif; font-weight: 800; font-size: 2.6rem; margin: 8px 0 2px; }
+.pack__per { font-size: .82rem; color: rgba(255,255,255,.6); font-family: "JetBrains Mono", monospace; }
+.pack .btn { width: 100%; margin-top: 22px; }
+.pack__fine { margin-top: 22px; font-size: .76rem; color: rgba(255,255,255,.5); }
+
+/* ============================================================================
+   FOOTER
+   ========================================================================== */
+.footer { background: var(--navy-900); color: rgba(255,255,255,.7); padding: 56px 0 30px; border-top: 5px solid; border-image: linear-gradient(90deg, var(--blue-600) 50%, var(--gold-500) 50%) 1; }
+.footer__grid { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
+.footer .brand__name { color: #fff; }
+.footer p { max-width: 42ch; font-size: .9rem; }
+.footer__cols { display: flex; gap: 56px; flex-wrap: wrap; }
+.footer__col h4 { color: #fff; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-family: "JetBrains Mono", monospace; margin: 0 0 12px; }
+.footer__col a { display: block; color: rgba(255,255,255,.65); font-size: .9rem; padding: 4px 0; }
+.footer__col a:hover { color: var(--gold-300); }
+.footer__base { margin-top: 40px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.1); font-size: .8rem; color: rgba(255,255,255,.45); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* ============================================================================
+   MOTION — staggered load reveal + scroll reveal
+   ========================================================================== */
+@keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+.reveal { opacity: 0; animation: rise .8s var(--ease) forwards; }
+.reveal.d1 { animation-delay: .08s; }
+.reveal.d2 { animation-delay: .18s; }
+.reveal.d3 { animation-delay: .30s; }
+.reveal.d4 { animation-delay: .44s; }
+.reveal.d5 { animation-delay: .58s; }
+
+.onscroll { opacity: 0; transform: translateY(26px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.onscroll.in { opacity: 1; transform: none; }
+.onscroll.s1 { transition-delay: .08s; }
+.onscroll.s2 { transition-delay: .18s; }
+.onscroll.s3 { transition-delay: .28s; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .reveal, .onscroll { opacity: 1 !important; transform: none !important; }
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 900px) {
+  .hero__grid { grid-template-columns: 1fr; gap: 48px; }
+  .steps, .packs { grid-template-columns: 1fr; }
+  .nav__links { display: none; }
+}
+@media (max-width: 560px) {
+  .shell { padding: 0 18px; }
+  .opt__facts { grid-template-columns: 1fr; }
+  .balance { display: none; }
+}
+</style>
+</head>
+<body data-lang="uk">
+<a class="skip" href="#main" data-t="skip">Перейти до вмісту</a>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <div class="shell topbar__row">
+    <a class="brand" href="#">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">InvestGuide<b>UA</b></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <div class="nav__links">
+        <a class="active" href="#" data-t="nav.search">Пошук</a>
+        <a href="#results" data-t="nav.history">Історія</a>
+        <a href="#" data-t="nav.providers">Провайдери</a>
+        <a href="#packs" data-t="nav.account">Акаунт</a>
+      </div>
+      <span class="balance" title="Баланс токенів">
+        <span class="dot" aria-hidden="true"></span>
+        <span><span data-figure>5</span>&nbsp;<span data-t="unit.tokens">токенів</span></span>
+      </span>
+      <button class="lang" id="langBtn" aria-label="Switch language to English" aria-pressed="false">
+        <span class="on" id="uaLabel" lang="uk">UA</span><span aria-hidden="true">&nbsp;/&nbsp;</span><span id="enLabel" lang="en">EN</span>
+      </button>
+      <a class="btn btn--primary" href="#" data-t="nav.register">Реєстрація</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="shell hero__grid">
+    <div>
+      <span class="eyebrow reveal" data-t="hero.eyebrow">Каталог-орієнтований радник</span>
+      <h1 class="reveal d1" data-t-html="hero.title">Інвестуйте в Україну,<br><span class="accent">для українців</span></h1>
+      <p class="hero__lead reveal d2" data-t="hero.lead">Вкажіть суму, яку хочете інвестувати, і отримайте підібрані варіанти з перевіреного каталогу українських банків та провайдерів — простою мовою.</p>
+      <div class="hero__cta reveal d3">
+        <a class="btn btn--gold" href="#" data-t="hero.ctaStart">Почати — 5 безкоштовних токенів</a>
+        <a class="btn btn--ghost" href="#" data-t="hero.ctaSignIn">Увійти</a>
+      </div>
+      <p class="hero__hint reveal d4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+        <span data-t="hero.hint">Безкоштовні токени нараховуються після підтвердження пошти.</span>
+      </p>
+    </div>
+
+    <!-- Trust ledger card -->
+    <aside class="ledger reveal d3" aria-label="Example result">
+      <div class="ledger__label" data-t="ledger.label">Підібрано для запиту</div>
+      <div class="ledger__amount">25&thinsp;000&nbsp;<span data-t="cur.uah">грн</span></div>
+      <div class="ledger__row">
+        <span class="k" data-t="ledger.deposit">Банківський депозит</span>
+        <span class="v ledger__pct">14.5–16.0%</span>
+      </div>
+      <div class="ledger__row">
+        <span class="k" data-t="ledger.bond">Військові облігації</span>
+        <span class="v ledger__pct">17.0–19.2%</span>
+      </div>
+      <div class="ledger__row">
+        <span class="k" data-t="ledger.fund">Фонд грошового ринку</span>
+        <span class="v ledger__pct">13.2–15.0%</span>
+      </div>
+      <div class="ledger__foot">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span data-t="ledger.foot">Кожен варіант з посиланням на офіційне джерело</span>
+      </div>
+    </aside>
+  </div>
+</section>
+<div class="flagrule"></div>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="section">
+  <div class="shell">
+    <div class="section__head onscroll">
+      <div class="section__kicker" data-t="how.kicker">Як це працює</div>
+      <h2 class="section__title" data-t="how.title">Три кроки до впевненого рішення</h2>
+    </div>
+    <div class="steps">
+      <article class="step onscroll s1">
+        <div class="step__num">01</div>
+        <h3 data-t="how.s1t">Введіть суму</h3>
+        <p data-t="how.s1b">Оберіть, скільки хочете інвестувати, а також валюту, горизонт і рівень ризику.</p>
+      </article>
+      <article class="step onscroll s2">
+        <div class="step__num">02</div>
+        <h3 data-t="how.s2t">Отримайте підібрані варіанти</h3>
+        <p data-t="how.s2b">Ми зіставляємо ваш запит із прозорим каталогом реальних провайдерів — без перебільшень.</p>
+      </article>
+      <article class="step onscroll s3">
+        <div class="step__num">03</div>
+        <h3 data-t="how.s3t">Приймайте рішення впевнено</h3>
+        <p data-t="how.s3b">Кожен варіант містить посилання на офіційне джерело. Кожен пошук коштує один токен.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RESULTS SHOWCASE ===================== -->
+<section class="section" id="results" style="padding-top:0;">
+  <div class="shell">
+    <div class="section__head onscroll">
+      <div class="section__kicker" data-t="res.kicker">Зразок результату</div>
+      <h2 class="section__title" data-t="res.title">Варіанти для 25 000 грн</h2>
+    </div>
+    <div class="results">
+      <!-- option 1 -->
+      <article class="opt onscroll s1">
+        <div class="opt__top">
+          <div class="opt__provider" data-t="opt.privat">ПриватБанк</div>
+          <div class="opt__instrument" data-t="opt.deposit">Депозит «Стандарт», 12 міс.</div>
+          <div class="opt__badges">
+            <span class="badge badge--cat" data-t="cat.deposit">Депозит</span>
+            <span class="badge badge--risk" data-risk="LOW" data-t="risk.low">Низький</span>
+          </div>
+        </div>
+        <div class="opt__return">
+          <span class="fig">14.5–16.0</span><span class="unit" data-t="opt.unit">% / рік</span>
+          <span class="lbl" data-t="opt.return">Очік. дохідність</span>
+        </div>
+        <dl class="opt__facts">
+          <div class="fact"><dt data-t="opt.currency">Валюта</dt><dd data-t="cur.uah">грн</dd></div>
+          <div class="fact"><dt data-t="opt.min">Мін. сума</dt><dd>1 000 ₴</dd></div>
+          <div class="fact"><dt data-t="opt.liq">Ліквідність</dt><dd data-t="opt.liqMonthly">Помісячно</dd></div>
+          <div class="fact"><dt data-t="opt.guar">Гарантія</dt><dd data-t="opt.dgf">ФГВФО</dd></div>
+        </dl>
+        <p class="opt__rationale" data-t="opt.r1">Стабільний дохід з гарантією держави до 600 000 ₴. Підходить для збереження капіталу.</p>
+        <a class="opt__src" href="#">
+          <span data-t="opt.source">Офіційне джерело</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        </a>
+      </article>
+      <!-- option 2 (featured / gold) -->
+      <article class="opt onscroll s2">
+        <div class="opt__top">
+          <div class="opt__provider" data-t="opt.minfin">Міністерство фінансів</div>
+          <div class="opt__instrument" data-t="opt.warbond">Військові ОВДП, 1 рік</div>
+          <div class="opt__badges">
+            <span class="badge badge--cat" data-t="cat.bond">Облігація</span>
+            <span class="badge badge--risk" data-risk="LOW" data-t="risk.low">Низький</span>
+          </div>
+        </div>
+        <div class="opt__return">
+          <span class="fig">17.0–19.2</span><span class="unit" data-t="opt.unit">% / рік</span>
+          <span class="lbl" data-t="opt.return">Очік. дохідність</span>
+        </div>
+        <dl class="opt__facts">
+          <div class="fact"><dt data-t="opt.currency">Валюта</dt><dd data-t="cur.uah">грн</dd></div>
+          <div class="fact"><dt data-t="opt.min">Мін. сума</dt><dd>1 000 ₴</dd></div>
+          <div class="fact"><dt data-t="opt.liq">Ліквідність</dt><dd data-t="opt.liqMaturity">До погашення</dd></div>
+          <div class="fact"><dt data-t="opt.tax">Податок</dt><dd data-t="opt.taxFree">Звільнено</dd></div>
+        </dl>
+        <p class="opt__rationale" data-t="opt.r2">Дохід звільнено від ПДФО та військового збору. Підтримує державу й дає вищу дохідність.</p>
+        <a class="opt__src" href="#">
+          <span data-t="opt.source">Офіційне джерело</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        </a>
+      </article>
+      <!-- option 3 -->
+      <article class="opt onscroll s3">
+        <div class="opt__top">
+          <div class="opt__provider">Universal Bank</div>
+          <div class="opt__instrument" data-t="opt.mmf">Фонд грошового ринку</div>
+          <div class="opt__badges">
+            <span class="badge badge--cat" data-t="cat.fund">Фонд</span>
+            <span class="badge badge--risk" data-risk="MODERATE" data-t="risk.mod">Помірний</span>
+          </div>
+        </div>
+        <div class="opt__return">
+          <span class="fig">13.2–15.0</span><span class="unit" data-t="opt.unit">% / рік</span>
+          <span class="lbl" data-t="opt.return">Очік. дохідність</span>
+        </div>
+        <dl class="opt__facts">
+          <div class="fact"><dt data-t="opt.currency">Валюта</dt><dd data-t="cur.uah">грн</dd></div>
+          <div class="fact"><dt data-t="opt.min">Мін. сума</dt><dd>500 ₴</dd></div>
+          <div class="fact"><dt data-t="opt.liq">Ліквідність</dt><dd data-t="opt.liqDaily">Щоденно</dd></div>
+          <div class="fact"><dt data-t="opt.fee">Комісія</dt><dd>0.9%</dd></div>
+        </dl>
+        <p class="opt__rationale" data-t="opt.r3">Висока ліквідність — можна забрати кошти будь-коли. Дохідність плаває разом зі ставкою НБУ.</p>
+        <a class="opt__src" href="#">
+          <span data-t="opt.source">Офіційне джерело</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        </a>
+      </article>
+    </div>
+
+    <div class="disclaimer-bar onscroll">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <span data-t="res.disclaimer">InvestGuideUA надає лише інформацію, а не фінансові поради. Завжди перевіряйте деталі у провайдера перед інвестуванням. Цифри орієнтовні.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TOKEN PACKS ===================== -->
+<section class="section section--dark" id="packs">
+  <div class="shell" style="position:relative;">
+    <div class="section__head onscroll">
+      <div class="section__kicker" data-t="pk.kicker">Прозорі ціни</div>
+      <h2 class="section__title" data-t="pk.title">Один пошук — один токен</h2>
+      <p class="section__sub" data-t="pk.note">Перші 5 токенів — безкоштовно після підтвердження пошти. Докупити більше можна в акаунті будь-коли.</p>
+    </div>
+    <div class="packs">
+      <article class="pack onscroll s1">
+        <div class="pack__tokens" data-t="pk.p1">10 токенів</div>
+        <div class="pack__price">149&nbsp;₴</div>
+        <div class="pack__per" data-t="pk.per1">14.90 ₴ / токен</div>
+        <button class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.3)" data-t="pk.cta">Зареєструватися</button>
+      </article>
+      <article class="pack pack--featured onscroll s2">
+        <div class="pack__tokens" data-t="pk.p2">30 токенів</div>
+        <div class="pack__price">349&nbsp;₴</div>
+        <div class="pack__per" data-t="pk.per2">11.63 ₴ / токен</div>
+        <button class="btn btn--gold" data-t="pk.cta">Зареєструватися</button>
+      </article>
+      <article class="pack onscroll s3">
+        <div class="pack__tokens" data-t="pk.p3">100 токенів</div>
+        <div class="pack__price">899&nbsp;₴</div>
+        <div class="pack__per" data-t="pk.per3">8.99 ₴ / токен</div>
+        <button class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.3)" data-t="pk.cta">Зареєструватися</button>
+      </article>
+    </div>
+    <p class="pack__fine" data-t="pk.fine">Платежі безпечно обробляє monobank (Plata by mono). У разі успіху фіскальний чек надсилається вам на пошту.</p>
+  </div>
+</section>
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="shell">
+    <div class="footer__grid">
+      <div>
+        <a class="brand" href="#"><span class="brand__mark" aria-hidden="true"></span><span class="brand__name">InvestGuide<b>UA</b></span></a>
+        <p data-t="ft.about">Інвестуйте в Україну, для українців. Прозорий, каталог-орієнтований радник з інвестицій.</p>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col">
+          <h4 data-t="ft.product">Продукт</h4>
+          <a href="#" data-t="nav.search">Пошук</a>
+          <a href="#" data-t="nav.providers">Провайдери</a>
+          <a href="#packs" data-t="ft.tokens">Токени</a>
+        </div>
+        <div class="footer__col">
+          <h4 data-t="ft.legal">Правова інформація</h4>
+          <a href="#" data-t="ft.terms">Умови</a>
+          <a href="#" data-t="ft.privacy">Приватність</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__base">
+      <span>© 2026 InvestGuideUA</span>
+      <span data-t="ft.made">Зроблено в Україні 🇺🇦</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---- Bilingual demo: proves the chosen fonts render Cyrillic + Latin equally.
+        Mirrors the real app's runtime UA/EN toggle. ------------------------- */
+const EN = {
+  "skip":"Skip to content",
+  "nav.search":"Search","nav.history":"History","nav.providers":"Providers","nav.account":"Account","nav.register":"Register",
+  "unit.tokens":"tokens",
+  "hero.eyebrow":"Catalog-grounded advisor",
+  "hero.title":"Invest in Ukraine,<br><span class='accent'>for Ukrainians</span>",
+  "hero.lead":"Enter the amount you want to invest and get curated options from a vetted catalog of Ukrainian banks and providers — in plain language.",
+  "hero.ctaStart":"Start — 5 free tokens","hero.ctaSignIn":"Sign in",
+  "hero.hint":"Free tokens are granted after you verify your email.",
+  "ledger.label":"Matched for your request","ledger.deposit":"Bank deposit","ledger.bond":"War bonds","ledger.fund":"Money-market fund",
+  "ledger.foot":"Every option links to an official source",
+  "how.kicker":"How it works","how.title":"Three steps to a confident decision",
+  "how.s1t":"Enter an amount","how.s1b":"Choose how much to invest, plus currency, horizon and risk level.",
+  "how.s2t":"Get curated options","how.s2b":"We match your request against a transparent catalog of real providers — no hype.",
+  "how.s3t":"Decide with confidence","how.s3b":"Every option links to an official source. Each search costs one token.",
+  "res.kicker":"Sample result","res.title":"Options for 25,000 UAH",
+  "cat.deposit":"Deposit","cat.bond":"Bond","cat.fund":"Fund",
+  "risk.low":"Low","risk.mod":"Moderate","risk.high":"High",
+  "cur.uah":"UAH",
+  "opt.deposit":"\"Standard\" deposit, 12 mo.","opt.warbond":"War bonds (OVDP), 1 yr","opt.mmf":"Money-market fund","opt.minfin":"Ministry of Finance","opt.privat":"PrivatBank",
+  "opt.return":"Exp. return","opt.unit":"% / yr","opt.dgf":"DGF","opt.currency":"Currency","opt.min":"Min. amount","opt.liq":"Liquidity","opt.guar":"Guarantee","opt.tax":"Tax","opt.fee":"Fee",
+  "opt.liqMonthly":"Monthly","opt.liqMaturity":"At maturity","opt.liqDaily":"Daily","opt.taxFree":"Exempt",
+  "opt.r1":"Stable income with a state guarantee up to UAH 600,000. Good for preserving capital.",
+  "opt.r2":"Income is exempt from personal income tax and the military levy. Supports the state and yields more.",
+  "opt.r3":"High liquidity — withdraw any time. Yield floats with the NBU key rate.",
+  "opt.source":"Official source",
+  "res.disclaimer":"InvestGuideUA provides information only, not financial advice. Always verify details with the provider before investing. Figures are indicative.",
+  "pk.kicker":"Transparent pricing","pk.title":"One search, one token",
+  "pk.note":"Your first 5 tokens are free after you verify your email. Top up from your account anytime.",
+  "pk.p1":"10 tokens","pk.p2":"30 tokens","pk.p3":"100 tokens",
+  "pk.per1":"UAH 14.90 / token","pk.per2":"UAH 11.63 / token","pk.per3":"UAH 8.99 / token","pk.cta":"Register",
+  "pk.fine":"Payments are securely handled by monobank (Plata by mono). On success a fiscal receipt is emailed to you.",
+  "ft.tokens":"Tokens",
+  "ft.about":"Invest in Ukraine, for Ukrainians. A transparent, catalog-grounded investment advisor.",
+  "ft.product":"Product","ft.legal":"Legal","ft.terms":"Terms","ft.privacy":"Privacy","ft.made":"Made in Ukraine 🇺🇦"
+};
+// snapshot the original Ukrainian text so we can toggle back
+const UK = {};
+document.querySelectorAll("[data-t]").forEach(el => UK[el.dataset.t] = el.innerHTML);
+document.querySelectorAll("[data-t-html]").forEach(el => UK[el.dataset.tHtml] = el.innerHTML);
+
+const featuredRibbonUK = "Рекомендовано", featuredRibbonEN = "Recommended";
+const langBtn = document.getElementById("langBtn");
+let lang = "uk";
+langBtn.addEventListener("click", () => {
+  lang = lang === "uk" ? "en" : "uk";
+  const dict = lang === "en" ? EN : UK;
+  document.querySelectorAll("[data-t]").forEach(el => { if (dict[el.dataset.t] != null) el.innerHTML = dict[el.dataset.t]; });
+  const hk = document.querySelector("[data-t-html]");
+  if (hk) hk.innerHTML = lang === "en" ? EN["hero.title"] : UK["hero.title"];
+  document.documentElement.lang = lang;
+  document.body.dataset.lang = lang;
+  // Announce the *target* of the next press to assistive tech, and reflect state.
+  langBtn.setAttribute("aria-label", lang === "uk" ? "Switch language to English" : "Перемкнути мову на українську");
+  langBtn.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+  document.getElementById("uaLabel").classList.toggle("on", lang === "uk");
+  document.getElementById("enLabel").classList.toggle("on", lang === "en");
+  // featured ribbon text via a style tag swap
+  document.getElementById("ribbonStyle").textContent =
+    `.pack--featured::after{content:"${lang === "en" ? featuredRibbonEN : featuredRibbonUK}";}`;
+});
+
+/* ---- Scroll reveal ---- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: .15 });
+document.querySelectorAll(".onscroll").forEach(el => io.observe(el));
+</script>
+<style id="ribbonStyle"></style>
+</body>
+</html>

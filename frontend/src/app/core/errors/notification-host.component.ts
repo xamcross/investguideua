@@ -51,26 +51,26 @@ import { NotificationService } from './notification.service';
       }
       .ig-toast {
         display: flex; align-items: flex-start; gap: 0.5rem;
-        background: var(--ig-surface, #fff); border: 1px solid var(--ig-border, #e2e2e2);
-        border-left-width: 4px; border-radius: 10px; padding: 0.75rem 0.9rem;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+        background: var(--surface); border: 1px solid var(--line);
+        border-left-width: 4px; border-radius: var(--radius-sm); padding: 0.75rem 0.9rem;
+        box-shadow: var(--shadow-md);
       }
-      .ig-toast--error { border-left-color: var(--ig-danger, #c0392b); }
-      .ig-toast--warning { border-left-color: var(--ig-yellow, #ffd500); }
-      .ig-toast--info { border-left-color: var(--ig-blue, #0057b7); }
+      .ig-toast--error { border-left-color: var(--danger-fg); }
+      .ig-toast--warning { border-left-color: var(--gold-600); }
+      .ig-toast--info { border-left-color: var(--blue-600); }
       .ig-toast__body { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; }
-      .ig-toast__title { font-size: 0.92rem; }
-      .ig-toast__msg { font-size: 0.85rem; color: var(--ig-muted, #555); }
+      .ig-toast__title { font-size: 0.92rem; color: var(--ink); }
+      .ig-toast__msg { font-size: 0.85rem; color: var(--muted); }
       .ig-toast__row { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem; flex-wrap: wrap; }
-      .ig-toast__action { font-size: 0.82rem; font-weight: 700; color: var(--ig-blue, #0057b7); text-decoration: none; }
+      .ig-toast__action { font-size: 0.82rem; font-weight: 700; color: var(--blue-600); text-decoration: none; }
       .ig-toast__ref {
-        font-size: 0.72rem; color: var(--ig-muted, #777); background: none; border: none;
-        padding: 0; cursor: pointer; font-family: ui-monospace, monospace;
+        font-size: 0.72rem; color: var(--muted); background: none; border: none;
+        padding: 0; cursor: pointer; font-family: var(--font-mono);
       }
-      .ig-toast__ref:hover { color: var(--ig-ink, #222); }
+      .ig-toast__ref:hover { color: var(--ink); }
       .ig-toast__close {
         background: none; border: none; font-size: 1.1rem; line-height: 1; cursor: pointer;
-        color: var(--ig-muted, #999);
+        color: var(--muted);
       }
     `,
   ],

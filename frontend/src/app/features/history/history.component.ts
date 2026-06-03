@@ -17,60 +17,93 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   imports: [RouterLink, DatePipe, DecimalPipe, TranslateModule, PluralPipe],
   template: `
     <section class="ig-card">
-      <h1>{{ 'history.title' | translate }}</h1>
+      <div class="ig-page-head">
+        <p class="ig-kicker">{{ 'history.kicker' | translate }}</p>
+        <h1 class="ig-display">{{ 'history.title' | translate }}</h1>
+      </div>
 
       @if (loading()) {
         <p class="ig-muted">{{ 'common.loading' | translate }}</p>
       } @else if (error()) {
-        <div class="ig-alert ig-alert--error">{{ error() }}</div>
+        <div class="ig-alert ig-alert--error" role="alert">{{ error() }}</div>
       } @else if (page() && page()!.items.length === 0) {
-        <div class="ig-alert ig-alert--info">
-          {{ 'history.empty' | translate }} <a routerLink="/search">{{ 'history.runFirst' | translate }}</a>.
+        <div class="ig-empty">
+          <div class="ig-empty__mark" aria-hidden="true"></div>
+          <p>{{ 'history.empty' | translate }}</p>
+          <div class="ig-empty__actions">
+            <a routerLink="/search" class="ig-btn ig-btn--primary">{{ 'history.runFirst' | translate }}</a>
+          </div>
         </div>
       } @else if (page()) {
         <ul class="ig-hist">
-          @for (item of page()!.items; track item.id) {
-            <li class="ig-hist__row">
-              <a class="ig-hist__link" [routerLink]="['/history', item.id]">
+          @for (item of page()!.items; track item.id; let i = $index) {
+            <li>
+              <a [class]="'ig-hist__row reveal d' + delay(i)" [routerLink]="['/history', item.id]">
                 <span class="ig-hist__amount">
-                  {{ item.input.amount / 100 | number: '1.2-2' }} {{ item.input.currency }}
+                  {{ item.input.amount / 100 | number: '1.2-2' }}
+                  <span class="ig-hist__cur">{{ item.input.currency }}</span>
                 </span>
                 <span class="ig-hist__meta">
-                  {{ item.createdAt | date: 'medium' }} ·
-                  <span class="ig-hist__status" [attr.data-status]="item.status">{{ statusKey(item.status) | translate }}</span>
-                  · {{ item.optionCount | igPlural: 'option' }}
+                  <span class="ig-hist__date">{{ item.createdAt | date: 'medium' }}</span>
+                  <span class="ig-chip" [attr.data-status]="item.status">{{ statusKey(item.status) | translate }}</span>
+                  <span class="ig-hist__count">{{ item.optionCount | igPlural: 'option' }}</span>
                 </span>
+                <svg class="ig-hist__chev" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                     stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5"/></svg>
               </a>
             </li>
           }
         </ul>
 
-        <div class="ig-pager">
+        <nav class="ig-pager" [attr.aria-label]="'history.paginationLabel' | translate">
           <button type="button" class="ig-btn ig-btn--ghost"
                   [disabled]="page()!.page === 0" (click)="go(page()!.page - 1)">
             {{ 'history.previous' | translate }}
           </button>
-          <span class="ig-muted">{{ 'history.pageOf' | translate: { current: page()!.page + 1, total: Math.max(page()!.totalPages, 1) } }}</span>
+          <span class="ig-pager__ind">{{ 'history.pageOf' | translate: { current: page()!.page + 1, total: Math.max(page()!.totalPages, 1) } }}</span>
           <button type="button" class="ig-btn ig-btn--ghost"
                   [disabled]="page()!.page + 1 >= page()!.totalPages" (click)="go(page()!.page + 1)">
             {{ 'history.next' | translate }}
           </button>
-        </div>
+        </nav>
       }
     </section>
   `,
   styles: [
     `
-      .ig-hist { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
-      .ig-hist__link { display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none; padding: 0.7rem 0.9rem; border: 1px solid var(--ig-border); border-radius: 8px; color: var(--ig-ink); }
-      .ig-hist__link:hover { border-color: var(--ig-blue); }
-      .ig-hist__amount { font-weight: 700; }
-      .ig-hist__meta { font-size: 0.82rem; color: var(--ig-muted); }
-      .ig-hist__status { text-transform: capitalize; font-weight: 600; }
-      .ig-hist__status[data-status='completed'] { color: #1e7a3c; }
-      .ig-hist__status[data-status='failed'] { color: #b3261e; }
-      .ig-pager { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
-      .ig-alert--info { background: rgba(0, 87, 183, 0.06); border: 1px solid var(--ig-border); border-radius: 8px; padding: 0.75rem 1rem; }
+      .ig-hist { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; gap: .6rem; }
+      .ig-hist__row {
+        position: relative; overflow: hidden; display: flex; align-items: center; gap: 1rem;
+        padding: .9rem 1rem .9rem 1.25rem; border: 1px solid var(--line); border-radius: var(--radius-sm);
+        background: var(--surface); color: var(--ink); text-decoration: none;
+        transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+      }
+      .ig-hist__row::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+        background: linear-gradient(180deg, var(--blue-600), var(--gold-500));
+        transform: scaleY(.3); transition: transform .25s var(--ease);
+      }
+      .ig-hist__row:hover, .ig-hist__row:focus-visible {
+        border-color: var(--line-2); box-shadow: var(--shadow-sm); text-decoration: none;
+      }
+      .ig-hist__row:hover::before, .ig-hist__row:focus-visible::before { transform: scaleY(1); }
+      .ig-hist__amount { font-family: var(--font-mono); font-weight: 700; font-size: 1.05rem; }
+      .ig-hist__cur { font-size: .76rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+      .ig-hist__meta { display: flex; align-items: center; gap: .75rem; margin-left: auto; flex-wrap: wrap; }
+      .ig-hist__date { font-size: .82rem; color: var(--muted); }
+      .ig-hist__count { font-size: .82rem; color: var(--muted); }
+      .ig-hist__chev { flex: none; color: var(--muted); }
+      .ig-pager { display: flex; align-items: center; justify-content: center; gap: 1.25rem;
+        margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+      .ig-pager__ind { font-family: var(--font-mono); font-size: .82rem; color: var(--muted); }
+      @media (max-width: 560px) {
+        .ig-hist__row { flex-wrap: wrap; gap: .4rem; }
+        .ig-hist__meta { margin-left: 0; width: 100%; }
+        .ig-hist__chev { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ig-hist__row::before { transition: none; transform: scaleY(1); }
+      }
     `,
   ],
 })
@@ -83,6 +116,11 @@ export class HistoryComponent implements OnInit {
   /** Maps a backend status to its translation key, e.g. 'pending' -> 'history.statusPending'. */
   statusKey(status: string): string {
     return 'history.status' + status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  /** Staggered reveal delay class index, capped at 5 (matches global .reveal .d1..d5). */
+  delay(i: number): number {
+    return Math.min(i + 1, 5);
   }
 
   readonly page = signal<HistoryPage | null>(null);

@@ -13,10 +13,14 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, TranslateModule],
   template: `
-    <section class="ig-card">
+    <section class="ig-empty">
+      <div class="ig-empty__mark" aria-hidden="true"></div>
+      <span class="ig-empty__code">{{ 'placeholder.badge' | translate }}</span>
       <h1>{{ heading || ('placeholder.comingSoon' | translate) }}</h1>
-      <p class="ig-muted">{{ 'placeholder.body' | translate }}</p>
-      <p><a routerLink="/">{{ 'common.backToHome' | translate }}</a></p>
+      <p>{{ 'placeholder.body' | translate }}</p>
+      <div class="ig-empty__actions">
+        <a routerLink="/" class="ig-btn ig-btn--primary">{{ 'common.backToHome' | translate }}</a>
+      </div>
     </section>
   `,
 })

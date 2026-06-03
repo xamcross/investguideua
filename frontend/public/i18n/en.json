@@ -12,14 +12,17 @@
     "signOut": "Sign out",
     "signIn": "Sign in",
     "register": "Register",
-    "balanceTitle": "Token balance"
+    "balanceTitle": "Token balance",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu"
   },
   "common": {
     "loading": "Loading...",
     "backToHome": "Back to home",
     "officialSource": "Official source",
     "perYear": "/ yr",
-    "dash": "-"
+    "dash": "-",
+    "currencyUahShort": "UAH"
   },
   "units": {
     "token": { "one": "token", "few": "tokens", "many": "tokens" },
@@ -40,6 +43,17 @@
     "notFound": "Page not found - InvestGuideUA"
   },
   "landing": {
+    "eyebrow": "Catalog-grounded advisor",
+    "titleLead": "Invest in Ukraine,",
+    "titleAccent": "for Ukrainians",
+    "howKicker": "How it works",
+    "howTitle": "Three steps to a confident decision",
+    "ledgerLabel": "Matched for your request",
+    "ledgerCurrency": "UAH",
+    "ledgerDeposit": "Bank deposit",
+    "ledgerBond": "War bonds",
+    "ledgerFund": "Money-market fund",
+    "ledgerFoot": "Every option links to an official source",
     "title": "Invest in Ukraine, for Ukrainians",
     "lead": "Tell us how much you want to invest and get curated, catalog-grounded options from vetted Ukrainian banks and providers - in plain language.",
     "ctaStart": "Get started - 5 free tokens",
@@ -54,6 +68,7 @@
     "disclaimer": "InvestGuideUA provides information only, not financial advice. Always verify details with the provider before investing."
   },
   "login": {
+    "eyebrow": "Secure sign-in",
     "title": "Sign in",
     "email": "Email",
     "password": "Password",
@@ -64,6 +79,8 @@
     "invalidCredentials": "Invalid email or password."
   },
   "register": {
+    "eyebrow": "New account",
+    "eyebrowSent": "Almost there",
     "checkEmailTitle": "Check your email",
     "sentLink": "We sent a verification link to {{email}}.",
     "verifyToActivate": "Verify your email to activate your account and receive your 5 free tokens. Tokens are granted only after verification.",
@@ -83,6 +100,7 @@
     "validationError": "Please check your email and password and try again."
   },
   "verify": {
+    "eyebrow": "Verification",
     "title": "Email verification",
     "verifying": "Verifying your email...",
     "success": "Your email is verified. {{tokens}} have been added to your account.",
@@ -96,6 +114,7 @@
     "defaultError": "This verification link is invalid or has expired."
   },
   "search": {
+    "kicker": "Catalog-grounded advisor",
     "title": "Find ways to invest",
     "intro": "Enter an amount to get catalog-grounded options. Each search costs 1 token. You have {{balance}}.",
     "outOfTokens": "You're out of tokens.",
@@ -133,7 +152,25 @@
     "minAmount": "Min amount",
     "liquidity": "Liquidity"
   },
+  "currency": {
+    "UAH": "UAH",
+    "USD": "USD"
+  },
+  "category": {
+    "BANK_DEPOSIT": "Deposit",
+    "GOV_BOND": "Bond",
+    "BROKER": "Broker",
+    "FUND": "Fund",
+    "OTHER": "Other"
+  },
+  "risk": {
+    "LOW": "Low",
+    "MODERATE": "Moderate",
+    "HIGH": "High"
+  },
   "history": {
+    "kicker": "Your archive",
+    "paginationLabel": "History pagination",
     "title": "Your search history",
     "empty": "No searches yet.",
     "runFirst": "Run your first search",
@@ -173,6 +210,7 @@
     "riskHigh": "High"
   },
   "account": {
+    "eyebrow": "Profile",
     "title": "Your account",
     "loading": "Loading your profile...",
     "email": "Email",
@@ -195,6 +233,9 @@
     "mailtoBody": "Please delete my InvestGuideUA account and associated data.\n\nAccount email: {{email}}"
   },
   "tokens": {
+    "kicker": "Transparent pricing",
+    "recommended": "Recommended",
+    "recommendedSr": "Recommended pack",
     "title": "Buy tokens",
     "intro": "Each investment search costs 1 token. You currently have {{balance}}.",
     "loadingPacks": "Loading packs...",
@@ -208,6 +249,7 @@
     "loadError": "Could not load token packs. Please try again."
   },
   "paymentResult": {
+    "kicker": "Payment",
     "title": "Payment status",
     "polling": "Confirming your payment...",
     "pollingHint": "This can take a few seconds.",
@@ -224,11 +266,12 @@
     "backToBuy": "Back to buy tokens"
   },
   "notFound": {
-    "title": "404 - Page not found",
+    "title": "Page not found",
     "body": "The page you are looking for does not exist."
   },
   "placeholder": {
     "comingSoon": "Coming soon",
+    "badge": "In progress",
     "body": "This area is part of a later delivery milestone and is not built yet."
   },
   "toast": {

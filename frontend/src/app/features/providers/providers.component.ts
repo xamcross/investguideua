@@ -35,32 +35,42 @@ const RISK_KEYS: Record<RiskLevel, string> = {
   imports: [RouterLink, TranslateModule],
   template: `
     <section class="ig-card">
-      <h1>{{ 'providers.title' | translate }}</h1>
-      <p class="ig-muted">{{ 'providers.intro' | translate }}</p>
+      <div class="ig-page-head">
+        <h1 class="ig-display">{{ 'providers.title' | translate }}</h1>
+        <p class="ig-muted">{{ 'providers.intro' | translate }}</p>
+      </div>
 
       @if (loading()) {
         <p class="ig-muted">{{ 'providers.loading' | translate }}</p>
       } @else if (loadError()) {
-        <div class="ig-alert ig-alert--error">{{ loadError() }}</div>
+        <div class="ig-alert ig-alert--error" role="alert">{{ loadError() }}</div>
       } @else if (providers().length === 0) {
         <div class="ig-alert ig-alert--info">{{ 'providers.empty' | translate }}</div>
       } @else {
-        <ul class="ig-providers">
+        <ul class="ig-options">
           @for (p of providers(); track p.id) {
-            <li class="ig-provider">
-              <div class="ig-provider__head">
-                <h2 class="ig-provider__name">{{ p.name }}</h2>
-                <span class="ig-chip">{{ categoryLabel(p.category) | translate }}</span>
+            <li class="ig-opt">
+              <div class="ig-opt__head">
+                <span class="ig-opt__name">{{ p.name }}</span>
+                <span class="ig-opt__badges">
+                  <span class="ig-badge ig-badge--cat">{{ categoryLabel(p.category) | translate }}</span>
+                  <span class="ig-badge ig-badge--risk" [attr.data-risk]="p.riskLevel">{{ riskLabel(p.riskLevel) | translate }}</span>
+                </span>
               </div>
-              <p class="ig-provider__desc">{{ p.description }}</p>
-              <dl class="ig-provider__meta">
-                <div><dt>{{ 'providers.typicalReturn' | translate }}</dt><dd>{{ returnRange(p) }}</dd></div>
-                <div><dt>{{ 'providers.risk' | translate }}</dt><dd>{{ riskLabel(p.riskLevel) | translate }}</dd></div>
-                <div><dt>{{ 'providers.currencies' | translate }}</dt><dd>{{ p.currencies.join(', ') }}</dd></div>
-                <div><dt>{{ 'providers.minAmount' | translate }}</dt><dd>{{ minAmount(p) }}</dd></div>
+              <div class="ig-opt__return">
+                <span class="ig-opt__fig">{{ returnRange(p) }}</span>
+                <span class="ig-opt__unit">{{ 'common.perYear' | translate }}</span>
+                <span class="ig-opt__lbl">{{ 'providers.typicalReturn' | translate }}</span>
+              </div>
+              <p class="ig-opt__rationale">{{ p.description }}</p>
+              <dl class="ig-fact-grid">
+                <div class="ig-fact"><dt>{{ 'providers.currencies' | translate }}</dt><dd>{{ currencyList(p) }}</dd></div>
+                <div class="ig-fact"><dt>{{ 'providers.minAmount' | translate }}</dt><dd>{{ minAmount(p) }}</dd></div>
               </dl>
-              <a class="ig-provider__src" [href]="p.sourceUrl" target="_blank" rel="noopener noreferrer">
-                {{ 'common.officialSource' | translate }} ↗
+              <a class="ig-opt__src" [href]="p.sourceUrl" target="_blank" rel="noopener noreferrer">
+                {{ 'common.officialSource' | translate }}
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                     stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 3h7v7M13 3L4 12"/></svg>
               </a>
             </li>
           }
@@ -72,24 +82,7 @@ const RISK_KEYS: Record<RiskLevel, string> = {
   `,
   styles: [
     `
-      .ig-providers { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 1rem; }
-      .ig-provider { border: 1px solid var(--ig-border); border-radius: 10px; padding: 1.1rem; }
-      .ig-provider__head { display: flex; align-items: center; gap: 0.75rem; justify-content: space-between; }
-      .ig-provider__name { font-size: 1.1rem; margin: 0; }
-      .ig-chip {
-        background: rgba(0, 87, 183, 0.08); color: var(--ig-blue);
-        font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 999px; white-space: nowrap;
-      }
-      .ig-provider__desc { color: var(--ig-muted); margin: 0.5rem 0 0.75rem; }
-      .ig-provider__meta {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 0.5rem 1rem; margin: 0 0 0.75rem;
-      }
-      .ig-provider__meta dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ig-muted); }
-      .ig-provider__meta dd { margin: 0.1rem 0 0; font-weight: 600; }
-      .ig-provider__src { font-size: 0.85rem; font-weight: 700; text-decoration: none; color: var(--ig-blue); }
       .ig-back { margin-top: 1.5rem; }
-      .ig-alert--info { background: rgba(0, 87, 183, 0.06); border: 1px solid var(--ig-border); border-radius: 8px; padding: 0.75rem 1rem; }
     `,
   ],
 })
@@ -127,6 +120,13 @@ export class ProvidersComponent implements OnInit {
   returnRange(p: Provider): string {
     const { min, max } = p.typicalReturnPct;
     return min === max ? `${min}%` : `${min}–${max}%`;
+  }
+
+  /** Display-only: localize the UAH currency word ('грн'/'UAH') and join; no math change. */
+  currencyList(p: Provider): string {
+    return p.currencies
+      .map((c) => (c === 'UAH' ? this.translate.instant('common.currencyUahShort') : c))
+      .join(', ');
   }
 
   minAmount(p: Provider): string {

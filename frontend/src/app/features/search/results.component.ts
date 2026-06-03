@@ -2,64 +2,73 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { InvestmentOption, SearchResponse } from '../../core/investment/investment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
+import { CurrencyLabelPipe } from '../../core/i18n/currency-label.pipe';
 
 /**
  * Reusable results renderer (tickets FE-SEARCH2, FE-HIST2): the list of options plus the mandatory
  * disclaimers. Shared by the live search page and the history detail page so both render identically,
  * including disclaimers. The financial disclaimer is ALWAYS shown when present in the response
  * (AC #5); the currency-risk disclaimer is shown only when the server included it.
+ *
+ * Restyle note: all card/badge/disclaimer rules are GLOBAL (styles.css) so this component's styles[]
+ * is intentionally empty - this guarantees Search and History-detail render identically.
  */
 @Component({
   selector: 'ig-results',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [TranslateModule, CurrencyLabelPipe],
   template: `
     @if (result) {
       @if (result.options.length === 0) {
-        <div class="ig-alert ig-alert--info">{{ 'results.noOptions' | translate }}</div>
+        <div class="ig-alert ig-alert--info" role="status">{{ 'results.noOptions' | translate }}</div>
       } @else {
         <ul class="ig-options">
-          @for (opt of result.options; track opt.providerId + opt.instrument) {
-            <li class="ig-option">
-              <div class="ig-option__head">
-                <span class="ig-option__name">{{ opt.providerName }}</span>
-                <span class="ig-badge ig-badge--cat">{{ opt.category }}</span>
-                <span class="ig-badge ig-badge--risk" [attr.data-risk]="opt.riskLevel">
-                  {{ opt.riskLevel }}
+          @for (opt of result.options; track opt.providerId + opt.instrument; let i = $index) {
+            <li [class]="'ig-opt reveal d' + delay(i)">
+              <div class="ig-opt__head">
+                <span class="ig-opt__name">{{ opt.providerName }}</span>
+                <span class="ig-opt__badges">
+                  <span class="ig-badge ig-badge--cat">{{ 'category.' + opt.category | translate }}</span>
+                  <span class="ig-badge ig-badge--risk" [attr.data-risk]="opt.riskLevel">
+                    {{ 'risk.' + opt.riskLevel | translate }}
+                  </span>
                 </span>
               </div>
-              <div class="ig-option__instrument">{{ opt.instrument }}</div>
-              <dl class="ig-option__facts">
-                <div>
-                  <dt>{{ 'results.expectedReturn' | translate }}</dt>
-                  <dd>{{ opt.expectedReturnPct.min }}–{{ opt.expectedReturnPct.max }}% {{ 'common.perYear' | translate }}</dd>
-                </div>
-                <div>
+              <div class="ig-opt__instrument">{{ opt.instrument }}</div>
+              <div class="ig-opt__return">
+                <span class="ig-opt__fig">{{ opt.expectedReturnPct.min }}&ndash;{{ opt.expectedReturnPct.max }}</span>
+                <span class="ig-opt__unit">% {{ 'common.perYear' | translate }}</span>
+                <span class="ig-opt__lbl">{{ 'results.expectedReturn' | translate }}</span>
+              </div>
+              <dl class="ig-fact-grid">
+                <div class="ig-fact">
                   <dt>{{ 'results.currency' | translate }}</dt>
-                  <dd>{{ opt.currency }}</dd>
+                  <dd>{{ opt.currency | igCurrency }}</dd>
                 </div>
-                <div>
+                <div class="ig-fact">
                   <dt>{{ 'results.minAmount' | translate }}</dt>
                   <dd>{{ formatMoney(opt) }}</dd>
                 </div>
-                <div>
+                <div class="ig-fact">
                   <dt>{{ 'results.liquidity' | translate }}</dt>
-                  <dd>{{ opt.liquidity || '—' }}</dd>
+                  <dd>{{ opt.liquidity || ('common.dash' | translate) }}</dd>
                 </div>
               </dl>
               @if (opt.rationale) {
-                <p class="ig-option__rationale">{{ opt.rationale }}</p>
+                <p class="ig-opt__rationale">{{ opt.rationale }}</p>
               }
-              <a class="ig-option__src" [href]="opt.sourceUrl" target="_blank" rel="noopener noreferrer">
-                {{ 'common.officialSource' | translate }} ↗
+              <a class="ig-opt__src" [href]="opt.sourceUrl" target="_blank" rel="noopener noreferrer">
+                {{ 'common.officialSource' | translate }}
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                     stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 3h7v7M13 3L4 12"/></svg>
               </a>
             </li>
           }
         </ul>
       }
 
-      <div class="ig-disclaimer">
+      <div class="ig-disclaimer" role="note">
         <p>{{ result.disclaimer }}</p>
         @if (result.currencyRiskDisclaimer) {
           <p class="ig-disclaimer--currency">{{ result.currencyRiskDisclaimer }}</p>
@@ -67,33 +76,15 @@ import { formatMinorUnits } from '../../core/investment/money.util';
       </div>
     }
   `,
-  styles: [
-    `
-      .ig-options { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: 0.75rem; }
-      .ig-option { border: 1px solid var(--ig-border); border-radius: 10px; padding: 0.9rem 1rem; background: var(--ig-surface); }
-      .ig-option__head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-      .ig-option__name { font-weight: 700; font-size: 1.02rem; }
-      .ig-badge { font-size: 0.72rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; }
-      .ig-badge--cat { background: rgba(0, 87, 183, 0.1); color: var(--ig-blue); }
-      .ig-badge--risk { background: #eee; color: #333; }
-      .ig-badge--risk[data-risk='LOW'] { background: #e6f4ea; color: #1e7a3c; }
-      .ig-badge--risk[data-risk='MODERATE'] { background: #fdf2d6; color: #8a6d1a; }
-      .ig-badge--risk[data-risk='HIGH'] { background: #fbe3e1; color: #b3261e; }
-      .ig-option__instrument { margin: 0.4rem 0; color: var(--ig-ink); }
-      .ig-option__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.4rem 1rem; margin: 0.5rem 0; }
-      .ig-option__facts dt { font-size: 0.72rem; color: var(--ig-muted); text-transform: uppercase; letter-spacing: 0.03em; }
-      .ig-option__facts dd { margin: 0; font-weight: 600; font-size: 0.92rem; }
-      .ig-option__rationale { margin: 0.4rem 0; color: var(--ig-muted); font-size: 0.92rem; }
-      .ig-option__src { font-size: 0.85rem; font-weight: 600; color: var(--ig-blue); text-decoration: none; }
-      .ig-disclaimer { border-top: 1px solid var(--ig-border); padding-top: 0.75rem; color: var(--ig-muted); font-size: 0.82rem; }
-      .ig-disclaimer p { margin: 0.3rem 0; }
-      .ig-disclaimer--currency { color: #8a6d1a; font-weight: 600; }
-      .ig-alert--info { background: rgba(0, 87, 183, 0.06); border: 1px solid var(--ig-border); border-radius: 8px; padding: 0.75rem 1rem; }
-    `,
-  ],
+  styles: [],
 })
 export class ResultsComponent {
   @Input() result: SearchResponse | null = null;
+
+  /** Staggered reveal delay class index, capped at 5 (matches global .reveal .d1..d5). */
+  delay(i: number): number {
+    return Math.min(i + 1, 5);
+  }
 
   formatMoney(opt: InvestmentOption): string {
     return formatMinorUnits(opt.minAmount, opt.currency);

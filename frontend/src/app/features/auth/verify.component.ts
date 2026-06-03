@@ -21,7 +21,9 @@ type VerifyState = 'verifying' | 'success' | 'already' | 'invalid' | 'missing';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
-    <section class="ig-card ig-auth">
+    <div class="ig-auth--page">
+    <section class="ig-card ig-auth reveal d1">
+      <p class="ig-auth__eyebrow">{{ 'verify.eyebrow' | translate }}</p>
       <h1>{{ 'verify.title' | translate }}</h1>
 
       @switch (state()) {
@@ -50,8 +52,9 @@ type VerifyState = 'verifying' | 'success' | 'already' | 'invalid' | 'missing';
         }
       }
     </section>
+    </div>
   `,
-  styles: [`.ig-auth { max-width: 480px; margin: 0 auto; } .ig-auth h1 { margin-top: 0; }`],
+  styles: [],
 })
 export class VerifyComponent implements OnInit {
   private readonly auth = inject(AuthService);

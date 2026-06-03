@@ -18,8 +18,11 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
-    <section class="ig-card">
-      <h1>{{ 'account.title' | translate }}</h1>
+    <section class="ig-card reveal d1">
+      <div class="ig-page-head">
+        <p class="ig-kicker">{{ 'account.eyebrow' | translate }}</p>
+        <h1 class="ig-display">{{ 'account.title' | translate }}</h1>
+      </div>
 
       @if (loading()) {
         <p class="ig-muted">{{ 'account.loading' | translate }}</p>
@@ -41,7 +44,7 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
 
           <dt>{{ 'account.tokenBalance' | translate }}</dt>
           <dd>
-            {{ u.tokenBalance | igPlural: 'token' }}
+            <span class="ig-acct__balance">{{ u.tokenBalance | igPlural: 'token' }}</span>
             <a routerLink="/tokens" class="ig-inline-link">{{ 'account.buyMore' | translate }}</a>
           </dd>
 
@@ -76,37 +79,25 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   styles: [
     `
       .ig-profile {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.5rem 1.25rem;
-        margin: 1rem 0 1.5rem;
+        display: grid; grid-template-columns: auto 1fr; gap: 0; margin: 0 0 1.75rem;
         align-items: baseline;
       }
-      .ig-profile dt { color: var(--ig-muted); font-weight: 600; }
-      .ig-profile dd { margin: 0; }
-      .ig-badge {
-        display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px;
-        font-size: 0.78rem; font-weight: 700;
+      .ig-profile dt {
+        font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
+        color: var(--muted); padding: .75rem 1.25rem .75rem 0; border-top: 1px solid var(--line);
       }
-      .ig-badge--ok { background: rgba(39, 174, 96, 0.12); color: #1e8449; }
-      .ig-badge--warn { background: rgba(255, 213, 0, 0.18); color: #8a6d00; }
+      .ig-profile dd { margin: 0; padding: .75rem 0; border-top: 1px solid var(--line); }
+      .ig-acct__balance { font-family: var(--font-mono); font-weight: 700; }
       .ig-inline-link { margin-left: 0.6rem; font-size: 0.85rem; }
       .ig-actions { margin-bottom: 2rem; }
       .ig-danger-zone {
-        border-top: 1px solid var(--ig-border);
-        padding-top: 1.25rem;
+        background: var(--surface-2); border-left: 4px solid var(--gold-500);
+        border-radius: var(--radius-sm); padding: 1.25rem 1.25rem 1rem;
       }
       .ig-danger-zone h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
-      .ig-btn--ghost {
-        background: none; border: 1px solid var(--ig-border); color: var(--ig-ink);
-        padding: 0.4rem 0.9rem; border-radius: 8px; text-decoration: none; display: inline-block;
-        margin-right: 0.75rem;
-      }
-      .ig-linkbtn { background: none; border: none; color: var(--ig-muted); font: inherit; cursor: pointer; }
-      .ig-alert--info {
-        background: rgba(0, 87, 183, 0.06); border: 1px solid var(--ig-border);
-        border-radius: 8px; padding: 0.75rem 1rem; margin-top: 0.75rem;
-      }
+      .ig-danger-zone .ig-btn--ghost { margin-right: 0.75rem; }
+      .ig-linkbtn { background: none; border: none; color: var(--muted); font: inherit; cursor: pointer; }
+      .ig-linkbtn:hover { color: var(--ink); }
     `,
   ],
 })

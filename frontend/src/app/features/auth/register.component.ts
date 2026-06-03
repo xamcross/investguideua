@@ -19,8 +19,10 @@ import { parseApiError } from '../../core/api/api-error.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, RouterLink, TranslateModule],
   template: `
-    <section class="ig-card ig-auth">
+    <div class="ig-auth--page">
+    <section class="ig-card ig-auth reveal d1">
       @if (registeredEmail()) {
+        <p class="ig-auth__eyebrow">{{ 'register.eyebrowSent' | translate }}</p>
         <h1>{{ 'register.checkEmailTitle' | translate }}</h1>
         <div class="ig-alert ig-alert--success">
           {{ 'register.sentLink' | translate: { email: registeredEmail() } }}
@@ -29,6 +31,7 @@ import { parseApiError } from '../../core/api/api-error.util';
         <p class="ig-hint">{{ 'register.didntGet' | translate }}</p>
         <p><a routerLink="/login">{{ 'register.goToSignIn' | translate }}</a></p>
       } @else {
+        <p class="ig-auth__eyebrow">{{ 'register.eyebrow' | translate }}</p>
         <h1>{{ 'register.createTitle' | translate }}</h1>
         <p class="ig-muted">{{ 'register.subtitle' | translate }}</p>
 
@@ -61,8 +64,9 @@ import { parseApiError } from '../../core/api/api-error.util';
         <p class="ig-hint">{{ 'register.alreadyHave' | translate }} <a routerLink="/login">{{ 'register.signIn' | translate }}</a></p>
       }
     </section>
+    </div>
   `,
-  styles: [`.ig-auth { max-width: 480px; margin: 0 auto; } .ig-auth h1 { margin-top: 0; }`],
+  styles: [],
 })
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);

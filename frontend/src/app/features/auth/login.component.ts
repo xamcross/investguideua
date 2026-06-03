@@ -16,7 +16,9 @@ import { parseApiError } from '../../core/api/api-error.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, RouterLink, TranslateModule],
   template: `
-    <section class="ig-card ig-auth">
+    <div class="ig-auth--page">
+    <section class="ig-card ig-auth reveal d1">
+      <p class="ig-auth__eyebrow">{{ 'login.eyebrow' | translate }}</p>
       <h1>{{ 'login.title' | translate }}</h1>
 
       <form class="ig-form" [formGroup]="form" (ngSubmit)="submit()">
@@ -41,8 +43,9 @@ import { parseApiError } from '../../core/api/api-error.util';
 
       <p class="ig-hint">{{ 'login.newHere' | translate }} <a routerLink="/register">{{ 'login.createAccount' | translate }}</a></p>
     </section>
+    </div>
   `,
-  styles: [`.ig-auth { max-width: 480px; margin: 0 auto; } .ig-auth h1 { margin-top: 0; }`],
+  styles: [],
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
