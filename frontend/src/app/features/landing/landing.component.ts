@@ -117,7 +117,7 @@ import { AuthService } from '../../core/auth/auth.service';
       .ig-step:hover::before { transform: scaleY(1); }
       .ig-step__num { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.6rem; color: var(--gold-600); display: block; margin-bottom: .25rem; }
       .ig-step h3 { margin: .15rem 0; }
-      .ig-l-disclaimer { display: flex; gap: .6rem; align-items: flex-start; max-width: 70ch;
+      .ig-l-disclaimer { display: flex; gap: .6rem; align-items: flex-start;
         margin: 1.5rem 0 0; padding: .85rem 1rem; border-left: 4px solid var(--gold-500);
         background: var(--surface-2); border-radius: var(--radius-sm); color: var(--muted); font-size: .85rem; }
       .ig-l-disclaimer svg { flex: none; margin-top: .15rem; color: var(--gold-700); }
