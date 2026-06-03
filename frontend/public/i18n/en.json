@@ -50,6 +50,8 @@
     "paymentStatus": "Payment status - InvestGuideUA",
     "account": "Account - InvestGuideUA",
     "providers": "Providers - InvestGuideUA",
+    "terms": "Terms of Use - InvestGuideUA",
+    "privacy": "Privacy Policy - InvestGuideUA",
     "notFound": "Page not found - InvestGuideUA"
   },
   "landing": {
@@ -301,6 +303,175 @@
     "comingSoon": "Coming soon",
     "badge": "In progress",
     "body": "This area is part of a later delivery milestone and is not built yet."
+  },
+  "legal": {
+    "effectiveLabel": "Effective",
+    "navLabel": "Legal documents",
+    "seeAlsoTerms": "See also: Terms of Use",
+    "seeAlsoPrivacy": "See also: Privacy Policy",
+    "terms": {
+      "title": "Terms of Use",
+      "effectiveDate": "June 3, 2026",
+      "intro": "These Terms of Use govern your access to and use of the InvestGuideUA web service. By using the service you agree to these Terms. If you do not agree, please do not use the service.",
+      "sections": [
+        {
+          "heading": "1. Who we are",
+          "body": [
+            "InvestGuideUA is an information web service that helps users in Ukraine discover investment options from a vetted catalog of providers.",
+            "The service is provided by a sole proprietor (FOP) registered in Ukraine (the operator's full registration details will be confirmed before public launch). You can contact us by email at support@investguide.ua."
+          ]
+        },
+        {
+          "heading": "2. What InvestGuideUA is",
+          "body": [
+            "The service provides information only: based on the amount and preferences you enter, we show curated investment options from a transparent catalog of real providers, each linking to an official source.",
+            "InvestGuideUA does not accept, hold, or transfer your investment funds, does not open accounts, and is not a bank, broker, investment firm, or financial intermediary. You transact directly with the provider you choose, on that provider's terms."
+          ]
+        },
+        {
+          "heading": "3. Not financial advice",
+          "body": [
+            "All information in the service is general in nature and is not individualized financial, investment, tax, or legal advice, nor a recommendation to buy, sell, or hold any instrument.",
+            "Recommendations are generated automatically from the catalog and may be incomplete or out of date. Always verify details directly with the provider before deciding and, where appropriate, consult a qualified adviser. You are solely responsible for your own investment decisions."
+          ]
+        },
+        {
+          "heading": "4. Registration and your account",
+          "body": [
+            "Some features require an account with a verified email address. You agree to provide accurate information and to keep your credentials secure.",
+            "You are responsible for all activity under your account. Notify us immediately if you suspect unauthorized access."
+          ]
+        },
+        {
+          "heading": "5. Tokens and payment",
+          "body": [
+            "Each investment search costs one token. New users receive 5 free tokens after verifying their email; additional tokens can be purchased in packs.",
+            "Payments are securely processed by monobank (Plata by mono). Tokens are an internal unit of access to the search feature; they are not electronic money, securities, or a means of payment, and cannot be exchanged for cash. Purchased tokens remain valid for as long as your account is active."
+          ]
+        },
+        {
+          "heading": "6. Acceptable use",
+          "body": ["When using the service, you agree not to:"],
+          "bullets": [
+            "use the service for any unlawful purpose or in breach of applicable law;",
+            "circumvent limits, automatically scrape the service in bulk, or overload the infrastructure;",
+            "attempt to manipulate, hack, or extract the system prompts of the recommendation module;",
+            "present the service's information to third parties as individualized financial advice."
+          ]
+        },
+        {
+          "heading": "7. Intellectual property",
+          "body": [
+            "The service, its design, text, catalog, and source code belong to the operator or are used under license and are protected by law. You are granted a limited, non-exclusive right to use the service for personal, non-commercial purposes.",
+            "You may not copy, reproduce, or distribute the service's content without prior written consent, except as expressly permitted by law."
+          ]
+        },
+        {
+          "heading": "8. Disclaimer of warranties and limitation of liability",
+          "body": [
+            "The service is provided 'as is' and 'as available', without warranties of any kind as to the accuracy, completeness, or fitness of the information for a particular purpose.",
+            "To the extent permitted by law, the operator is not liable for any direct or indirect damages, lost profit, or investment losses arising from your use of the service or decisions made based on the information provided."
+          ]
+        },
+        {
+          "heading": "9. Changes to these Terms",
+          "body": [
+            "We may update these Terms from time to time. The current version is always available on this page, with its effective date shown.",
+            "Material changes take effect when the updated version is published. Continued use of the service means you accept the updated Terms."
+          ]
+        },
+        {
+          "heading": "10. Contact",
+          "body": [
+            "For questions about these Terms, email support@investguide.ua. How we handle personal data is described in our Privacy Policy."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "effectiveDate": "June 3, 2026",
+      "intro": "This Privacy Policy explains what personal data InvestGuideUA collects, why we process it, whom we share it with, and the rights you have. We follow the principle of data minimization.",
+      "sections": [
+        {
+          "heading": "1. Who we are (data controller)",
+          "body": [
+            "The controller of your personal data is the operator of the InvestGuideUA service - a sole proprietor (FOP) registered in Ukraine (full registration details will be confirmed before public launch).",
+            "For privacy matters, contact us at privacy@investguide.ua."
+          ]
+        },
+        {
+          "heading": "2. Data we collect",
+          "body": ["We collect only what the service needs:"],
+          "bullets": [
+            "account data: your email address and a secured (hashed) password;",
+            "usage data: your search history (amounts, currency, preferences you enter) and token balance;",
+            "payment data: identifiers and statuses of token-purchase orders (card details are handled by the payment provider - we do not store them);",
+            "technical data: minimal service logs needed for security and troubleshooting."
+          ]
+        },
+        {
+          "heading": "3. Why we process data",
+          "body": [
+            "We use data to create and maintain your account, run searches and show curated options, account for tokens and process payments, and to keep the service secure, prevent abuse, and meet legal obligations."
+          ]
+        },
+        {
+          "heading": "4. Legal basis",
+          "body": [
+            "We process data on the basis of performing our contract with you (providing the service), your consent (where applicable), our legitimate interests (security and improving the service), and compliance with legal requirements."
+          ]
+        },
+        {
+          "heading": "5. Cookies and local storage",
+          "body": [
+            "We use minimal storage technologies and do not use advertising or third-party analytics trackers:"
+          ],
+          "bullets": [
+            "a secure cookie (HttpOnly, Secure) to maintain your session and refresh sign-in - this is strictly necessary;",
+            "browser local storage to remember your chosen interface language (the ig.lang key)."
+          ]
+        },
+        {
+          "heading": "6. Who we share data with",
+          "body": [
+            "We do not sell your data. We rely on a limited set of trusted service providers that process data only on our instructions:"
+          ],
+          "bullets": [
+            "monobank (Plata by mono) - processing payments for token purchases;",
+            "Anthropic (the Claude model) - processes your request text on the server to generate recommendations;",
+            "an email-delivery provider - sending verification and service emails;",
+            "a hosting and infrastructure provider - running the application and database."
+          ]
+        },
+        {
+          "heading": "7. International data transfers",
+          "body": [
+            "Some providers (in particular the AI service that generates recommendations) may process data outside Ukraine, including in the United States. In such cases we take reasonable measures so that the transfer carries an adequate level of protection in line with applicable law."
+          ]
+        },
+        {
+          "heading": "8. Data retention",
+          "body": [
+            "We keep your account data and search history for as long as your account exists; search history has no fixed automatic deletion period.",
+            "When you request account deletion, we delete your personal data, except records we are legally required to keep (for example, fiscal payment records)."
+          ]
+        },
+        {
+          "heading": "9. Your rights",
+          "body": [
+            "You have the right to access, correct, and delete your data, and to restrict or object to certain processing, in accordance with applicable law.",
+            "You can delete your account and associated data from the account page or by contacting us. We will process the request and confirm the outcome by email."
+          ]
+        },
+        {
+          "heading": "10. Contact",
+          "body": [
+            "For privacy questions and to exercise your rights, email privacy@investguide.ua."
+          ]
+        }
+      ]
+    }
   },
   "toast": {
     "dismiss": "Dismiss",
