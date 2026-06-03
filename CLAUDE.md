@@ -1,4 +1,4 @@
-# CLAUDE.md — Engineering conventions for InvestGuideUA
+﻿# CLAUDE.md — Engineering conventions for InvestGuideUA
 
 Guidance for any agent working in this repo. Development and local deployment target **Windows**
 (PowerShell 5.1 / 7+, Docker Desktop). See `SPECIFICATION.md` and `TASKS.md` for scope.

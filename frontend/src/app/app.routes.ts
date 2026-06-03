@@ -85,19 +85,21 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/providers/providers.component').then((m) => m.ProvidersComponent),
   },
-  // Public legal stubs linked from the footer. Additive routes; reuse the placeholder page until the
-  // real Terms/Privacy content is authored. No guard (public).
+  // Public legal screens linked from the footer (feature 004). One shared LegalDocumentComponent
+  // renders both; `data.doc` selects the i18n content namespace via component-input binding. No guard.
   {
     path: 'terms',
-    title: 'footer.terms',
+    title: 'title.terms',
+    data: { doc: 'terms' },
     loadComponent: () =>
-      import('./features/placeholder/placeholder.component').then((m) => m.PlaceholderComponent),
+      import('./features/legal/legal-document.component').then((m) => m.LegalDocumentComponent),
   },
   {
     path: 'privacy',
-    title: 'footer.privacy',
+    title: 'title.privacy',
+    data: { doc: 'privacy' },
     loadComponent: () =>
-      import('./features/placeholder/placeholder.component').then((m) => m.PlaceholderComponent),
+      import('./features/legal/legal-document.component').then((m) => m.LegalDocumentComponent),
   },
   {
     path: '**',
