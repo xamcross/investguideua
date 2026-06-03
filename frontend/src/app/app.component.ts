@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from './core/auth/auth.service';
@@ -29,34 +29,43 @@ import { PluralPipe } from './core/i18n/plural.pipe';
   template: `
     <header class="ig-topbar">
       <div class="ig-topbar__inner">
-        <a class="ig-brand" routerLink="/">
+        <a class="ig-brand" routerLink="/" (click)="menuOpen.set(false)">
           <span class="ig-brand__mark" aria-hidden="true"></span>
-          InvestGuide<span class="ig-brand__ua">UA</span>
+          InvestGuide<b class="ig-brand__ua">UA</b>
         </a>
 
-        <nav class="ig-nav">
+        <nav class="ig-nav" id="ig-primary-nav" [class.is-open]="menuOpen()">
           <div class="ig-nav__actions">
           @if (auth.isAuthenticated()) {
-            <a routerLink="/search" routerLinkActive="is-active">{{ 'nav.search' | translate }}</a>
-            <a routerLink="/history" routerLinkActive="is-active">{{ 'nav.history' | translate }}</a>
-            <a routerLink="/providers" routerLinkActive="is-active">{{ 'nav.providers' | translate }}</a>
+            <a routerLink="/search" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
+            <a routerLink="/history" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
+            <a routerLink="/providers" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
             <a routerLink="/tokens" routerLinkActive="is-active" class="ig-balance"
-               [title]="'nav.balanceTitle' | translate">
+               [title]="'nav.balanceTitle' | translate" (click)="menuOpen.set(false)">
               {{ auth.tokenBalance() | igPlural: 'token' }}
             </a>
-            <a routerLink="/account" routerLinkActive="is-active">{{ 'nav.account' | translate }}</a>
+            <a routerLink="/account" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.account' | translate }}</a>
             <button type="button" class="ig-linkbtn" (click)="logout()">{{ 'nav.signOut' | translate }}</button>
           } @else {
-            <a routerLink="/login" routerLinkActive="is-active">{{ 'nav.signIn' | translate }}</a>
-            <a routerLink="/register" routerLinkActive="is-active" class="ig-btn ig-btn--nav">{{ 'nav.register' | translate }}</a>
+            <a routerLink="/login" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.signIn' | translate }}</a>
+            <a routerLink="/register" routerLinkActive="is-active" class="ig-btn ig-btn--nav" (click)="menuOpen.set(false)">{{ 'nav.register' | translate }}</a>
           }
           </div>
-
-          <button type="button" class="ig-lang" (click)="lang.toggle()"
-                  [attr.aria-label]="(lang.current() === 'uk' ? 'lang.toEnglish' : 'lang.toUkrainian') | translate">
-            <span [class.is-active]="lang.current() === 'uk'">UA</span><span aria-hidden="true">/</span><span [class.is-active]="lang.current() === 'en'">EN</span>
-          </button>
         </nav>
+
+        <div class="ig-topbar__tools">
+          <button type="button" class="ig-lang" (click)="lang.toggle()"
+                  [attr.aria-pressed]="lang.current() === 'en'"
+                  [attr.aria-label]="(lang.current() === 'uk' ? 'lang.toEnglish' : 'lang.toUkrainian') | translate">
+            <span lang="uk" [class.is-active]="lang.current() === 'uk'">UA</span><span aria-hidden="true">/</span><span lang="en" [class.is-active]="lang.current() === 'en'">EN</span>
+          </button>
+
+          <button type="button" class="ig-nav__toggle" (click)="menuOpen.set(!menuOpen())"
+                  aria-controls="ig-primary-nav" [attr.aria-expanded]="menuOpen()"
+                  [attr.aria-label]="(menuOpen() ? 'nav.menuClose' : 'nav.menuOpen') | translate">
+            <span class="ig-burger" aria-hidden="true"></span>
+          </button>
+        </div>
       </div>
       <div class="ig-flag" aria-hidden="true"></div>
     </header>
@@ -71,52 +80,87 @@ import { PluralPipe } from './core/i18n/plural.pipe';
   `,
   styles: [
     `
-      .ig-topbar { background: var(--ig-surface); border-bottom: 1px solid var(--ig-border); }
+      .ig-topbar {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(246, 243, 236, .82);
+        -webkit-backdrop-filter: saturate(140%) blur(12px);
+        backdrop-filter: saturate(140%) blur(12px);
+        border-bottom: 1px solid var(--line);
+      }
       .ig-topbar__inner {
-        max-width: 920px; margin: 0 auto; padding: 0.75rem 1rem;
-        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+        max-width: var(--maxw); margin: 0 auto; padding: .7rem 1rem;
+        display: flex; align-items: center; gap: 1rem;
       }
       .ig-brand {
-        font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--ig-ink);
-        display: inline-flex; align-items: center; gap: 0.5rem;
+        font-family: var(--font-display); font-weight: 800; font-size: 1.25rem;
+        text-decoration: none; color: var(--ink); display: inline-flex; align-items: center; gap: .55rem;
       }
-      .ig-brand__ua { color: var(--ig-blue); }
+      .ig-brand:hover { text-decoration: none; }
+      .ig-brand__ua { color: var(--blue-600); font-style: normal; }
       .ig-brand__mark {
-        width: 14px; height: 14px; border-radius: 50%;
-        background: linear-gradient(180deg, var(--ig-blue) 50%, var(--ig-yellow) 50%);
+        width: 30px; height: 30px; border-radius: 9px; transform: rotate(-6deg);
+        background: linear-gradient(180deg, var(--blue-600) 0 50%, var(--gold-500) 50% 100%);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,.25), var(--shadow-sm);
       }
-      .ig-nav { display: flex; align-items: center; gap: 1rem; }
-      .ig-nav__actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-      .ig-nav a { text-decoration: none; color: var(--ig-muted); font-weight: 600; font-size: 0.92rem; }
-      .ig-nav a.is-active { color: var(--ig-blue); }
-      .ig-balance { background: rgba(0, 87, 183, 0.08); padding: 0.25rem 0.6rem; border-radius: 999px; color: var(--ig-blue) !important; }
-      .ig-btn--nav { color: #fff !important; padding: 0.4rem 0.9rem; border-radius: 8px; }
-      .ig-linkbtn { background: none; border: none; color: var(--ig-muted); font: inherit; font-weight: 600; cursor: pointer; }
-      .ig-linkbtn:hover { color: var(--ig-danger); }
-      .ig-nav a, .ig-nav button { white-space: nowrap; }
+      .ig-nav { flex: 1; display: flex; justify-content: flex-end; }
+      .ig-nav__actions { display: flex; align-items: center; gap: 1.1rem; }
+      .ig-nav a {
+        text-decoration: none; color: var(--muted); font-weight: 600; font-size: .92rem;
+        position: relative; padding: .2rem 0; white-space: nowrap;
+      }
+      .ig-nav a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
+        background: var(--gold-500); transition: right .25s var(--ease); }
+      .ig-nav a:hover { color: var(--ink); text-decoration: none; }
+      .ig-nav a:hover::after, .ig-nav a.is-active::after { right: 0; }
+      .ig-nav a.is-active { color: var(--ink); }
+      .ig-balance {
+        font-family: var(--font-mono); font-weight: 700; font-size: .82rem; color: var(--navy-900) !important;
+        background: linear-gradient(180deg, var(--gold-100), var(--gold-300));
+        padding: .3rem .7rem .3rem .65rem; border-radius: 999px; display: inline-flex; align-items: center; gap: .4rem;
+      }
+      .ig-balance::after { display: none; }
+      .ig-balance::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold-600); flex: none; }
+      .ig-btn--nav { color: #fff !important; padding: .4rem 1rem; }
+      .ig-btn--nav::after { display: none; }
+      .ig-linkbtn { background: none; border: none; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
+      .ig-linkbtn:hover { color: var(--danger-fg); }
+      .ig-topbar__tools { display: flex; align-items: center; gap: .6rem; flex: none; }
       .ig-lang {
-        display: inline-flex; align-items: center; justify-content: center; gap: 0.1rem;
-        min-height: 44px; padding: 0.4rem 0.7rem; border: 1px solid var(--ig-border);
-        border-radius: 999px; background: none; font: inherit; font-size: 0.82rem;
-        font-weight: 700; color: var(--ig-muted); cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: .15rem;
+        min-height: 40px; padding: .35rem .7rem; border: 1px solid var(--line-2);
+        border-radius: 999px; background: var(--surface); font-family: var(--font-mono); font-size: .78rem;
+        font-weight: 700; color: var(--muted); cursor: pointer;
       }
-      .ig-lang span.is-active { color: var(--ig-blue); }
-      .ig-lang:focus-visible { outline: 2px solid var(--ig-blue); outline-offset: 2px; }
-      @media (max-width: 560px) {
-        /* Fixed two-row grid so the structure is IDENTICAL in every language: row 1 = brand + UA/EN
-           toggle, row 2 = the full-width actions (they get the whole row, so longer Ukrainian labels
-           still fit on one line and never reflow the header). The brand spans both rows and is
-           vertically centred against them. */
-        .ig-topbar__inner { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 0.75rem; row-gap: 0.5rem; }
-        .ig-brand { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
-        .ig-nav { display: contents; }
-        .ig-lang { grid-column: 2; grid-row: 1; justify-self: end; }
-        .ig-nav__actions { grid-column: 1 / -1; grid-row: 2; justify-content: flex-end; align-self: end; gap: 0.6rem 0.75rem; }
+      .ig-lang span.is-active { color: var(--blue-600); }
+      .ig-nav__toggle {
+        display: none; width: 44px; height: 44px; align-items: center; justify-content: center;
+        border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer;
       }
-      .ig-flag { height: 4px; background: linear-gradient(90deg, var(--ig-blue) 50%, var(--ig-yellow) 50%); }
-      .ig-sr-only {
-        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-        overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+      .ig-burger, .ig-burger::before, .ig-burger::after {
+        content: ""; display: block; width: 18px; height: 2px; background: var(--ink); border-radius: 2px; position: relative;
+      }
+      .ig-burger::before { position: absolute; top: -6px; }
+      .ig-burger::after { position: absolute; top: 6px; }
+      .ig-flag { height: 5px; background: linear-gradient(90deg, var(--blue-600) 0 50%, var(--gold-500) 50% 100%); }
+
+      @media (max-width: 760px) {
+        .ig-nav__toggle { display: inline-flex; }
+        .ig-nav {
+          position: absolute; left: 0; right: 0; top: 100%; flex: none; justify-content: stretch;
+          background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-md);
+          max-height: 0; overflow: hidden; transition: max-height .3s var(--ease);
+        }
+        .ig-nav.is-open { max-height: 80vh; }
+        .ig-topbar__inner { position: relative; flex-wrap: wrap; }
+        .ig-brand { flex: 1; }
+        .ig-nav__actions { flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding: .5rem 0; }
+        .ig-nav__actions > * { padding: .85rem 1.25rem; }
+        .ig-nav a::after { display: none; }
+        .ig-balance { align-self: flex-start; }
+        .ig-linkbtn { text-align: left; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ig-nav { transition: none; }
       }
     `,
   ],
@@ -125,6 +169,9 @@ export class AppComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly lang = inject(LanguageService);
   private readonly router = inject(Router);
+
+  /** Responsive mobile-menu disclosure state (defect fix: nav + balance reachable on narrow screens). */
+  protected readonly menuOpen = signal(false);
 
   ngOnInit(): void {
     // Apply the resolved startup language (localStorage -> Ukrainian default) and wire ngx-translate.
@@ -139,6 +186,7 @@ export class AppComponent implements OnInit {
   }
 
   logout(): void {
+    this.menuOpen.set(false);
     this.auth.logout();
     void this.router.navigate(['/']);
   }

@@ -10,6 +10,7 @@ import { toMinorUnits } from '../../core/investment/money.util';
 import { parseApiError } from '../../core/api/api-error.util';
 import { LanguageService } from '../../core/i18n/language.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
+import { CurrencyLabelPipe } from '../../core/i18n/currency-label.pipe';
 import { ResultsComponent } from './results.component';
 
 /**
@@ -29,10 +30,11 @@ import { ResultsComponent } from './results.component';
   selector: 'ig-search',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ResultsComponent, DecimalPipe, TranslateModule, PluralPipe],
+  imports: [ReactiveFormsModule, RouterLink, ResultsComponent, DecimalPipe, TranslateModule, PluralPipe, CurrencyLabelPipe],
   template: `
-    <section class="ig-card">
-      <h1>{{ 'search.title' | translate }}</h1>
+    <section class="ig-card ig-search__head reveal d1">
+      <p class="ig-kicker">{{ 'search.kicker' | translate }}</p>
+      <h1 class="ig-display">{{ 'search.title' | translate }}</h1>
       <p class="ig-muted">{{ 'search.intro' | translate: { balance: (balance() | igPlural: 'token') } }}</p>
 
       @if (balance() === 0) {
@@ -41,19 +43,21 @@ import { ResultsComponent } from './results.component';
         </div>
       }
 
-      <form class="ig-form" [formGroup]="form" (ngSubmit)="submit()">
+      <form class="ig-form ig-form--wide" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <div class="ig-grid2">
           <div class="ig-field">
             <label for="amount">{{ 'search.amount' | translate }}</label>
             <input id="amount" type="number" inputmode="decimal" step="0.01" min="0.01"
-                   formControlName="amount" />
+                   formControlName="amount"
+                   [attr.aria-invalid]="showError('amount') ? 'true' : null"
+                   [attr.aria-describedby]="showError('amount') ? 'amount-error' : null" />
             @if (showError('amount')) {
-              <span class="ig-error">{{ 'search.amountError' | translate }}</span>
+              <span id="amount-error" class="ig-error" role="alert">{{ 'search.amountError' | translate }}</span>
             }
           </div>
           <div class="ig-field">
             <label for="currency">{{ 'search.currency' | translate }}</label>
-            <select id="currency" formControlName="currency">
+            <select id="currency" class="ig-select" formControlName="currency">
               <option value="UAH">UAH</option>
               <option value="USD">USD</option>
             </select>
@@ -63,7 +67,7 @@ import { ResultsComponent } from './results.component';
         <div class="ig-grid2">
           <div class="ig-field">
             <label for="horizon">{{ 'search.horizon' | translate }}</label>
-            <select id="horizon" formControlName="horizon">
+            <select id="horizon" class="ig-select" formControlName="horizon">
               <option [ngValue]="null">{{ 'search.any' | translate }}</option>
               <option value="SHORT">{{ 'search.horizonShort' | translate }}</option>
               <option value="MEDIUM">{{ 'search.horizonMedium' | translate }}</option>
@@ -72,7 +76,7 @@ import { ResultsComponent } from './results.component';
           </div>
           <div class="ig-field">
             <label for="risk">{{ 'search.risk' | translate }}</label>
-            <select id="risk" formControlName="riskTolerance">
+            <select id="risk" class="ig-select" formControlName="riskTolerance">
               <option [ngValue]="null">{{ 'search.any' | translate }}</option>
               <option value="LOW">{{ 'search.riskLow' | translate }}</option>
               <option value="MODERATE">{{ 'search.riskModerate' | translate }}</option>
@@ -100,15 +104,15 @@ import { ResultsComponent } from './results.component';
           </div>
         }
 
-        <button type="submit" class="ig-btn" [disabled]="submitting() || balance() === 0">
+        <button type="submit" class="ig-btn ig-btn--lg" [disabled]="submitting() || balance() === 0">
           {{ (submitting() ? 'search.submitting' : 'search.submit') | translate }}
         </button>
       </form>
     </section>
 
     @if (result()) {
-      <section class="ig-card">
-        <h2>{{ 'search.optionsFor' | translate: { amount: (result()!.amount / 100 | number: '1.2-2'), currency: result()!.currency } }}</h2>
+      <section class="ig-card ig-results-wrap">
+        <h2>{{ 'search.optionsFor' | translate: { amount: (result()!.amount / 100 | number: '1.2-2'), currency: (result()!.currency | igCurrency) } }}</h2>
         <ig-results [result]="result()!" />
       </section>
     }
@@ -117,9 +121,8 @@ import { ResultsComponent } from './results.component';
     `
       .ig-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
       @media (max-width: 520px) { .ig-grid2 { grid-template-columns: 1fr; } }
-      textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 0.5rem; border: 1px solid var(--ig-border); border-radius: 8px; }
-      select { width: 100%; box-sizing: border-box; font: inherit; padding: 0.5rem; border: 1px solid var(--ig-border); border-radius: 8px; background: #fff; }
-      .ig-alert--info { background: rgba(0, 87, 183, 0.06); border: 1px solid var(--ig-border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; }
+      .ig-form--wide { max-width: 560px; }
+      .ig-search__head h1 { margin-top: 0; }
     `,
   ],
 })

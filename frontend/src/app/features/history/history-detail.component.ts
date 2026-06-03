@@ -23,18 +23,45 @@ import { ResultsComponent } from '../search/results.component';
       @if (loading()) {
         <p class="ig-muted">{{ 'common.loading' | translate }}</p>
       } @else if (notFound()) {
-        <h1>{{ 'historyDetail.notFoundTitle' | translate }}</h1>
-        <p class="ig-muted">{{ 'historyDetail.notFoundBody' | translate }}</p>
-        <p><a routerLink="/history">{{ 'historyDetail.backToHistory' | translate }}</a></p>
+        <div class="ig-empty">
+          <div class="ig-empty__mark" aria-hidden="true"></div>
+          <h1>{{ 'historyDetail.notFoundTitle' | translate }}</h1>
+          <p>{{ 'historyDetail.notFoundBody' | translate }}</p>
+          <div class="ig-empty__actions">
+            <a routerLink="/history" class="ig-btn ig-btn--ghost">{{ 'historyDetail.backToHistory' | translate }}</a>
+          </div>
+        </div>
       } @else if (result()) {
-        <p><a routerLink="/history">← {{ 'historyDetail.backToHistoryArrow' | translate }}</a></p>
-        <h1>{{ result()!.amount / 100 | number: '1.2-2' }} {{ result()!.currency }}</h1>
+        <a class="ig-back-link" routerLink="/history">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+               stroke-width="2" aria-hidden="true" focusable="false"><path d="M10 3L5 8l5 5"/></svg>
+          {{ 'historyDetail.backToHistoryArrow' | translate }}
+        </a>
+        <h1 class="ig-detail__amount">
+          {{ result()!.amount / 100 | number: '1.2-2' }}
+          <span class="ig-detail__cur">{{ result()!.currency }}</span>
+        </h1>
         <ig-results [result]="result()!" />
       } @else if (error()) {
-        <div class="ig-alert ig-alert--error">{{ error() }}</div>
+        <div class="ig-alert ig-alert--error" role="alert">{{ error() }}</div>
       }
     </section>
   `,
+  styles: [
+    `
+      .ig-back-link {
+        display: inline-flex; align-items: center; gap: .4rem; margin-bottom: 1rem;
+        font-family: var(--font-mono); font-size: .8rem; font-weight: 700; color: var(--muted);
+        text-decoration: none;
+      }
+      .ig-back-link:hover { color: var(--blue-600); text-decoration: none; }
+      .ig-back-link svg { transition: transform .2s var(--ease); }
+      .ig-back-link:hover svg { transform: translateX(-3px); }
+      .ig-detail__amount { font-family: var(--font-display); }
+      .ig-detail__cur { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--muted); }
+      @media (prefers-reduced-motion: reduce) { .ig-back-link svg { transition: none; } }
+    `,
+  ],
 })
 export class HistoryDetailComponent implements OnInit {
   private readonly investments = inject(InvestmentService);

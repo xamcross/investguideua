@@ -33,16 +33,22 @@ type ResultState = 'polling' | 'success' | 'failed' | 'processing' | 'missing';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
-    <section class="ig-card ig-result">
-      <h1>{{ 'paymentResult.title' | translate }}</h1>
+    <section class="ig-card ig-result reveal d1" [attr.data-state]="state()">
+      <p class="ig-kicker">{{ 'paymentResult.kicker' | translate }}</p>
+      <h1 class="ig-display ig-display--sm">{{ 'paymentResult.title' | translate }}</h1>
 
       @switch (state()) {
         @case ('polling') {
-          <p class="ig-muted">{{ 'paymentResult.polling' | translate }}</p>
-          <p class="ig-muted ig-fineprint">{{ 'paymentResult.pollingHint' | translate }}</p>
+          <div class="ig-result__polling" role="status">
+            <span class="ig-spinner" aria-hidden="true"></span>
+            <div>
+              <p class="ig-muted">{{ 'paymentResult.polling' | translate }}</p>
+              <p class="ig-muted ig-fineprint">{{ 'paymentResult.pollingHint' | translate }}</p>
+            </div>
+          </div>
         }
         @case ('success') {
-          <div class="ig-alert ig-alert--success">
+          <div class="ig-alert ig-alert--success" role="status">
             {{ 'paymentResult.success' | translate: { tokens: (payment()?.tokensToCredit | igPlural: 'token') } }}
             @if (balanceRefreshed()) {
               {{ 'paymentResult.balanceNow' | translate: { balance: (auth.tokenBalance() | igPlural: 'token') } }}
@@ -51,18 +57,18 @@ type ResultState = 'polling' | 'success' | 'failed' | 'processing' | 'missing';
           <p><a class="ig-btn ig-btn--primary" routerLink="/search">{{ 'paymentResult.startSearch' | translate }}</a></p>
         }
         @case ('failed') {
-          <div class="ig-alert ig-alert--error">{{ 'paymentResult.failed' | translate }}</div>
+          <div class="ig-alert ig-alert--error" role="alert">{{ 'paymentResult.failed' | translate }}</div>
           <p><a class="ig-btn ig-btn--primary" routerLink="/tokens">{{ 'paymentResult.tryAgain' | translate }}</a></p>
         }
         @case ('processing') {
-          <div class="ig-alert ig-alert--info">{{ 'paymentResult.processing' | translate }}</div>
+          <div class="ig-alert ig-alert--info" role="status">{{ 'paymentResult.processing' | translate }}</div>
           <p>
             <a class="ig-btn ig-btn--ghost" routerLink="/account">{{ 'paymentResult.viewAccount' | translate }}</a>
             <a class="ig-btn ig-btn--ghost" routerLink="/search">{{ 'paymentResult.goToSearch' | translate }}</a>
           </p>
         }
         @case ('missing') {
-          <div class="ig-alert ig-alert--info">
+          <div class="ig-alert ig-alert--info" role="status">
             {{ 'paymentResult.missing' | translate }}
             <a routerLink="/account">{{ 'paymentResult.accountPage' | translate }}</a>.
           </div>
@@ -73,15 +79,26 @@ type ResultState = 'polling' | 'success' | 'failed' | 'processing' | 'missing';
   `,
   styles: [
     `
-      .ig-result { max-width: 520px; margin: 0 auto; }
+      .ig-result { position: relative; overflow: hidden; max-width: 520px; margin: 0 auto; }
       .ig-result h1 { margin-top: 0; }
+      .ig-result::before {
+        content: ""; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; background: var(--blue-500);
+      }
+      .ig-result[data-state='success']::before { background: var(--success-fg); }
+      .ig-result[data-state='failed']::before { background: var(--danger-fg); }
+      .ig-result[data-state='processing']::before,
+      .ig-result[data-state='missing']::before { background: var(--gold-500); }
       .ig-fineprint { font-size: 0.8rem; }
       .ig-result .ig-btn { margin-right: 0.5rem; }
-      .ig-alert--info {
-        background: rgba(0, 87, 183, 0.06);
-        border: 1px solid var(--ig-border);
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
+      .ig-result__polling { display: flex; align-items: center; gap: 1rem; }
+      .ig-spinner {
+        flex: none; width: 26px; height: 26px; border-radius: 50%;
+        border: 3px solid var(--line-2); border-top-color: var(--blue-600);
+        animation: ig-spin .8s linear infinite;
+      }
+      @keyframes ig-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) {
+        .ig-spinner { animation: none; border-top-color: var(--blue-600); }
       }
     `,
   ],

@@ -9,10 +9,14 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, TranslateModule],
   template: `
-    <section class="ig-card">
+    <section class="ig-empty">
+      <div class="ig-empty__mark" aria-hidden="true"></div>
+      <span class="ig-empty__code">404</span>
       <h1>{{ 'notFound.title' | translate }}</h1>
-      <p class="ig-muted">{{ 'notFound.body' | translate }}</p>
-      <p><a routerLink="/">{{ 'common.backToHome' | translate }}</a></p>
+      <p>{{ 'notFound.body' | translate }}</p>
+      <div class="ig-empty__actions">
+        <a routerLink="/" class="ig-btn ig-btn--primary">{{ 'common.backToHome' | translate }}</a>
+      </div>
     </section>
   `,
 })

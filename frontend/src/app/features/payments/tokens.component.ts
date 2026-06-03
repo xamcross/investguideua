@@ -26,29 +26,36 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
-    <section class="ig-card">
+    <section class="ig-tokens reveal d1">
+      <p class="ig-kicker ig-kicker--gold">{{ 'tokens.kicker' | translate }}</p>
       <h1>{{ 'tokens.title' | translate }}</h1>
-      <p class="ig-muted">{{ 'tokens.intro' | translate: { balance: (auth.tokenBalance() | igPlural: 'token') } }}</p>
+      <p class="ig-tokens__lead">{{ 'tokens.intro' | translate: { balance: (auth.tokenBalance() | igPlural: 'token') } }}</p>
 
       @if (loading()) {
-        <p class="ig-muted">{{ 'tokens.loadingPacks' | translate }}</p>
+        <p class="ig-tokens__lead">{{ 'tokens.loadingPacks' | translate }}</p>
       } @else if (loadError()) {
-        <div class="ig-alert ig-alert--error">{{ loadError() }}</div>
+        <div class="ig-alert ig-alert--error" role="alert">{{ loadError() }}</div>
       } @else if (packs().length === 0) {
         <div class="ig-alert ig-alert--info">{{ 'tokens.empty' | translate }}</div>
       } @else {
         @if (buyError()) {
-          <div class="ig-alert ig-alert--error">{{ buyError() }}</div>
+          <div class="ig-alert ig-alert--error" role="alert">{{ buyError() }}</div>
         }
         <ul class="ig-packs">
-          @for (pack of packs(); track pack.id) {
-            <li class="ig-pack">
+          @for (pack of packs(); track pack.id; let i = $index) {
+            <li class="ig-pack" [class.is-recommended]="isRecommended(i)">
+              @if (isRecommended(i)) {
+                <span class="ig-pack__ribbon" aria-hidden="true">{{ 'tokens.recommended' | translate }}</span>
+                <span class="ig-sr-only">{{ 'tokens.recommendedSr' | translate }}</span>
+              }
               <div class="ig-pack__tokens">{{ pack.tokens | igPlural: 'token' }}</div>
               <div class="ig-pack__price">{{ price(pack) }}</div>
               <div class="ig-pack__per">{{ 'tokens.perToken' | translate: { price: perToken(pack) } }}</div>
               <button
                 type="button"
-                class="ig-btn ig-btn--primary"
+                class="ig-btn"
+                [class.ig-btn--gold]="isRecommended(i)"
+                [class.ig-btn--primary]="!isRecommended(i)"
                 [disabled]="buyingId() !== null"
                 (click)="buy(pack)"
               >
@@ -57,7 +64,7 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
             </li>
           }
         </ul>
-        <p class="ig-muted ig-fineprint">{{ 'tokens.fineprint' | translate }}</p>
+        <p class="ig-tokens__fine">{{ 'tokens.fineprint' | translate }}</p>
       }
 
       <p class="ig-back"><a routerLink="/search">{{ 'tokens.backToSearch' | translate }}</a></p>
@@ -65,35 +72,40 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
   `,
   styles: [
     `
+      .ig-tokens {
+        position: relative; overflow: hidden; border-radius: var(--radius);
+        padding: 2rem 1.75rem; margin-bottom: 1.25rem; color: rgba(255, 255, 255, .74);
+        background: radial-gradient(90% 70% at 85% -10%, rgba(217, 168, 35, .14), transparent 55%), var(--navy-900);
+        box-shadow: var(--shadow-lg);
+      }
+      .ig-tokens h1 { color: #fff; }
+      .ig-kicker--gold { color: var(--gold-300); }
+      .ig-tokens__lead { color: rgba(255, 255, 255, .74); max-width: 52ch; }
       .ig-packs {
-        list-style: none;
-        padding: 0;
-        margin: 1rem 0 0;
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        list-style: none; padding: 0; margin: 1.5rem 0 0;
+        display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       }
       .ig-pack {
-        border: 1px solid var(--ig-border);
-        border-radius: 10px;
-        padding: 1.1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-        align-items: flex-start;
+        position: relative; overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .14); border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, .04); padding: 1.25rem;
+        display: flex; flex-direction: column; gap: .35rem; align-items: flex-start;
       }
-      .ig-pack__tokens { font-size: 1.15rem; font-weight: 700; }
-      .ig-pack__price { font-size: 1.4rem; font-weight: 800; color: var(--ig-blue); }
-      .ig-pack__per { font-size: 0.8rem; color: var(--ig-muted); }
-      .ig-pack .ig-btn { margin-top: 0.5rem; }
-      .ig-fineprint { font-size: 0.8rem; margin-top: 1rem; }
+      .ig-pack.is-recommended { border-color: var(--gold-500); background: rgba(217, 168, 35, .08); }
+      .ig-pack__ribbon {
+        position: absolute; top: .9rem; right: -2.4rem; transform: rotate(45deg);
+        background: linear-gradient(180deg, var(--gold-500), var(--gold-600)); color: var(--navy-900);
+        font-family: var(--font-mono); font-size: .6rem; font-weight: 700; letter-spacing: .08em;
+        text-transform: uppercase; padding: .2rem 2.5rem;
+      }
+      .ig-pack__tokens { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--gold-300); }
+      .ig-pack__price { font-family: var(--font-display); font-size: 1.7rem; font-weight: 800; color: #fff; }
+      .ig-pack__per { font-family: var(--font-mono); font-size: .78rem; color: rgba(255, 255, 255, .6); }
+      .ig-pack .ig-btn { margin-top: .65rem; align-self: stretch; }
+      .ig-tokens__fine { font-size: .8rem; margin-top: 1.25rem; color: rgba(255, 255, 255, .55); }
       .ig-back { margin-top: 1.5rem; }
-      .ig-alert--info {
-        background: rgba(0, 87, 183, 0.06);
-        border: 1px solid var(--ig-border);
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
-      }
+      .ig-back a { color: var(--gold-100); }
+      @media (max-width: 900px) { .ig-packs { grid-template-columns: 1fr; } }
     `,
   ],
 })
@@ -107,6 +119,11 @@ export class TokensComponent implements OnInit {
   readonly loadError = signal<string | null>(null);
   readonly buyingId = signal<string | null>(null);
   readonly buyError = signal<string | null>(null);
+
+  /** Display-only: the middle pack of exactly three is highlighted as recommended (no model change). */
+  isRecommended(index: number): boolean {
+    return this.packs().length === 3 && index === 1;
+  }
 
   ngOnInit(): void {
     this.payments.packs().subscribe({
