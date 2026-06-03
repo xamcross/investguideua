@@ -1,5 +1,5 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withComponentInputBinding, TitleStrategy } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { HttpBackend, HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -41,7 +41,14 @@ export function createTranslateLoader(handler: HttpBackend): TranslateHttpLoader
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withComponentInputBinding()),
+    // scrollPositionRestoration 'top' resets scroll to the page top on forward navigation
+    // (so e.g. the pricing-section Register CTA opens /register at the top, not mid-form) while
+    // restoring the prior offset on back/forward. anchorScrolling enables in-page #fragment jumps.
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
+    ),
     // Order matters: globalErrorInterceptor is OUTERMOST so it only sees errors the auth
     // interceptor did not recover from (e.g. a refreshed 401 never reaches it). FE-CORE4 / FE-CORE2.
     provideHttpClient(
