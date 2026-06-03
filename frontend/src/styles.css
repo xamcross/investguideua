@@ -385,6 +385,33 @@ h3 { font-weight: 700; font-size: 1.15rem; margin: 0 0 .4rem; }
   .ig-fact-grid { grid-template-columns: 1fr; }
 }
 
+/* ===== Dark marketing section (landing pricing preview, dark CTAs) ===== */
+.ig-section--dark {
+  position: relative; overflow: hidden; border-radius: var(--radius);
+  padding: 2rem 1.75rem; margin-bottom: 1.25rem; color: rgba(255, 255, 255, .74);
+  background: radial-gradient(90% 70% at 85% -10%, rgba(217, 168, 35, .14), transparent 55%), var(--navy-900);
+  box-shadow: var(--shadow-lg);
+}
+.ig-section--dark h2 { color: #fff; }
+.ig-section--dark .ig-kicker { color: var(--gold-300); }
+
+/* Pricing-preview pack cards (landing). Illustrative, clearly-labelled; dark-section context. */
+.ig-pricing__note { color: rgba(255, 255, 255, .74); max-width: 52ch; margin: 0 0 1.25rem; }
+.ig-pp { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.ig-pp__card { position: relative; border: 1px solid rgba(255, 255, 255, .14); border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .04); padding: 1.25rem; display: flex; flex-direction: column; gap: .3rem; align-items: flex-start; }
+.ig-pp__card.is-best { border-color: var(--gold-500); background: rgba(217, 168, 35, .08); }
+.ig-pp__tokens { font-family: var(--font-mono); font-weight: 700; color: var(--gold-300); }
+.ig-pp__price { font-family: var(--font-display); font-size: 1.7rem; font-weight: 800; color: #fff; }
+.ig-pp__cur { font-family: var(--font-mono); font-size: .9rem; font-weight: 700; color: var(--blue-300); }
+.ig-pp__per { font-family: var(--font-mono); font-size: .78rem; color: rgba(255, 255, 255, .6); }
+.ig-pp__example { font-family: var(--font-mono); font-size: .58rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--gold-300); opacity: .85; }
+.ig-pp__card .ig-btn { margin-top: .65rem; align-self: stretch; }
+.ig-pricing__fine { font-size: .8rem; margin-top: 1.25rem; color: rgba(255, 255, 255, .55); }
+@media (max-width: 900px) { .ig-pp { grid-template-columns: 1fr; } }
+
 /* ===== Motion utilities ===== */
 @keyframes ig-rise {
   from { opacity: 0; transform: translateY(22px); }

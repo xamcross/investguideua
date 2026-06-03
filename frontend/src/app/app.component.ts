@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/rou
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from './core/auth/auth.service';
 import { NotificationHostComponent } from './core/errors/notification-host.component';
+import { FooterComponent } from './core/layout/footer.component';
 import { LanguageService } from './core/i18n/language.service';
 import { PluralPipe } from './core/i18n/plural.pipe';
 
@@ -23,6 +24,7 @@ import { PluralPipe } from './core/i18n/plural.pipe';
     RouterLink,
     RouterLinkActive,
     NotificationHostComponent,
+    FooterComponent,
     TranslateModule,
     PluralPipe,
   ],
@@ -73,6 +75,8 @@ import { PluralPipe } from './core/i18n/plural.pipe';
     <main class="ig-container">
       <router-outlet />
     </main>
+
+    <ig-footer />
 
     <p class="ig-sr-only" aria-live="polite">{{ lang.announcement() }}</p>
 
