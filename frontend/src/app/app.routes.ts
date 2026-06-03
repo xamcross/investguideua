@@ -85,6 +85,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/providers/providers.component').then((m) => m.ProvidersComponent),
   },
+  // Public legal stubs linked from the footer. Additive routes; reuse the placeholder page until the
+  // real Terms/Privacy content is authored. No guard (public).
+  {
+    path: 'terms',
+    title: 'footer.terms',
+    loadComponent: () =>
+      import('./features/placeholder/placeholder.component').then((m) => m.PlaceholderComponent),
+  },
+  {
+    path: 'privacy',
+    title: 'footer.privacy',
+    loadComponent: () =>
+      import('./features/placeholder/placeholder.component').then((m) => m.PlaceholderComponent),
+  },
   {
     path: '**',
     title: 'title.notFound',

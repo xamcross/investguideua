@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/cor
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
+import { PluralPipe } from '../../core/i18n/plural.pipe';
 
 /**
  * Guest landing page (ticket FE-AUTH0, §3 Guest role, §12 Landing). Product summary, how it works,
@@ -12,7 +13,7 @@ import { AuthService } from '../../core/auth/auth.service';
   selector: 'ig-landing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslateModule, PluralPipe],
   template: `
     <section class="ig-hero" aria-labelledby="ig-hero-title">
       <div class="ig-hero__copy reveal d1">
@@ -76,6 +77,65 @@ import { AuthService } from '../../core/auth/auth.service';
       </ol>
     </section>
 
+    <section class="ig-samples" aria-labelledby="ig-samples-title">
+      <p class="ig-kicker">{{ 'landing.sampleKicker' | translate }}</p>
+      <h2 id="ig-samples-title">{{ 'landing.sampleTitle' | translate }}</h2>
+      <ul class="ig-options">
+        @for (s of samples; track s.providerKey; let i = $index) {
+          <li [class]="'ig-opt reveal d' + (i + 1)">
+            <div class="ig-opt__head">
+              <span class="ig-opt__name">{{ s.providerKey | translate }}</span>
+              <span class="ig-opt__badges">
+                <span class="ig-badge ig-badge--cat">{{ 'category.' + s.category | translate }}</span>
+                <span class="ig-badge ig-badge--risk" [attr.data-risk]="s.risk">{{ 'risk.' + s.risk | translate }}</span>
+              </span>
+            </div>
+            <div class="ig-opt__instrument">{{ s.instrumentKey | translate }}</div>
+            <div class="ig-opt__return">
+              <span class="ig-opt__fig">{{ s.min }}&ndash;{{ s.max }}</span>
+              <span class="ig-opt__unit">% {{ 'common.perYear' | translate }}</span>
+              <span class="ig-opt__lbl">{{ 'results.expectedReturn' | translate }}</span>
+            </div>
+            <dl class="ig-fact-grid">
+              <div class="ig-fact"><dt>{{ 'results.currency' | translate }}</dt><dd>{{ 'currency.UAH' | translate }}</dd></div>
+              <div class="ig-fact"><dt>{{ 'results.minAmount' | translate }}</dt><dd>{{ s.minAmount }} {{ 'currency.UAH' | translate }}</dd></div>
+            </dl>
+            <p class="ig-opt__rationale">{{ s.rationaleKey | translate }}</p>
+            <span class="ig-opt__src ig-opt__src--sample">
+              {{ 'common.officialSource' | translate }}
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                   stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 3h7v7M13 3L4 12"/></svg>
+            </span>
+          </li>
+        }
+      </ul>
+      <p class="ig-l-disclaimer">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+             stroke-width="2" aria-hidden="true" focusable="false">
+          <circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8h.01"/></svg>
+        <span>{{ 'landing.sampleDisclaimer' | translate }}</span>
+      </p>
+    </section>
+
+    <section class="ig-section--dark ig-pricing" aria-labelledby="ig-pricing-title">
+      <p class="ig-kicker">{{ 'landing.pricingKicker' | translate }}</p>
+      <h2 id="ig-pricing-title">{{ 'landing.pricingTitle' | translate }}</h2>
+      <p class="ig-pricing__note">{{ 'landing.pricingNote' | translate }}</p>
+      <ul class="ig-pp">
+        @for (p of pricingPacks; track p.tokens) {
+          <li class="ig-pp__card" [class.is-best]="p.best">
+            <div class="ig-pp__tokens">{{ p.tokens | igPlural: 'token' }}</div>
+            <div class="ig-pp__price">{{ p.price }} <span class="ig-pp__cur">{{ 'currency.UAH' | translate }}</span></div>
+            <div class="ig-pp__per">{{ p.per }} {{ 'currency.UAH' | translate }} / {{ 'units.token.one' | translate }}</div>
+            <span class="ig-pp__example">{{ 'landing.pricingExample' | translate }}</span>
+            <a routerLink="/register" class="ig-btn"
+               [class.ig-btn--gold]="p.best" [class.ig-btn--primary]="!p.best">{{ 'landing.pricingCta' | translate }}</a>
+          </li>
+        }
+      </ul>
+      <p class="ig-pricing__fine">{{ 'landing.pricingFine' | translate }}</p>
+    </section>
+
     <p class="ig-l-disclaimer">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
            stroke-width="2" aria-hidden="true" focusable="false">
@@ -117,10 +177,13 @@ import { AuthService } from '../../core/auth/auth.service';
       .ig-step:hover::before { transform: scaleY(1); }
       .ig-step__num { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.6rem; color: var(--gold-600); display: block; margin-bottom: .25rem; }
       .ig-step h3 { margin: .15rem 0; }
-      .ig-l-disclaimer { display: flex; gap: .6rem; align-items: flex-start; max-width: 70ch;
+      .ig-l-disclaimer { display: flex; gap: .6rem; align-items: flex-start;
         margin: 1.5rem 0 0; padding: .85rem 1rem; border-left: 4px solid var(--gold-500);
         background: var(--surface-2); border-radius: var(--radius-sm); color: var(--muted); font-size: .85rem; }
       .ig-l-disclaimer svg { flex: none; margin-top: .15rem; color: var(--gold-700); }
+      .ig-samples { padding: 1rem 0 0; }
+      .ig-samples h2 { margin-bottom: 1.25rem; }
+      .ig-opt__src--sample { cursor: default; }
       @media (max-width: 900px) {
         .ig-hero { grid-template-columns: 1fr; }
         .ig-steps { grid-template-columns: 1fr; }
@@ -134,6 +197,20 @@ import { AuthService } from '../../core/auth/auth.service';
 export class LandingComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+
+  /** Illustrative sample options (display-only marketing; NOT an advisor call, no token cost). */
+  protected readonly samples = [
+    { providerKey: 'landing.sampleProvider1', instrumentKey: 'landing.sampleInstrument1', category: 'BANK_DEPOSIT', risk: 'LOW', min: '14.5', max: '16.0', minAmount: '1 000', rationaleKey: 'landing.sampleRationale1' },
+    { providerKey: 'landing.sampleProvider2', instrumentKey: 'landing.sampleInstrument2', category: 'GOV_BOND', risk: 'LOW', min: '17.0', max: '19.2', minAmount: '1 000', rationaleKey: 'landing.sampleRationale2' },
+    { providerKey: 'landing.sampleProvider3', instrumentKey: 'landing.sampleInstrument3', category: 'FUND', risk: 'MODERATE', min: '13.2', max: '15.0', minAmount: '500', rationaleKey: 'landing.sampleRationale3' },
+  ];
+
+  /** Illustrative pricing preview (display-only marketing; clearly labelled "example"; CTAs to register). */
+  protected readonly pricingPacks = [
+    { tokens: 10, price: '149', per: '14.90', best: false },
+    { tokens: 30, price: '349', per: '11.63', best: true },
+    { tokens: 100, price: '899', per: '8.99', best: false },
+  ];
 
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
