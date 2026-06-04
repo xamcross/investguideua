@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -303,8 +304,16 @@ public class ProviderSeeder implements ApplicationRunner {
                         4000000, USD_EUR, 0.0, 100.0, RiskLevel.HIGH, "https://flyerone.vc/"));
     }
 
+    /**
+     * Original X7 seed slugs (four reconciled banks), superseded by the per-instrument catalog. They
+     * carry pre-migration categories ({@code BANK_DEPOSIT}/{@code BROKER}) that no longer exist in
+     * {@link ProviderCategory}, so they must be removed rather than left to render as dead labels.
+     */
+    private static final List<String> LEGACY_SLUGS = List.of("privatbank", "oschadbank", "otpbank", "monobank");
+
     @Override
     public void run(ApplicationArguments args) {
+        removeStaleProviders();
         List<Provider> providers = canonicalProviders();
         int inserted = 0;
         for (Provider provider : providers) {
@@ -314,6 +323,26 @@ public class ProviderSeeder implements ApplicationRunner {
         }
         log.info("Provider seed complete: {} provider(s) defined, {} newly inserted (existing left untouched).",
                 providers.size(), inserted);
+    }
+
+    /**
+     * One-time migration: drop catalog rows from the pre-{@code 13-instrument} taxonomy so the active
+     * catalog matches the current {@link ProviderCategory} set. Removes (1) the superseded original
+     * seed slugs and (2) defensively, any document whose {@code category} is not a current enum
+     * constant (e.g. a leftover {@code FUND}/{@code OTHER} row). New per-instrument slugs
+     * ({@code privatbank-mil}, ...) never collide with the legacy bare slugs, so the curated rows are
+     * untouched. Inserted-only seeding then fills in the current catalog.
+     */
+    private void removeStaleProviders() {
+        long bySlug = mongoTemplate.remove(
+                Query.query(Criteria.where("_id").in(LEGACY_SLUGS)), Provider.class).getDeletedCount();
+        List<String> validCategories = Arrays.stream(ProviderCategory.values()).map(Enum::name).toList();
+        long byCategory = mongoTemplate.remove(
+                Query.query(Criteria.where("category").nin(validCategories)), Provider.class).getDeletedCount();
+        long removed = bySlug + byCategory;
+        if (removed > 0) {
+            log.info("Removed {} stale provider(s) from the pre-migration taxonomy before seeding.", removed);
+        }
     }
 
     /**
