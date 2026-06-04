@@ -3,6 +3,8 @@ import { RouterLink, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
+import { LoadingStateComponent } from '../shared/loading-state.component';
+import { ErrorStateComponent } from '../shared/error-state.component';
 
 /**
  * Account page (ticket FE-ACCT1, §5.1 `/me`, §10).
@@ -16,7 +18,7 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   selector: 'ig-account',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe, LoadingStateComponent, ErrorStateComponent],
   template: `
     <section class="ig-card reveal d1">
       <div class="ig-page-head">
@@ -25,7 +27,7 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
       </div>
 
       @if (loading()) {
-        <p class="ig-muted">{{ 'account.loading' | translate }}</p>
+        <ig-loading-state [label]="'account.loading' | translate" />
       } @else if (user()) {
         @if (user(); as u) {
         <dl class="ig-profile">
@@ -70,9 +72,9 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
         </div>
         }
       } @else {
-        <div class="ig-alert ig-alert--error">
-          {{ 'account.loadError' | translate }} <a routerLink="/login">{{ 'account.signInAgain' | translate }}</a>.
-        </div>
+        <ig-error-state [message]="'account.loadError' | translate">
+          <a routerLink="/login">{{ 'account.signInAgain' | translate }}</a>
+        </ig-error-state>
       }
     </section>
   `,

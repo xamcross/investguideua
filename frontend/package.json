@@ -12,7 +12,8 @@
     "seo:articles": "node tools/seo/build-articles.mjs",
     "seo:generate": "node tools/seo/generate-sitemap.mjs",
     "seo:audit": "node tools/seo/seo-audit.mjs",
-    "seo:all": "npm run build && npm run seo:generate && npm run seo:audit"
+    "seo:all": "npm run build && npm run seo:generate && npm run seo:audit",
+    "a11y:audit": "node tools/a11y/axe-audit.mjs"
   },
   "private": true,
   "dependencies": {

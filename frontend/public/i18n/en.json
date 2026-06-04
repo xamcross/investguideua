@@ -4,6 +4,9 @@
     "toUkrainian": "Перемкнути мову на українську",
     "announced": "Language changed to English"
   },
+  "a11y": {
+    "skipToContent": "Skip to main content"
+  },
   "nav": {
     "search": "Search",
     "history": "History",
@@ -115,7 +118,9 @@
     "submit": "Sign in",
     "newHere": "New here?",
     "createAccount": "Create an account",
-    "invalidCredentials": "Invalid email or password."
+    "invalidCredentials": "Invalid email or password.",
+    "emailError": "Enter a valid email address.",
+    "passwordError": "Enter your password."
   },
   "register": {
     "eyebrow": "New account",
@@ -176,6 +181,7 @@
     "submitting": "Searching... (up to ~8s)",
     "submit": "Search (1 token)",
     "optionsFor": "Options for {{amount}} {{currency}}",
+    "resultsAnnounce": "{{count}} investment options loaded.",
     "buyTokens": "Buy tokens",
     "verifyEmail": "Verify your email",
     "errOutOfTokens": "You're out of tokens.",

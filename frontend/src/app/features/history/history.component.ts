@@ -5,6 +5,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { HistoryPage } from '../../core/investment/investment.models';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
+import { EmptyStateComponent } from '../shared/empty-state.component';
+import { LoadingStateComponent } from '../shared/loading-state.component';
+import { ErrorStateComponent } from '../shared/error-state.component';
 
 /**
  * Paginated search history (ticket FE-HIST1, §4.4, §5.1). Newest first, owner-scoped by the backend.
@@ -14,7 +17,7 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
   selector: 'ig-history',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, DecimalPipe, TranslateModule, PluralPipe],
+  imports: [RouterLink, DatePipe, DecimalPipe, TranslateModule, PluralPipe, EmptyStateComponent, LoadingStateComponent, ErrorStateComponent],
   template: `
     <section class="ig-card">
       <div class="ig-page-head">
@@ -23,17 +26,13 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
       </div>
 
       @if (loading()) {
-        <p class="ig-muted">{{ 'common.loading' | translate }}</p>
+        <ig-loading-state [label]="'common.loading' | translate" />
       } @else if (error()) {
-        <div class="ig-alert ig-alert--error" role="alert">{{ error() }}</div>
+        <ig-error-state [message]="error()!" />
       } @else if (page() && page()!.items.length === 0) {
-        <div class="ig-empty">
-          <div class="ig-empty__mark" aria-hidden="true"></div>
-          <p>{{ 'history.empty' | translate }}</p>
-          <div class="ig-empty__actions">
-            <a routerLink="/search" class="ig-btn ig-btn--primary">{{ 'history.runFirst' | translate }}</a>
-          </div>
-        </div>
+        <ig-empty-state [message]="'history.empty' | translate">
+          <a routerLink="/search" class="ig-btn ig-btn--primary">{{ 'history.runFirst' | translate }}</a>
+        </ig-empty-state>
       } @else if (page()) {
         <ul class="ig-hist">
           @for (item of page()!.items; track item.id; let i = $index) {

@@ -4,6 +4,9 @@
     "toUkrainian": "Перемкнути мову на українську",
     "announced": "Мову змінено на українську"
   },
+  "a11y": {
+    "skipToContent": "Перейти до основного вмісту"
+  },
   "nav": {
     "search": "Пошук",
     "history": "Історія",
@@ -115,7 +118,9 @@
     "submit": "Увійти",
     "newHere": "Уперше тут?",
     "createAccount": "Створити акаунт",
-    "invalidCredentials": "Невірна пошта або пароль."
+    "invalidCredentials": "Невірна пошта або пароль.",
+    "emailError": "Введіть коректну електронну пошту.",
+    "passwordError": "Введіть пароль."
   },
   "register": {
     "eyebrow": "Новий акаунт",
@@ -176,6 +181,7 @@
     "submitting": "Пошук... (до ~8 с)",
     "submit": "Шукати (1 токен)",
     "optionsFor": "Варіанти для {{amount}} {{currency}}",
+    "resultsAnnounce": "Завантажено варіантів: {{count}}.",
     "buyTokens": "Придбати токени",
     "verifyEmail": "Підтвердіть пошту",
     "errOutOfTokens": "У вас закінчилися токени.",

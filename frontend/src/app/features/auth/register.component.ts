@@ -37,18 +37,22 @@ import { parseApiError } from '../../core/api/api-error.util';
 
         <form class="ig-form" [formGroup]="form" (ngSubmit)="submit()">
           <div class="ig-field">
-            <label for="email">{{ 'register.email' | translate }}</label>
-            <input id="email" type="email" formControlName="email" autocomplete="email" />
+            <label for="email">{{ 'register.email' | translate }} <span class="ig-req" aria-hidden="true">*</span></label>
+            <input id="email" type="email" formControlName="email" autocomplete="email" required
+                   [attr.aria-invalid]="showError('email') ? 'true' : null"
+                   [attr.aria-describedby]="showError('email') ? 'register-email-error' : null" />
             @if (showError('email')) {
-              <span class="ig-error">{{ 'register.emailError' | translate }}</span>
+              <span id="register-email-error" class="ig-error" role="alert">{{ 'register.emailError' | translate }}</span>
             }
           </div>
 
           <div class="ig-field">
-            <label for="password">{{ 'register.password' | translate }}</label>
-            <input id="password" type="password" formControlName="password" autocomplete="new-password" />
+            <label for="password">{{ 'register.password' | translate }} <span class="ig-req" aria-hidden="true">*</span></label>
+            <input id="password" type="password" formControlName="password" autocomplete="new-password" required
+                   [attr.aria-invalid]="showError('password') ? 'true' : null"
+                   [attr.aria-describedby]="showError('password') ? 'register-password-error' : null" />
             @if (showError('password')) {
-              <span class="ig-error">{{ 'register.passwordError' | translate }}</span>
+              <span id="register-password-error" class="ig-error" role="alert">{{ 'register.passwordError' | translate }}</span>
             }
           </div>
 
@@ -98,6 +102,8 @@ export class RegisterComponent {
     }
     this.submitting.set(true);
     const { email, password } = this.form.getRawValue();
+    // Lock the whole field group while the request is in flight (FR-020): no edits, no resubmit.
+    this.form.disable({ emitEvent: false });
     this.auth.register(email, password).subscribe({
       next: (res) => {
         this.submitting.set(false);
@@ -105,6 +111,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.submitting.set(false);
+        this.form.enable({ emitEvent: false });
         const parsed = parseApiError(err);
         if (parsed.code === 'EMAIL_TAKEN') {
           this.serverError.set(this.translate.instant('register.emailTaken'));
