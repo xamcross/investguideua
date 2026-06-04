@@ -17,6 +17,14 @@ mvnw            text eol=lf
 *.bat           text eol=crlf
 *.ps1           text eol=crlf
 
+# SEO assets and content consumed by crawlers/CDN (Linux/Cloudflare) MUST stay LF
+# (feature 006-seo-optimization). _redirects has no extension, so pin it by name.
+_redirects      text eol=lf
+robots.txt      text eol=lf
+sitemap.xml     text eol=lf
+*.md            text eol=lf
+*.mjs           text eol=lf
+
 # Binary assets — never normalize.
 *.jar           binary
 *.png           binary

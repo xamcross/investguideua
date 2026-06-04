@@ -5,4 +5,6 @@
 export const environment = {
   production: false,
   apiBaseUrl: '/api/v1',
+  /** Canonical site origin used for SEO canonical/hreflang/OG URLs (feature 006). */
+  siteOrigin: 'http://localhost:4200',
 };

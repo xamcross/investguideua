@@ -14,7 +14,8 @@
     "register": "Register",
     "balanceTitle": "Token balance",
     "menuOpen": "Open menu",
-    "menuClose": "Close menu"
+    "menuClose": "Close menu",
+    "home": "Home"
   },
   "footer": {
     "about": "Invest in Ukraine, for Ukrainians. A transparent, catalog-grounded advisor.",
@@ -35,8 +36,16 @@
     "currencyUahShort": "UAH"
   },
   "units": {
-    "token": { "one": "token", "few": "tokens", "many": "tokens" },
-    "option": { "one": "option", "few": "options", "many": "options" }
+    "token": {
+      "one": "token",
+      "few": "tokens",
+      "many": "tokens"
+    },
+    "option": {
+      "one": "option",
+      "few": "options",
+      "many": "options"
+    }
   },
   "title": {
     "home": "InvestGuideUA",
@@ -351,7 +360,9 @@
         },
         {
           "heading": "6. Acceptable use",
-          "body": ["When using the service, you agree not to:"],
+          "body": [
+            "When using the service, you agree not to:"
+          ],
           "bullets": [
             "use the service for any unlawful purpose or in breach of applicable law;",
             "circumvent limits, automatically scrape the service in bulk, or overload the infrastructure;",
@@ -402,7 +413,9 @@
         },
         {
           "heading": "2. Data we collect",
-          "body": ["We collect only what the service needs:"],
+          "body": [
+            "We collect only what the service needs:"
+          ],
           "bullets": [
             "account data: your email address and a secured (hashed) password;",
             "usage data: your search history (amounts, currency, preferences you enter) and token balance;",
@@ -531,5 +544,35 @@
       "title": "Something went wrong",
       "message": "An unexpected error occurred. Please try again."
     }
+  },
+  "seo": {
+    "home": {
+      "title": "Invest in Ukraine, Smartly - InvestGuideUA",
+      "desc": "Discover where to invest your money in Ukraine: bank deposits, government war bonds (OVDP) and funds from a curated catalog. Plain language, no hype."
+    },
+    "articles": {
+      "title": "Investing in Ukraine: Articles & Guides - InvestGuideUA",
+      "desc": "Practical guides to investing in Ukraine: war bonds (OVDP), bank deposits, how to invest 50,000 or 100,000 UAH, risk, and avoiding investment scams."
+    },
+    "terms": {
+      "title": "Terms of Use - InvestGuideUA",
+      "desc": "Terms of use for InvestGuideUA: access rules, search tokens and the disclaimer - the service is informational only and is not professional advice."
+    },
+    "privacy": {
+      "title": "Privacy Policy - InvestGuideUA",
+      "desc": "InvestGuideUA privacy policy: what data we collect, how we use and protect it, and how to delete your account and personal data at any time."
+    }
+  },
+  "articles": {
+    "kicker": "Articles",
+    "indexTitle": "Investing in Ukraine: Articles and Guides",
+    "indexLead": "Plain, honest explanations of how to invest in Ukraine - deposits, government bonds, funds and managing risk.",
+    "readMore": "Read",
+    "empty": "No articles yet.",
+    "published": "Published",
+    "updated": "Updated",
+    "disclaimer": "This article is informational and is not individualized financial advice. Always verify terms directly with the provider before investing.",
+    "related": "Related articles",
+    "cta": "Find investment options"
   }
 }

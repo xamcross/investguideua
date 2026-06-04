@@ -295,11 +295,22 @@ export const environment = {
 In **Cloudflare -> Workers & Pages -> Create -> Pages -> Connect to Git**, pick the repo, then set:
 
 - **Production branch:** `main`
-- **Build command:** `cd frontend && npm ci && npm run build && printf '/*    /index.html   200\n' > dist/investguide-frontend/browser/_redirects`
+- **Build command:** `cd frontend && npm ci && npm run build && npm run seo:generate`
 - **Build output directory:** `frontend/dist/investguide-frontend/browser`
 - **Root directory:** `/` (repo root)
+- **Environment variable (recommended):** `SEO_SITE_ORIGIN=https://investguideua.com` (used by `seo:generate` for canonical/sitemap/robots URLs).
 
-> **SPA deep-link fallback (required).** Without a `_redirects` file in the output, refreshing any client-side route (e.g. `/history`) returns a 404 on Cloudflare Pages. The build command above writes `_redirects` directly into the output dir. **Do not** rely on `frontend/public/_redirects`: this project pins Angular `17.3`, whose `application` builder does **not** auto-copy `public/` (that convention arrived in Angular 18), and `angular.json` has `"assets": []` — so a file in `public/` would never reach the output. The post-build `printf` is version-proof.
+> **Routing & true 404 (feature 006-seo-optimization).** Do **NOT** write a catch-all
+> `/*  /index.html  200` rule - that produces SPA *soft-404s* (every unknown URL returns 200),
+> which harms SEO. Instead, `frontend/public/seo/_redirects` maps only the **private/utility**
+> routes to the SPA shell (200) and lets unknown paths fall through to the prerendered `404.html`
+> with a real HTTP 404. Public routes are prerendered static files served directly. These SEO
+> assets (`_redirects`, `404.html`, `og-default.png`, the search-console verification file) DO
+> reach the output: `angular.json` now has an explicit `assets` glob copying `public/seo/**` to the
+> output root (the Angular 17.3 `application` builder does not auto-copy `public/`, so the glob is
+> required). `npm run seo:generate` then writes `robots.txt` + `sitemap.xml` into the same output
+> root. **In the Cloudflare Pages project, do not enable the "Single Page Application" framework
+> preset** - it injects the catch-all 200 rewrite that this design deliberately avoids.
 
 ### 5.2-alt Deploy by direct upload (no Git)
 
@@ -307,9 +318,13 @@ In **Cloudflare -> Workers & Pages -> Create -> Pages -> Connect to Git**, pick 
 cd frontend
 npm ci
 npm run build
-"/*    /index.html   200" | Out-File -Encoding ascii -NoNewline dist/investguide-frontend/browser/_redirects
+npm run seo:generate
 npx wrangler pages deploy dist/investguide-frontend/browser --project-name investguideua
 ```
+
+> The private-only `_redirects` and `404.html` ship from `public/seo/` via the `angular.json`
+> assets glob; `seo:generate` writes `robots.txt` + `sitemap.xml`. No catch-all 200 rule (feature
+> 006-seo-optimization).
 
 ### 5.3 Custom domain
 

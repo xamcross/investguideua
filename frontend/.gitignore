@@ -4,6 +4,11 @@
 /.angular
 /out-tsc
 
+# Build-generated artefacts (feature 006-seo-optimization). Regenerated on every build by
+# `npm run seo:articles` (the `build` script runs it first), so they are not committed.
+/src/app/features/articles/articles.data.ts
+/prerender-routes.txt
+
 # misc
 *.log
 .DS_Store

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from './core/auth/auth.service';
@@ -6,6 +7,8 @@ import { NotificationHostComponent } from './core/errors/notification-host.compo
 import { FooterComponent } from './core/layout/footer.component';
 import { LanguageService } from './core/i18n/language.service';
 import { PluralPipe } from './core/i18n/plural.pipe';
+import { SeoService } from './core/seo/seo.service';
+import { StructuredDataService } from './core/seo/structured-data.service';
 
 /**
  * Root shell + top navigation (ticket FE-CORE1). The nav reflects auth state and the live
@@ -185,20 +188,34 @@ export class AppComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly lang = inject(LanguageService);
   private readonly router = inject(Router);
+  private readonly seo = inject(SeoService);
+  private readonly structuredData = inject(StructuredDataService);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Responsive mobile-menu disclosure state (defect fix: nav + balance reachable on narrow screens). */
   protected readonly menuOpen = signal(false);
 
   ngOnInit(): void {
     // Apply the resolved startup language (localStorage -> Ukrainian default) and wire ngx-translate.
+    // Runs on the server too (with the filesystem TranslateLoader) so prerendered HTML is localized.
     this.lang.init();
 
-    // Silent session restore. The interceptor exempts /auth/refresh, so a failure here just
-    // resolves to "not logged in" without redirect noise.
-    this.auth.refresh().subscribe({
-      next: () => undefined,
-      error: () => this.auth.clearSession(),
-    });
+    // Wire per-page SEO head management (description, canonical, hreflang, robots, OG/Twitter).
+    // Runs on the server platform too so the prerendered HTML carries these tags for crawlers.
+    this.seo.init();
+
+    // Site-wide structured data (Organization + WebSite + SearchAction) on every page.
+    this.structuredData.setBase(this.lang.current());
+
+    // Silent session restore is BROWSER-ONLY: during build-time prerender there is no backend and
+    // no refresh cookie, so firing this on the server platform would issue a doomed HTTP call and
+    // stall prerendering. The HttpOnly refresh cookie only exists in the browser anyway.
+    if (this.isBrowser) {
+      this.auth.refresh().subscribe({
+        next: () => undefined,
+        error: () => this.auth.clearSession(),
+      });
+    }
   }
 
   logout(): void {
