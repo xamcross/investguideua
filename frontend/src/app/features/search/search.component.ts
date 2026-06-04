@@ -48,12 +48,15 @@ import { ResultsComponent } from './results.component';
         <div class="ig-grid2">
           <div class="ig-field">
             <label for="amount">{{ 'search.amount' | translate }} <span class="ig-req" aria-hidden="true">*</span></label>
-            <input id="amount" type="number" inputmode="decimal" step="0.01" min="0.01"
+            <input id="amount" type="number" inputmode="decimal" step="0.01" min="0.01" [max]="maxAmount"
                    formControlName="amount" required
                    [attr.aria-invalid]="showError('amount') ? 'true' : null"
                    [attr.aria-describedby]="showError('amount') ? 'amount-error' : null" />
             @if (showError('amount')) {
-              <span id="amount-error" class="ig-error" role="alert">{{ 'search.amountError' | translate }}</span>
+              <span id="amount-error" class="ig-error" role="alert">
+                {{ (form.controls.amount.hasError('max') ? 'search.amountErrorMax' : 'search.amountError')
+                    | translate: { max: (maxAmount | number: '1.0-0') } }}
+              </span>
             }
           </div>
           <div class="ig-field">
@@ -147,8 +150,16 @@ export class SearchComponent {
 
   readonly balance = computed(() => this.auth.tokenBalance());
 
+  /**
+   * Client-side upper bound on the entered amount (major units), mirroring the server-authoritative
+   * `search.maxAmount` (100_000_000 minor units). Kept in sync manually; the backend still rejects an
+   * over-limit amount, but validating here gives an immediate, explicit error instead of a silent or
+   * confusing submit.
+   */
+  protected readonly maxAmount = 1_000_000;
+
   readonly form = this.fb.nonNullable.group({
-    amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
+    amount: [null as number | null, [Validators.required, Validators.min(0.01), Validators.max(this.maxAmount)]],
     currency: ['UAH' as 'UAH' | 'USD', [Validators.required]],
     horizon: [null as string | null],
     riskTolerance: [null as string | null],

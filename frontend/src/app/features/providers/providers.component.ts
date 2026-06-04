@@ -168,9 +168,9 @@ export class ProvidersComponent implements OnInit {
       .join(', ');
   }
 
+  /** minAmount is stored in the provider's quote currency (its first listed currency). */
   minAmount(p: Provider): string {
-    const currency = p.currencies[0] === 'USD' ? 'USD' : 'UAH';
-    return formatMinorUnits(p.minAmount, currency);
+    return formatMinorUnits(p.minAmount, p.currencies[0] ?? 'UAH');
   }
 }
 

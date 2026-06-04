@@ -19,13 +19,13 @@ import java.util.List;
  * provider.
  *
  * <p><b>Money units (project rule):</b> {@code minAmount}/{@code maxAmount} are integer
- * <b>minor units</b> — never floats. For the MVP they are denominated as a <b>UAH-equivalent
- * reference threshold (kopiykas)</b> used for coarse pre-prompt filtering only: a provider that
- * accepts deposits "from 1,000 UAH" is stored as {@code minAmount = 100_000}. Precise per-currency
- * minimums (e.g. a distinct USD floor) are a launch-checklist refinement (§14); the current filter
- * treats {@code minAmount} as a single low threshold, which rarely mis-excludes since all seeded
- * banks have small minimums. {@code typicalReturnPct} holds percentages (reference data, not
- * money), so it uses a numeric range rather than minor units.
+ * <b>minor units</b> — never floats — denominated in the row's <b>quote currency</b>
+ * ({@code currencies[0]}): a UAH row stores kopiykas, a USD/EUR row stores cents. A provider that
+ * accepts "from 1,000 UAH" is stored as {@code minAmount = 100_000}; a USD broker "from $100" as
+ * {@code 10_000}. Each row is currency-coherent (UAH-only or FX-only, never mixed) and the
+ * pre-prompt filter (BE-C3) only keeps rows whose {@code currencies} include the requested currency,
+ * so the {@code minAmount} comparison is always within one currency. {@code typicalReturnPct} holds
+ * percentages (reference data, not money), so it uses a numeric range rather than minor units.
  *
  * <p>{@code active} is the only field an operator is expected to flip directly in the DB; the
  * seeder is insert-only (upsert-by-{@code _id} with {@code $setOnInsert}) and therefore never
