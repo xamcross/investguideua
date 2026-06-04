@@ -65,12 +65,16 @@ import { NotificationService } from './notification.service';
       .ig-toast__action { font-size: 0.82rem; font-weight: 700; color: var(--blue-600); text-decoration: none; }
       .ig-toast__ref {
         font-size: 0.72rem; color: var(--muted); background: none; border: none;
-        padding: 0; cursor: pointer; font-family: var(--font-mono);
+        min-height: var(--touch-min); display: inline-flex; align-items: center;
+        padding: 0 .25rem; cursor: pointer; font-family: var(--font-mono);
       }
       .ig-toast__ref:hover { color: var(--ink); }
       .ig-toast__close {
-        background: none; border: none; font-size: 1.1rem; line-height: 1; cursor: pointer;
-        color: var(--muted);
+        background: none; border: none; font-size: 1.3rem; line-height: 1; cursor: pointer;
+        color: var(--muted); flex: none;
+        min-width: var(--touch-min); min-height: var(--touch-min);
+        display: inline-flex; align-items: center; justify-content: center;
+        margin: -0.35rem -0.4rem -0.35rem 0;   /* keep visual footprint tight while hit area >= 44px */
       }
     `,
   ],

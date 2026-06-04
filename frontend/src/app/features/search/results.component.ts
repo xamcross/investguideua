@@ -3,6 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InvestmentOption, SearchResponse } from '../../core/investment/investment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
 import { CurrencyLabelPipe } from '../../core/i18n/currency-label.pipe';
+import { EmptyStateComponent } from '../shared/empty-state.component';
 
 /**
  * Reusable results renderer (tickets FE-SEARCH2, FE-HIST2): the list of options plus the mandatory
@@ -17,11 +18,11 @@ import { CurrencyLabelPipe } from '../../core/i18n/currency-label.pipe';
   selector: 'ig-results',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule, CurrencyLabelPipe],
+  imports: [TranslateModule, CurrencyLabelPipe, EmptyStateComponent],
   template: `
     @if (result) {
       @if (result.options.length === 0) {
-        <div class="ig-alert ig-alert--info" role="status">{{ 'results.noOptions' | translate }}</div>
+        <ig-empty-state [message]="'results.noOptions' | translate" />
       } @else {
         <ul class="ig-options">
           @for (opt of result.options; track opt.providerId + opt.instrument; let i = $index) {

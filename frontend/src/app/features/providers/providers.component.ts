@@ -5,6 +5,9 @@ import { ProviderService } from '../../core/catalog/provider.service';
 import { Provider } from '../../core/catalog/provider.models';
 import { ProviderCategory, RiskLevel } from '../../core/investment/investment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
+import { EmptyStateComponent } from '../shared/empty-state.component';
+import { LoadingStateComponent } from '../shared/loading-state.component';
+import { ErrorStateComponent } from '../shared/error-state.component';
 
 /** Maps backend enums to translation keys (resolved live so they re-translate on language switch). */
 const CATEGORY_KEYS: Record<ProviderCategory, string> = {
@@ -32,7 +35,7 @@ const RISK_KEYS: Record<RiskLevel, string> = {
   selector: 'ig-providers',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslateModule, EmptyStateComponent, LoadingStateComponent, ErrorStateComponent],
   template: `
     <section class="ig-card">
       <div class="ig-page-head">
@@ -41,11 +44,11 @@ const RISK_KEYS: Record<RiskLevel, string> = {
       </div>
 
       @if (loading()) {
-        <p class="ig-muted">{{ 'providers.loading' | translate }}</p>
+        <ig-loading-state [label]="'providers.loading' | translate" />
       } @else if (loadError()) {
-        <div class="ig-alert ig-alert--error" role="alert">{{ loadError() }}</div>
+        <ig-error-state [message]="loadError()!" />
       } @else if (providers().length === 0) {
-        <div class="ig-alert ig-alert--info">{{ 'providers.empty' | translate }}</div>
+        <ig-empty-state [message]="'providers.empty' | translate" />
       } @else {
         <ul class="ig-options">
           @for (p of providers(); track p.id) {

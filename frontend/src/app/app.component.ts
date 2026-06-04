@@ -9,6 +9,7 @@ import { LanguageService } from './core/i18n/language.service';
 import { PluralPipe } from './core/i18n/plural.pipe';
 import { SeoService } from './core/seo/seo.service';
 import { StructuredDataService } from './core/seo/structured-data.service';
+import { RouteFocusService } from './core/a11y/route-focus.service';
 
 /**
  * Root shell + top navigation (ticket FE-CORE1). The nav reflects auth state and the live
@@ -38,6 +39,8 @@ import { StructuredDataService } from './core/seo/structured-data.service';
     PluralPipe,
   ],
   template: `
+    <a class="ig-skip" href="#main-content">{{ 'a11y.skipToContent' | translate }}</a>
+
     <header class="ig-topbar">
       <div class="ig-topbar__inner">
         <a class="ig-brand" routerLink="/" (click)="menuOpen.set(false)">
@@ -83,7 +86,7 @@ import { StructuredDataService } from './core/seo/structured-data.service';
       <div class="ig-flag" aria-hidden="true"></div>
     </header>
 
-    <main class="ig-container">
+    <main class="ig-container" id="main-content" tabindex="-1">
       <router-outlet />
     </main>
 
@@ -146,7 +149,7 @@ import { StructuredDataService } from './core/seo/structured-data.service';
       .ig-topbar__tools { display: flex; align-items: center; gap: .6rem; flex: none; }
       .ig-lang {
         display: inline-flex; align-items: center; justify-content: center; gap: .15rem;
-        min-height: 40px; padding: .35rem .7rem; border: 1px solid var(--line-2);
+        min-height: var(--touch-min); padding: .35rem .7rem; border: 1px solid var(--line-2);
         border-radius: 999px; background: var(--surface); font-family: var(--font-mono); font-size: .78rem;
         font-weight: 700; color: var(--muted); cursor: pointer;
       }
@@ -167,9 +170,14 @@ import { StructuredDataService } from './core/seo/structured-data.service';
         .ig-nav {
           position: absolute; left: 0; right: 0; top: 100%; flex: none; justify-content: stretch;
           background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-md);
-          max-height: 0; overflow: hidden; transition: max-height .3s var(--ease);
+          max-height: 0; overflow: hidden;
+          /* visibility:hidden removes the collapsed links from the tab order and from assistive
+             tech (feature 007, FR-006). It flips after the collapse animation finishes, and back
+             to visible immediately on open so the slide-down still plays. */
+          visibility: hidden;
+          transition: max-height .3s var(--ease), visibility 0s linear .3s;
         }
-        .ig-nav.is-open { max-height: 80vh; }
+        .ig-nav.is-open { max-height: 80vh; visibility: visible; transition: max-height .3s var(--ease), visibility 0s; }
         .ig-topbar__inner { position: relative; flex-wrap: wrap; }
         .ig-brand { flex: 1; }
         .ig-nav__actions { flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding: .5rem 0; }
@@ -190,6 +198,7 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
+  private readonly routeFocus = inject(RouteFocusService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Responsive mobile-menu disclosure state (defect fix: nav + balance reachable on narrow screens). */
@@ -206,6 +215,9 @@ export class AppComponent implements OnInit {
 
     // Site-wide structured data (Organization + WebSite + SearchAction) on every page.
     this.structuredData.setBase(this.lang.current());
+
+    // Move focus to the main landmark after each SPA navigation (a11y; browser-only, FR-001).
+    this.routeFocus.init();
 
     // Silent session restore is BROWSER-ONLY: during build-time prerender there is no backend and
     // no refresh cookie, so firing this on the server platform would issue a doomed HTTP call and

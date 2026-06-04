@@ -7,6 +7,9 @@ import { TokenPack } from '../../core/payments/payment.models';
 import { formatMinorUnits } from '../../core/investment/money.util';
 import { parseApiError } from '../../core/api/api-error.util';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
+import { EmptyStateComponent } from '../shared/empty-state.component';
+import { LoadingStateComponent } from '../shared/loading-state.component';
+import { ErrorStateComponent } from '../shared/error-state.component';
 
 /** sessionStorage key carrying the paymentId across the monobank redirect to the result page. */
 export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
@@ -24,7 +27,7 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
   selector: 'ig-tokens',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe, EmptyStateComponent, LoadingStateComponent, ErrorStateComponent],
   template: `
     <section class="ig-tokens reveal d1">
       <p class="ig-kicker ig-kicker--gold">{{ 'tokens.kicker' | translate }}</p>
@@ -32,14 +35,14 @@ export const PENDING_PAYMENT_KEY = 'ig_pending_payment_id';
       <p class="ig-tokens__lead">{{ 'tokens.intro' | translate: { balance: (auth.tokenBalance() | igPlural: 'token') } }}</p>
 
       @if (loading()) {
-        <p class="ig-tokens__lead">{{ 'tokens.loadingPacks' | translate }}</p>
+        <ig-loading-state [label]="'tokens.loadingPacks' | translate" />
       } @else if (loadError()) {
-        <div class="ig-alert ig-alert--error" role="alert">{{ loadError() }}</div>
+        <ig-error-state [message]="loadError()!" />
       } @else if (packs().length === 0) {
-        <div class="ig-alert ig-alert--info">{{ 'tokens.empty' | translate }}</div>
+        <ig-empty-state [message]="'tokens.empty' | translate" />
       } @else {
         @if (buyError()) {
-          <div class="ig-alert ig-alert--error" role="alert">{{ buyError() }}</div>
+          <ig-error-state [message]="buyError()!" />
         }
         <ul class="ig-packs">
           @for (pack of packs(); track pack.id; let i = $index) {

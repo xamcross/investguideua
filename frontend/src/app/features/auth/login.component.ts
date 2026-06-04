@@ -23,13 +23,23 @@ import { parseApiError } from '../../core/api/api-error.util';
 
       <form class="ig-form" [formGroup]="form" (ngSubmit)="submit()">
         <div class="ig-field">
-          <label for="email">{{ 'login.email' | translate }}</label>
-          <input id="email" type="email" formControlName="email" autocomplete="email" />
+          <label for="email">{{ 'login.email' | translate }} <span class="ig-req" aria-hidden="true">*</span></label>
+          <input id="email" type="email" formControlName="email" autocomplete="email" required
+                 [attr.aria-invalid]="showError('email') ? 'true' : null"
+                 [attr.aria-describedby]="showError('email') ? 'login-email-error' : null" />
+          @if (showError('email')) {
+            <span id="login-email-error" class="ig-error" role="alert">{{ 'login.emailError' | translate }}</span>
+          }
         </div>
 
         <div class="ig-field">
-          <label for="password">{{ 'login.password' | translate }}</label>
-          <input id="password" type="password" formControlName="password" autocomplete="current-password" />
+          <label for="password">{{ 'login.password' | translate }} <span class="ig-req" aria-hidden="true">*</span></label>
+          <input id="password" type="password" formControlName="password" autocomplete="current-password" required
+                 [attr.aria-invalid]="showError('password') ? 'true' : null"
+                 [attr.aria-describedby]="showError('password') ? 'login-password-error' : null" />
+          @if (showError('password')) {
+            <span id="login-password-error" class="ig-error" role="alert">{{ 'login.passwordError' | translate }}</span>
+          }
         </div>
 
         @if (serverError()) {
@@ -61,6 +71,12 @@ export class LoginComponent {
   readonly submitting = signal(false);
   readonly serverError = signal<string | null>(null);
 
+  /** Show a field's error once it is invalid and the user has interacted with it (FR-019). */
+  showError(control: 'email' | 'password'): boolean {
+    const c = this.form.controls[control];
+    return c.invalid && (c.touched || c.dirty);
+  }
+
   submit(): void {
     this.serverError.set(null);
     if (this.form.invalid) {
@@ -69,6 +85,8 @@ export class LoginComponent {
     }
     this.submitting.set(true);
     const { email, password } = this.form.getRawValue();
+    // Lock the whole field group while the request is in flight (FR-020): no edits, no resubmit.
+    this.form.disable({ emitEvent: false });
     this.auth.login(email, password).subscribe({
       next: () => {
         this.submitting.set(false);
@@ -76,6 +94,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.submitting.set(false);
+        this.form.enable({ emitEvent: false });
         const parsed = parseApiError(err);
         // Generic message regardless of cause (no user enumeration).
         this.serverError.set(

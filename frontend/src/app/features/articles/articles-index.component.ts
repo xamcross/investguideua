@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ArticleService } from './article.service';
+import { EmptyStateComponent } from '../shared/empty-state.component';
 
 /**
  * Articles index (feature 006-seo-optimization, US3). Lists all published articles for the active
@@ -14,7 +15,7 @@ import { ArticleService } from './article.service';
   selector: 'ig-articles-index',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslateModule, EmptyStateComponent],
   template: `
     <section class="ig-articles">
       <header class="ig-articles__head">
@@ -36,7 +37,7 @@ import { ArticleService } from './article.service';
           }
         </ul>
       } @else {
-        <p class="ig-muted">{{ 'articles.empty' | translate }}</p>
+        <ig-empty-state [message]="'articles.empty' | translate" />
       }
     </section>
   `,

@@ -43,12 +43,13 @@ import { ResultsComponent } from './results.component';
         </div>
       }
 
-      <form class="ig-form ig-form--wide" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <form class="ig-form ig-form--wide" [formGroup]="form" (ngSubmit)="submit()" novalidate
+            [attr.aria-busy]="submitting() ? 'true' : null">
         <div class="ig-grid2">
           <div class="ig-field">
-            <label for="amount">{{ 'search.amount' | translate }}</label>
+            <label for="amount">{{ 'search.amount' | translate }} <span class="ig-req" aria-hidden="true">*</span></label>
             <input id="amount" type="number" inputmode="decimal" step="0.01" min="0.01"
-                   formControlName="amount"
+                   formControlName="amount" required
                    [attr.aria-invalid]="showError('amount') ? 'true' : null"
                    [attr.aria-describedby]="showError('amount') ? 'amount-error' : null" />
             @if (showError('amount')) {
@@ -88,8 +89,9 @@ import { ResultsComponent } from './results.component';
         <div class="ig-field">
           <label for="goals">{{ 'search.goals' | translate }}</label>
           <textarea id="goals" rows="2" maxlength="280" formControlName="goals"
+                    aria-describedby="goals-count"
                     [placeholder]="'search.goalsPlaceholder' | translate"></textarea>
-          <span class="ig-hint">{{ goalsLength() }}/280</span>
+          <span id="goals-count" class="ig-hint">{{ goalsLength() }}/280</span>
         </div>
 
         @if (errorMessage()) {
@@ -110,6 +112,10 @@ import { ResultsComponent } from './results.component';
       </form>
     </section>
 
+    <!-- Polite live region: announces the result summary only on a successful render, so it does
+         not double-fire with the assertive amount-field error (feature 007, FR-003 / C-A11Y-4). -->
+    <p class="ig-sr-only" role="status" aria-live="polite">{{ resultsAnnouncement() }}</p>
+
     @if (result()) {
       <section class="ig-card ig-results-wrap">
         <h2>{{ 'search.optionsFor' | translate: { amount: (result()!.amount / 100 | number: '1.2-2'), currency: (result()!.currency | igCurrency) } }}</h2>
@@ -120,7 +126,9 @@ import { ResultsComponent } from './results.component';
   styles: [
     `
       .ig-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 520px) { .ig-grid2 { grid-template-columns: 1fr; } }
+      /* Collapse to one column a bit earlier (was 520px) so the two-up fields are not cramped in
+         the 560-640px tablet range flagged in the audit (feature 007, FR-011). */
+      @media (max-width: 640px) { .ig-grid2 { grid-template-columns: 1fr; } }
       /* Fill the card width. This is an explicit override (not a deletion): the global
          .ig-form rule caps width at 420px, so removing this line would make the form narrower
          and re-introduce the "crammed left" defect (005-search-ui-fixes US3). The .ig-grid2
@@ -152,6 +160,8 @@ export class SearchComponent {
   readonly showBuyLink = signal(false);
   readonly showVerifyLink = signal(false);
   readonly result = signal<SearchResponse | null>(null);
+  /** Screen-reader announcement set only when results successfully render (FR-003). */
+  readonly resultsAnnouncement = signal('');
 
   goalsLength(): number {
     return (this.form.controls.goals.value ?? '').length;
@@ -183,13 +193,21 @@ export class SearchComponent {
 
     this.submitting.set(true);
     this.result.set(null);
+    this.resultsAnnouncement.set('');
+    // Lock the field group while the search is in flight (FR-020); re-enabled on settle below.
+    this.form.disable({ emitEvent: false });
     this.investments.search(body).subscribe({
       next: (res) => {
         this.submitting.set(false);
+        this.form.enable({ emitEvent: false });
         this.result.set(res);
+        this.resultsAnnouncement.set(
+          this.translate.instant('search.resultsAnnounce', { count: res.options.length }),
+        );
       },
       error: (err) => {
         this.submitting.set(false);
+        this.form.enable({ emitEvent: false });
         this.mapError(err);
       },
     });
