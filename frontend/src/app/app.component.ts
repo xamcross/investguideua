@@ -51,17 +51,19 @@ import { RouteFocusService } from './core/a11y/route-focus.service';
         <nav class="ig-nav" id="ig-primary-nav" [class.is-open]="menuOpen()">
           <div class="ig-nav__actions">
           @if (auth.authStatus() === 'authenticated') {
-            <a routerLink="/search" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
-            <a routerLink="/history" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
-            <a routerLink="/providers" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
+            <!-- Token store sits left-most (first) so the balance is the primary nav anchor. -->
             <a routerLink="/tokens" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="ig-balance"
                [title]="'nav.balanceTitle' | translate" (click)="menuOpen.set(false)">
               {{ auth.tokenBalance() | igPlural: 'token' }}
             </a>
+            <a routerLink="/search" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
+            <a routerLink="/history" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
+            <a routerLink="/providers" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
             <a routerLink="/account" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.account' | translate }}</a>
-            <button type="button" class="ig-linkbtn" (click)="logout()">{{ 'nav.signOut' | translate }}</button>
+            <!-- Sign out shows only inside the mobile drawer; on desktop it lives on the Account page. -->
+            <button type="button" class="ig-linkbtn ig-nav__signout" (click)="logout()">{{ 'nav.signOut' | translate }}</button>
           } @else if (auth.authStatus() === 'guest') {
-            <a routerLink="/login" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.signIn' | translate }}</a>
+            <a routerLink="/login" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="ig-btn ig-btn--ghost ig-nav__signin" (click)="menuOpen.set(false)">{{ 'nav.signIn' | translate }}</a>
             <a routerLink="/register" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="ig-btn ig-btn--nav" (click)="menuOpen.set(false)">{{ 'nav.register' | translate }}</a>
           }
           <!-- authStatus 'unknown' (startup refresh in flight): render neither menu nor guest CTAs
@@ -130,16 +132,16 @@ import { RouteFocusService } from './core/a11y/route-focus.service';
       /* Base nav-link styling targets plain text links only; the balance pill and the
          register CTA keep their own padding/look (excluded so the more-specific .ig-nav a
          rule does not strip their horizontal padding or add the underline). */
-      .ig-nav a:not(.ig-balance):not(.ig-btn--nav) {
+      .ig-nav a:not(.ig-balance):not(.ig-btn) {
         text-decoration: none; color: var(--muted); font-weight: 600; font-size: .92rem;
         position: relative; padding: .2rem 0; white-space: nowrap;
       }
-      .ig-nav a:not(.ig-balance):not(.ig-btn--nav)::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
+      .ig-nav a:not(.ig-balance):not(.ig-btn)::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
         background: var(--gold-500); transition: right .25s var(--ease); }
-      .ig-nav a:not(.ig-balance):not(.ig-btn--nav):hover { color: var(--ink); text-decoration: none; }
-      .ig-nav a:not(.ig-balance):not(.ig-btn--nav):hover::after,
-      .ig-nav a:not(.ig-balance):not(.ig-btn--nav).is-active::after { right: 0; }
-      .ig-nav a:not(.ig-balance):not(.ig-btn--nav).is-active { color: var(--ink); }
+      .ig-nav a:not(.ig-balance):not(.ig-btn):hover { color: var(--ink); text-decoration: none; }
+      .ig-nav a:not(.ig-balance):not(.ig-btn):hover::after,
+      .ig-nav a:not(.ig-balance):not(.ig-btn).is-active::after { right: 0; }
+      .ig-nav a:not(.ig-balance):not(.ig-btn).is-active { color: var(--ink); }
       .ig-balance {
         font-family: var(--font-mono); font-weight: 700; font-size: .82rem; color: var(--navy-900) !important;
         background: linear-gradient(180deg, var(--gold-100), var(--gold-300));
@@ -147,10 +149,16 @@ import { RouteFocusService } from './core/a11y/route-focus.service';
       }
       .ig-balance::after { display: none; }
       .ig-balance::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold-600); flex: none; }
-      .ig-btn--nav { color: #fff !important; padding: .4rem 1rem; }
+      /* Nav buttons (Register primary + Sign in ghost) share a compact, shadowless sizing so they
+         read as a matched pair in the bar; they grow to full-width touch targets in the drawer. */
+      .ig-nav .ig-btn { min-height: 0; padding: .45rem 1.05rem; font-size: .9rem; box-shadow: none; }
+      .ig-nav .ig-btn:hover:not(:disabled) { transform: none; box-shadow: none; }
+      .ig-btn--nav { color: #fff !important; }
       .ig-btn--nav::after { display: none; }
       .ig-linkbtn { background: none; border: none; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
       .ig-linkbtn:hover { color: var(--danger-fg); }
+      /* Sign out is a drawer-only action on small screens; hidden in the desktop bar. */
+      .ig-nav__signout { display: none; }
       .ig-topbar__tools { display: flex; align-items: center; gap: .6rem; flex: none; }
       .ig-lang {
         display: inline-flex; align-items: center; justify-content: center; gap: .15rem;
@@ -193,17 +201,61 @@ import { RouteFocusService } from './core/a11y/route-focus.service';
           visibility: hidden;
           transition: max-height .3s var(--ease), visibility 0s linear .3s;
         }
-        .ig-nav.is-open { max-height: 80vh; visibility: visible; transition: max-height .3s var(--ease), visibility 0s; }
+        .ig-nav.is-open { max-height: 85vh; visibility: visible; transition: max-height .3s var(--ease), visibility 0s; }
         .ig-topbar__inner { position: relative; flex-wrap: wrap; }
         .ig-brand { flex: 1; }
-        .ig-nav__actions { flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding: .5rem 0; }
-        .ig-nav__actions > * { padding: .85rem 1.25rem; }
+        .ig-nav__actions { flex-direction: column; align-items: stretch; gap: .3rem; width: 100%; padding: .55rem .7rem 1rem; }
+
+        /* Every drawer row shares one geometry so the items line up and read as tappable controls,
+           and each slides in (fade + translate) with a stagger when the drawer opens. */
+        .ig-nav__actions > * {
+          display: flex; align-items: center; box-sizing: border-box; width: 100%;
+          min-height: var(--touch-min); padding: .7rem .85rem; margin: 0;
+          border-radius: var(--radius-sm); font-size: 1rem; text-align: left;
+          opacity: 0; transform: translateX(-10px);
+        }
+        .ig-nav.is-open .ig-nav__actions > * {
+          opacity: 1; transform: none;
+          transition: opacity .3s var(--ease), transform .3s var(--ease),
+                      background .15s var(--ease), color .15s var(--ease);
+        }
+        .ig-nav.is-open .ig-nav__actions > *:nth-child(1) { transition-delay: .04s; }
+        .ig-nav.is-open .ig-nav__actions > *:nth-child(2) { transition-delay: .08s; }
+        .ig-nav.is-open .ig-nav__actions > *:nth-child(3) { transition-delay: .12s; }
+        .ig-nav.is-open .ig-nav__actions > *:nth-child(4) { transition-delay: .16s; }
+        .ig-nav.is-open .ig-nav__actions > *:nth-child(5) { transition-delay: .20s; }
+        .ig-nav.is-open .ig-nav__actions > *:nth-child(6) { transition-delay: .24s; }
+
+        /* Plain links become full-row menu items with a hover surface and an active accent bar. */
+        .ig-nav a:not(.ig-balance):not(.ig-btn) {
+          color: var(--ink); font-weight: 600; font-size: 1rem; padding: .7rem .85rem;
+        }
+        .ig-nav a:not(.ig-balance):not(.ig-btn):hover { color: var(--ink); background: var(--surface-2); }
+        .ig-nav a:not(.ig-balance):not(.ig-btn).is-active {
+          color: var(--blue-600); background: var(--surface-2); box-shadow: inset 3px 0 0 var(--gold-500);
+        }
         .ig-nav a::after { display: none; }
-        .ig-balance { align-self: flex-start; }
-        .ig-linkbtn { text-align: left; }
+
+        /* Token store: a full-width gold "wallet" row that anchors the top of the drawer. */
+        .ig-balance { justify-content: flex-start; gap: .55rem; box-shadow: var(--shadow-sm); }
+
+        /* Guest CTAs stack as full-width buttons: ghost Sign in paired above the primary Register. */
+        .ig-nav__actions .ig-btn { justify-content: center; min-height: var(--touch-min); padding: .8rem 1rem; font-size: 1rem; }
+        .ig-nav__signin { margin-top: .15rem; }
+
+        /* Sign out: drawer-only, set apart with a divider and a danger affordance. */
+        .ig-nav__signout {
+          display: flex; justify-content: flex-start; align-items: center;
+          margin-top: .35rem; padding-top: .9rem; border-top: 1px solid var(--line);
+          border-radius: 0; color: var(--danger-fg); font-weight: 600;
+        }
+        .ig-nav__signout:hover { color: var(--danger-fg); background: var(--danger-bg); border-radius: var(--radius-sm); }
       }
       @media (prefers-reduced-motion: reduce) {
         .ig-nav { transition: none; }
+        /* Never leave staggered rows stuck invisible if motion is reduced. */
+        .ig-nav__actions > *,
+        .ig-nav.is-open .ig-nav__actions > * { opacity: 1 !important; transform: none !important; transition: none !important; }
       }
     `,
   ],
