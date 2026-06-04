@@ -102,7 +102,7 @@ class PromptBuilderTest {
 
     private static List<Provider> manyProviders(int n) {
         return java.util.stream.IntStream.range(0, n)
-                .mapToObj(i -> new Provider("prov-" + i, "Provider " + i, ProviderCategory.BANK_DEPOSIT,
+                .mapToObj(i -> new Provider("prov-" + i, "Provider " + i, ProviderCategory.GOV_BOND,
                         "A reasonably long description to consume tokens for provider number " + i,
                         100_000L, null, List.of("UAH"), new ReturnRange(10, 14), RiskLevel.LOW,
                         "https://prov-" + i + ".example", true))

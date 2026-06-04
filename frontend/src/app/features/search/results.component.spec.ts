@@ -23,8 +23,8 @@ describe('ResultsComponent (QA2: disclaimer rendering / AC #5)', () => {
       {
         providerId: 'privatbank',
         providerName: 'PrivatBank',
-        instrument: 'Депозит',
-        category: 'BANK_DEPOSIT',
+        instrument: 'ОВДП',
+        category: 'GOV_BOND',
         currency: 'UAH',
         expectedReturnPct: { min: 13, max: 15 },
         riskLevel: 'LOW',

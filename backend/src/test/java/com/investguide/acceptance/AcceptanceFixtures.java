@@ -48,7 +48,7 @@ final class AcceptanceFixtures {
 
     /** PrivatBank: supports both UAH and USD, min 100000 kopiykas (1000 UAH). */
     static Provider privatbank() {
-        return new Provider("privatbank", "PrivatBank", ProviderCategory.BANK_DEPOSIT, "desc",
+        return new Provider("privatbank", "PrivatBank", ProviderCategory.GOV_BOND, "desc",
                 100_000L, null, List.of("UAH", "USD"), new ReturnRange(13.0, 15.5), RiskLevel.LOW,
                 "https://privatbank.ua/invest", true);
     }

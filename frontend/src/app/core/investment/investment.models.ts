@@ -5,7 +5,24 @@ export type InvestmentHorizon = 'SHORT' | 'MEDIUM' | 'LONG';
 export type RiskLevel = 'LOW' | 'MODERATE' | 'HIGH';
 /** Advisor free-text output language; mirrors the backend SearchLanguage enum. */
 export type SearchLanguage = 'UK' | 'EN';
-export type ProviderCategory = 'BANK_DEPOSIT' | 'GOV_BOND' | 'BROKER' | 'FUND' | 'OTHER';
+/**
+ * Investment-instrument types (mirror the backend ProviderCategory enum). The `/providers` screen
+ * groups the catalog by this value; the search results badge renders it via the `category.*` i18n keys.
+ */
+export type ProviderCategory =
+  | 'MILITARY_BOND'
+  | 'GOV_BOND'
+  | 'CASH_CURRENCY'
+  | 'PRECIOUS_METALS'
+  | 'REAL_ESTATE'
+  | 'INDEX_ETF'
+  | 'FOREIGN_STOCKS'
+  | 'CRYPTO'
+  | 'CORPORATE_BOND'
+  | 'CROWDLENDING'
+  | 'PENSION_FUND'
+  | 'LIFE_INSURANCE'
+  | 'BUSINESS_EQUITY';
 export type SearchStatus = 'pending' | 'completed' | 'failed';
 
 export interface ReturnRange {

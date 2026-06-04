@@ -24,7 +24,7 @@ class ProviderControllerTest {
 
     @Test
     void returnsActiveCatalogMappedToDto() {
-        Provider p = new Provider("privatbank", "ПриватБанк", ProviderCategory.BANK_DEPOSIT,
+        Provider p = new Provider("privatbank", "ПриватБанк", ProviderCategory.GOV_BOND,
                 "desc", 100_000L, null, List.of("UAH", "USD"),
                 new ReturnRange(13.0, 16.5), RiskLevel.LOW, "https://privatbank.ua/ovdp", true);
         when(repository.findByActiveTrue()).thenReturn(List.of(p));
@@ -33,7 +33,7 @@ class ProviderControllerTest {
 
         assertThat(result).singleElement().satisfies(r -> {
             assertThat(r.id()).isEqualTo("privatbank");
-            assertThat(r.category()).isEqualTo(ProviderCategory.BANK_DEPOSIT);
+            assertThat(r.category()).isEqualTo(ProviderCategory.GOV_BOND);
             assertThat(r.currencies()).containsExactly("UAH", "USD");
             assertThat(r.minAmount()).isEqualTo(100_000L);
             assertThat(r.sourceUrl()).isEqualTo("https://privatbank.ua/ovdp");

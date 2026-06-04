@@ -19,7 +19,7 @@ class ProviderCatalogServiceTest {
     private final ProviderCatalogService service = new ProviderCatalogService(repository);
 
     private static Provider provider(String id, long minAmount, Long maxAmount, List<String> currencies) {
-        return new Provider(id, id, ProviderCategory.BANK_DEPOSIT, "desc",
+        return new Provider(id, id, ProviderCategory.GOV_BOND, "desc",
                 minAmount, maxAmount, currencies, new ReturnRange(10.0, 12.0),
                 RiskLevel.LOW, "https://example.test", true);
     }

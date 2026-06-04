@@ -237,8 +237,8 @@ anyway, but this gives a precise error instead of `INSUFFICIENT_TOKENS`.)
 
 ### BE-C1 — Provider domain & repository
 **Spec refs:** §6 (`providers`) · **Depends on:** X1
-**Description:** `Provider` document keyed by stable string slug `_id` (e.g. `privatbank`):
-`name`, `category` (enum `BANK_DEPOSIT|GOV_BOND|BROKER|FUND|OTHER`), `description`,
+**Description:** `Provider` document keyed by stable string slug `_id` (e.g. `privatbank-ovdp`):
+`name`, `category` (instrument enum: `MILITARY_BOND|GOV_BOND|CASH_CURRENCY|PRECIOUS_METALS|REAL_ESTATE|INDEX_ETF|FOREIGN_STOCKS|CRYPTO|CORPORATE_BOND|CROWDLENDING|PENSION_FUND|LIFE_INSURANCE|BUSINESS_EQUITY`), `description`,
 `minAmount`, `maxAmount`, `currencies[]`, `typicalReturnPct{min,max}`,
 `riskLevel` (`LOW|MODERATE|HIGH`), `sourceUrl`, `active`. Repository with
 `findByActiveTrue()`.
