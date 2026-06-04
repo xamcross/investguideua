@@ -49,7 +49,8 @@ export interface InvestmentOption {
   providerId: string;
   providerName: string;
   instrument: string;
-  category: ProviderCategory;
+  /** Instrument type; `null` for legacy searches whose category predates the 13-instrument taxonomy. */
+  category: ProviderCategory | null;
   currency: SearchCurrency;
   expectedReturnPct: ReturnRange;
   riskLevel: RiskLevel;

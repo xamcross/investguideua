@@ -30,7 +30,9 @@ import { EmptyStateComponent } from '../shared/empty-state.component';
               <div class="ig-opt__head">
                 <span class="ig-opt__name">{{ opt.providerName }}</span>
                 <span class="ig-opt__badges">
-                  <span class="ig-badge ig-badge--cat">{{ 'category.' + opt.category | translate }}</span>
+                  @if (opt.category) {
+                    <span class="ig-badge ig-badge--cat">{{ 'category.' + opt.category | translate }}</span>
+                  }
                   <span class="ig-badge ig-badge--risk" [attr.data-risk]="opt.riskLevel">
                     {{ 'risk.' + opt.riskLevel | translate }}
                   </span>
