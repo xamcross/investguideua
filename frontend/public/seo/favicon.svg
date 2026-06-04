@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="InvestGuideUA">
+  <title>InvestGuideUA</title>
+  <!-- Ukrainian flag field: institutional blue over refined wheat-gold (brand tokens). -->
+  <rect width="32" height="16" fill="#0057b7"/>
+  <rect y="16" width="32" height="16" fill="#d9a823"/>
+  <!-- Growth line rising above the flag's horizon: signals "invest". -->
+  <g fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 16 L12 12 L16 14 L25 7.5"/>
+    <path d="M25 7.5 H18.5 M25 7.5 V14"/>
+  </g>
+</svg>
