@@ -1,0 +1,24 @@
+# Cloudflare Pages routing (feature 006-seo-optimization).
+# Private/utility routes: serve the SPA shell so client routing + guards run (status 200).
+# Public routes are prerendered static files served directly. NO catch-all /* 200 rule:
+# unknown paths fall through to 404.html with a real HTTP 404 (avoids the soft-404 trap).
+/login            /index.html   200
+/register         /index.html   200
+/verify           /index.html   200
+/search           /index.html   200
+/history          /index.html   200
+/history/*        /index.html   200
+/tokens           /index.html   200
+/payments/result  /index.html   200
+/account          /index.html   200
+/providers        /index.html   200
+/en/login         /index.html   200
+/en/register      /index.html   200
+/en/verify        /index.html   200
+/en/search        /index.html   200
+/en/history       /index.html   200
+/en/history/*     /index.html   200
+/en/tokens        /index.html   200
+/en/payments/result  /index.html   200
+/en/account       /index.html   200
+/en/providers     /index.html   200

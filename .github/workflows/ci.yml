@@ -44,5 +44,11 @@ jobs:
       - name: Production build
         working-directory: frontend
         run: npm run build
+      - name: Generate robots.txt + sitemap.xml (feature 006)
+        working-directory: frontend
+        run: npm run seo:generate
+      - name: SEO acceptance audit (feature 006, fails on any violation)
+        working-directory: frontend
+        run: npm run seo:audit
       - name: Secret scan over built bundle (AC #10)
         run: bash scripts/scan-frontend-secrets.sh frontend/dist/investguide-frontend

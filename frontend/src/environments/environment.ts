@@ -6,4 +6,10 @@
 export const environment = {
   production: true,
   apiBaseUrl: 'https://api.investguideua.com/api/v1',
+  /**
+   * Canonical site origin for SEO canonical/hreflang/Open Graph absolute URLs (feature 006).
+   * One canonical host over HTTPS; the non-canonical host (apex vs www) must 301-redirect to this
+   * before launch (research R3). Overridable at build time without a code change if needed.
+   */
+  siteOrigin: 'https://investguideua.com',
 };

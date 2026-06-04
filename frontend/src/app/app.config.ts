@@ -1,4 +1,5 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { provideClientHydration } from '@angular/platform-browser';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { HttpBackend, HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -51,6 +52,10 @@ export const appConfig: ApplicationConfig = {
     ),
     // Order matters: globalErrorInterceptor is OUTERMOST so it only sees errors the auth
     // interceptor did not recover from (e.g. a refreshed 401 never reaches it). FE-CORE4 / FE-CORE2.
+    // Client-side hydration of the prerendered HTML (feature 006-seo-optimization). The server
+    // renders public routes to static HTML at build time; on load the browser reuses that DOM
+    // instead of re-rendering from scratch, preserving the prerendered (crawlable) content.
+    provideClientHydration(),
     provideHttpClient(
       withFetch(),
       withInterceptors([globalErrorInterceptor, authInterceptor]),

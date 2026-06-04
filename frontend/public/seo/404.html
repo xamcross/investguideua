@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <title>Сторінку не знайдено - InvestGuideUA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <style>
+    :root { --blue:#0057B7; --gold:#FFD700; --ink:#1a1a2e; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem; text-align: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--ink); background: #f6f3ec; padding: 2rem;
+    }
+    .flag { width: 96px; height: 64px; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.12); }
+    .flag span { display: block; height: 50%; }
+    .flag .b { background: var(--blue); }
+    .flag .g { background: var(--gold); }
+    h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin: .5rem 0 0; }
+    p { color: #555; max-width: 32rem; line-height: 1.6; margin: .25rem 0; }
+    a.btn {
+      display: inline-block; margin-top: 1rem; padding: .7rem 1.4rem; border-radius: 999px;
+      background: var(--blue); color: #fff; text-decoration: none; font-weight: 600;
+    }
+    a.btn:hover { background: #00408a; }
+  </style>
+</head>
+<body>
+  <div class="flag" aria-hidden="true"><span class="b"></span><span class="g"></span></div>
+  <h1>404</h1>
+  <p lang="uk">Такої сторінки не існує. Можливо, її було переміщено або видалено.</p>
+  <p lang="en">This page does not exist. It may have been moved or removed.</p>
+  <a class="btn" href="/">На головну / Go home</a>
+</body>
+</html>

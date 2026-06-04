@@ -16,7 +16,7 @@ import { authGuard, verifiedGuard } from './core/auth/auth.guards';
 export const routes: Routes = [
   {
     path: '',
-    title: 'title.home',
+    title: 'seo.home.title',
     loadComponent: () =>
       import('./features/landing/landing.component').then((m) => m.LandingComponent),
   },
@@ -85,18 +85,30 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/providers/providers.component').then((m) => m.ProvidersComponent),
   },
+  // Public articles section (feature 006-seo-optimization). No guard - indexable, prerendered.
+  {
+    path: 'articles',
+    title: 'seo.articles.title',
+    loadComponent: () =>
+      import('./features/articles/articles-index.component').then((m) => m.ArticlesIndexComponent),
+  },
+  {
+    path: 'articles/:slug',
+    loadComponent: () =>
+      import('./features/articles/article-detail.component').then((m) => m.ArticleDetailComponent),
+  },
   // Public legal screens linked from the footer (feature 004). One shared LegalDocumentComponent
   // renders both; `data.doc` selects the i18n content namespace via component-input binding. No guard.
   {
     path: 'terms',
-    title: 'title.terms',
+    title: 'seo.terms.title',
     data: { doc: 'terms' },
     loadComponent: () =>
       import('./features/legal/legal-document.component').then((m) => m.LegalDocumentComponent),
   },
   {
     path: 'privacy',
-    title: 'title.privacy',
+    title: 'seo.privacy.title',
     data: { doc: 'privacy' },
     loadComponent: () =>
       import('./features/legal/legal-document.component').then((m) => m.LegalDocumentComponent),
