@@ -426,18 +426,7 @@ h3 { font-weight: 700; font-size: 1.15rem; margin: 0 0 .4rem; }
 .reveal.d4 { animation-delay: .44s; }
 .reveal.d5 { animation-delay: .58s; }
 
-/* Scroll reveal: starts hidden; add class "in" (via IntersectionObserver) to play. */
-.onscroll {
-  opacity: 0; transform: translateY(26px);
-  transition: opacity .7s var(--ease), transform .7s var(--ease);
-}
-.onscroll.in { opacity: 1; transform: none; }
-.onscroll.s1 { transition-delay: .08s; }
-.onscroll.s2 { transition-delay: .18s; }
-.onscroll.s3 { transition-delay: .28s; }
-
-/* Reduced motion: kill all animation/transition and ensure revealed content is visible
-   even if an IntersectionObserver never runs. MANDATORY a11y. */
+/* Reduced motion: kill all animation/transition and ensure revealed content is visible. MANDATORY a11y. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .001ms !important;
@@ -445,5 +434,5 @@ h3 { font-weight: 700; font-size: 1.15rem; margin: 0 0 .4rem; }
     transition-duration: .001ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal, .onscroll { opacity: 1 !important; transform: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }

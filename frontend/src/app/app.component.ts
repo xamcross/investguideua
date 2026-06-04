@@ -38,6 +38,8 @@ import { StructuredDataService } from './core/seo/structured-data.service';
     PluralPipe,
   ],
   template: `
+    <a class="ig-skip" href="#ig-main">{{ 'nav.skipToContent' | translate }}</a>
+
     <header class="ig-topbar">
       <div class="ig-topbar__inner">
         <a class="ig-brand" routerLink="/" (click)="menuOpen.set(false)">
@@ -48,18 +50,18 @@ import { StructuredDataService } from './core/seo/structured-data.service';
         <nav class="ig-nav" id="ig-primary-nav" [class.is-open]="menuOpen()">
           <div class="ig-nav__actions">
           @if (auth.authStatus() === 'authenticated') {
-            <a routerLink="/search" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
-            <a routerLink="/history" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
-            <a routerLink="/providers" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
-            <a routerLink="/tokens" routerLinkActive="is-active" class="ig-balance"
+            <a routerLink="/search" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
+            <a routerLink="/history" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
+            <a routerLink="/providers" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
+            <a routerLink="/tokens" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="ig-balance"
                [title]="'nav.balanceTitle' | translate" (click)="menuOpen.set(false)">
               {{ auth.tokenBalance() | igPlural: 'token' }}
             </a>
-            <a routerLink="/account" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.account' | translate }}</a>
+            <a routerLink="/account" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.account' | translate }}</a>
             <button type="button" class="ig-linkbtn" (click)="logout()">{{ 'nav.signOut' | translate }}</button>
           } @else if (auth.authStatus() === 'guest') {
-            <a routerLink="/login" routerLinkActive="is-active" (click)="menuOpen.set(false)">{{ 'nav.signIn' | translate }}</a>
-            <a routerLink="/register" routerLinkActive="is-active" class="ig-btn ig-btn--nav" (click)="menuOpen.set(false)">{{ 'nav.register' | translate }}</a>
+            <a routerLink="/login" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.signIn' | translate }}</a>
+            <a routerLink="/register" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="ig-btn ig-btn--nav" (click)="menuOpen.set(false)">{{ 'nav.register' | translate }}</a>
           }
           <!-- authStatus 'unknown' (startup refresh in flight): render neither menu nor guest CTAs
                so a logged-in user never flashes the Sign in / Register buttons (US1-5). -->
@@ -83,7 +85,12 @@ import { StructuredDataService } from './core/seo/structured-data.service';
       <div class="ig-flag" aria-hidden="true"></div>
     </header>
 
-    <main class="ig-container">
+    @if (menuOpen()) {
+      <button type="button" class="ig-nav__scrim" tabindex="-1" aria-hidden="true"
+              (click)="menuOpen.set(false)"></button>
+    }
+
+    <main id="ig-main" class="ig-container" tabindex="-1">
       <router-outlet />
     </main>
 
@@ -95,6 +102,14 @@ import { StructuredDataService } from './core/seo/structured-data.service';
   `,
   styles: [
     `
+      /* Skip-to-content: hidden until focused, then pinned top-left above the sticky bar (a11y). */
+      .ig-skip {
+        position: fixed; top: .5rem; left: .5rem; z-index: 200;
+        transform: translateY(-150%); transition: transform .2s var(--ease);
+        background: var(--blue-600); color: #fff; font-weight: 700;
+        padding: .6rem 1rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+      }
+      .ig-skip:focus-visible { transform: translateY(0); text-decoration: none; }
       .ig-topbar {
         position: sticky; top: 0; z-index: 100;
         background: rgba(246, 243, 236, .82);
@@ -162,8 +177,19 @@ import { StructuredDataService } from './core/seo/structured-data.service';
       .ig-burger::after { position: absolute; top: 6px; }
       .ig-flag { height: 5px; background: linear-gradient(90deg, var(--blue-600) 0 50%, var(--gold-500) 50% 100%); }
 
+      /* Dismiss scrim behind the open mobile drawer. Hidden on desktop (drawer never opens there). */
+      .ig-nav__scrim { display: none; }
+
       @media (max-width: 760px) {
         .ig-nav__toggle { display: inline-flex; }
+        .ig-nav__scrim {
+          display: block; position: fixed; inset: 0; z-index: 90;
+          border: 0; padding: 0; cursor: pointer;
+          background: rgba(8, 20, 39, .38);
+          -webkit-backdrop-filter: blur(1px); backdrop-filter: blur(1px);
+          animation: ig-scrim-in .2s var(--ease);
+        }
+        @keyframes ig-scrim-in { from { opacity: 0; } to { opacity: 1; } }
         .ig-nav {
           position: absolute; left: 0; right: 0; top: 100%; flex: none; justify-content: stretch;
           background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-md);
