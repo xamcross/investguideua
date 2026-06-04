@@ -1,6 +1,7 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling, TitleStrategy } from '@angular/router';
+import { withChunkReloadRecovery } from './core/routing/chunk-reload-handler';
 import { HttpBackend, HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -49,6 +50,9 @@ export const appConfig: ApplicationConfig = {
       routes,
       withComponentInputBinding(),
       withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
+      // Recover from "Failed to fetch dynamically imported module" when a lazy route's hashed chunk
+      // was removed by a newer deploy: reload the target URL once to pick up the current build.
+      withChunkReloadRecovery(),
     ),
     // Order matters: globalErrorInterceptor is OUTERMOST so it only sees errors the auth
     // interceptor did not recover from (e.g. a refreshed 401 never reaches it). FE-CORE4 / FE-CORE2.
