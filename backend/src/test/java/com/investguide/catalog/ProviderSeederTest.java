@@ -1,5 +1,6 @@
 package com.investguide.catalog;
 
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -66,6 +67,8 @@ class ProviderSeederTest {
     void everyWriteIsSetOnInsertOnly() {
         when(mongoTemplate.upsert(any(Query.class), any(Update.class), eq(Provider.class)))
                 .thenReturn(UpdateResult.acknowledged(0, 0L, null));
+        when(mongoTemplate.remove(any(Query.class), eq(Provider.class)))
+                .thenReturn(DeleteResult.acknowledged(0));
 
         seeder.run(null);
 
@@ -76,5 +79,24 @@ class ProviderSeederTest {
         for (Update update : updates.getAllValues()) {
             assertThat(update.getUpdateObject().keySet()).containsExactly("$setOnInsert");
         }
+    }
+
+    @Test
+    void removesLegacyAndStaleTaxonomyRowsBeforeSeeding() {
+        when(mongoTemplate.upsert(any(Query.class), any(Update.class), eq(Provider.class)))
+                .thenReturn(UpdateResult.acknowledged(0, 0L, null));
+        when(mongoTemplate.remove(any(Query.class), eq(Provider.class)))
+                .thenReturn(DeleteResult.acknowledged(0));
+
+        seeder.run(null);
+
+        // Two cleanup deletes run before seeding: one by superseded legacy slug, one purging any
+        // document whose category predates the 13-instrument taxonomy.
+        ArgumentCaptor<Query> removals = ArgumentCaptor.forClass(Query.class);
+        verify(mongoTemplate, times(2)).remove(removals.capture(), eq(Provider.class));
+        assertThat(removals.getAllValues()).anySatisfy(q ->
+                assertThat(q.getQueryObject().toJson()).contains("_id").contains("privatbank"));
+        assertThat(removals.getAllValues()).anySatisfy(q ->
+                assertThat(q.getQueryObject().toJson()).contains("category"));
     }
 }
