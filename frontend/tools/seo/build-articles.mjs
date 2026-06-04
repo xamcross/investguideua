@@ -66,7 +66,9 @@ function loadArticles() {
   const articles = [];
   for (const file of files) {
     const m = file.match(/^(.+)\.(uk|en)\.md$/);
-    if (!m) { console.warn(`[seo:articles] skipping unrecognized file ${file}`); continue; }
+    // Non-article docs (e.g. REVIEW-CHECKLIST.md) legitimately live here; skip quietly via stdout
+    // (console.log, not console.warn) so the notice never lands on stderr.
+    if (!m) { console.log(`[seo:articles] skipping non-article file ${file}`); continue; }
     const raw = readFileSync(join(CONTENT_DIR, file), 'utf-8');
     const { data: fm, content } = matter(raw);
     fm.slug = fm.slug ?? m[1];

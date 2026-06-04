@@ -295,7 +295,9 @@ export const environment = {
 In **Cloudflare -> Workers & Pages -> Create -> Pages -> Connect to Git**, pick the repo, then set:
 
 - **Production branch:** `main`
-- **Build command:** `cd frontend && npm ci && npm run build && npm run seo:generate`
+- **Build command:** `cd frontend && npm ci && npm run build && npm run seo:generate && npm run seo:audit`
+  (the trailing `seo:audit` makes the Git build fail on any SEO regression, matching the CI gate and
+  `scripts/deploy-pages.ps1`)
 - **Build output directory:** `frontend/dist/investguide-frontend/browser`
 - **Root directory:** `/` (repo root)
 - **Environment variable (recommended):** `SEO_SITE_ORIGIN=https://investguideua.com` (used by `seo:generate` for canonical/sitemap/robots URLs).
@@ -325,6 +327,12 @@ npx wrangler pages deploy dist/investguide-frontend/browser --project-name inves
 > The private-only `_redirects` and `404.html` ship from `public/seo/` via the `angular.json`
 > assets glob; `seo:generate` writes `robots.txt` + `sitemap.xml`. No catch-all 200 rule (feature
 > 006-seo-optimization).
+>
+> **Pick one path per environment.** Use EITHER the Git integration (5.2) OR direct `wrangler`
+> upload (this section / `scripts/deploy-pages.ps1`) for the production project - not both. A
+> direct upload and a later `git push` both publish to the same project, so a Git build (which
+> may run with different settings) can overwrite a manual upload. Keep manual uploads on a preview
+> `--branch` if you need both.
 
 ### 5.3 Custom domain
 
