@@ -25,11 +25,19 @@ Section 5.2 of [docs/UI-REDESIGN-SPEC.md](../../../docs/UI-REDESIGN-SPEC.md).
 | `search.kicker` | Каталог-орієнтований радник | Catalog-grounded advisor |
 | `currency.UAH` | грн | UAH |
 | `currency.USD` | USD | USD |
-| `category.BANK_DEPOSIT` | Депозит | Deposit |
-| `category.GOV_BOND` | Облігація | Bond |
-| `category.BROKER` | Брокер | Broker |
-| `category.FUND` | Фонд | Fund |
-| `category.OTHER` | Інше | Other |
+| `category.MILITARY_BOND` | Військові ОВДП | War bonds |
+| `category.GOV_BOND` | ОВДП | Gov bonds |
+| `category.CASH_CURRENCY` | Валюта | Cash FX |
+| `category.PRECIOUS_METALS` | Метали | Metals |
+| `category.REAL_ESTATE` | Нерухомість | Real estate |
+| `category.INDEX_ETF` | Індексні ETF | Index ETF |
+| `category.FOREIGN_STOCKS` | Іноземні акції | Foreign stocks |
+| `category.CRYPTO` | Криптовалюта | Crypto |
+| `category.CORPORATE_BOND` | Корп. облігації | Corp. bonds |
+| `category.CROWDLENDING` | Краудлендинг | Crowdlending |
+| `category.PENSION_FUND` | НПФ | Pension fund |
+| `category.LIFE_INSURANCE` | Страхування життя | Life insurance |
+| `category.BUSINESS_EQUITY` | Стартапи | Startups |
 | `risk.LOW` | Низький | Low |
 | `risk.MODERATE` | Помірний | Moderate |
 | `risk.HIGH` | Високий | High |

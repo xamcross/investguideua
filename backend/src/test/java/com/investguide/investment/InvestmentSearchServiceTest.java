@@ -94,7 +94,7 @@ class InvestmentSearchServiceTest {
     }
 
     private static Provider privat() {
-        return new Provider("privatbank", "PrivatBank", ProviderCategory.BANK_DEPOSIT, "d",
+        return new Provider("privatbank", "PrivatBank", ProviderCategory.GOV_BOND, "d",
                 100_000L, null, List.of("UAH", "USD"), new ReturnRange(13, 15), RiskLevel.LOW,
                 "https://privatbank.ua", true);
     }
@@ -174,8 +174,8 @@ class InvestmentSearchServiceTest {
         when(promptBuilder.build(any(), anyList(), anyBoolean()))
                 .thenReturn(new PromptBuilder.Prompt("sys", "usr"));
         when(advisor.advise("sys", "usr")).thenReturn(new AdvisorResult("{json}", 200, 100));
-        InvestmentOption opt = new InvestmentOption("privatbank", "PrivatBank", "Депозит",
-                ProviderCategory.BANK_DEPOSIT, SearchCurrency.UAH, new ReturnRange(13, 15),
+        InvestmentOption opt = new InvestmentOption("privatbank", "PrivatBank", "ОВДП",
+                ProviderCategory.GOV_BOND, SearchCurrency.UAH, new ReturnRange(13, 15),
                 RiskLevel.LOW, 100_000L, "строк", "ок", "https://privatbank.ua");
         when(outputParser.parse(any(), any(), eq(SearchCurrency.UAH))).thenReturn(List.of(opt));
         when(searchRequestRepository.save(any(SearchRequest.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -200,8 +200,8 @@ class InvestmentSearchServiceTest {
         when(promptBuilder.build(any(), anyList(), anyBoolean()))
                 .thenReturn(new PromptBuilder.Prompt("sys", "usr"));
         when(advisor.advise("sys", "usr")).thenReturn(new AdvisorResult("{json}", 10, 10));
-        InvestmentOption usdOpt = new InvestmentOption("privatbank", "PrivatBank", "USD deposit",
-                ProviderCategory.BANK_DEPOSIT, SearchCurrency.USD, new ReturnRange(3, 5),
+        InvestmentOption usdOpt = new InvestmentOption("privatbank", "PrivatBank", "USD bond",
+                ProviderCategory.GOV_BOND, SearchCurrency.USD, new ReturnRange(3, 5),
                 RiskLevel.LOW, 100_000L, "term", "ok", "https://privatbank.ua");
         when(outputParser.parse(any(), any(), eq(SearchCurrency.UAH))).thenReturn(List.of(usdOpt));
         when(searchRequestRepository.save(any(SearchRequest.class))).thenAnswer(inv -> inv.getArgument(0));

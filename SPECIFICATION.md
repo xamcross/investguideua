@@ -170,10 +170,10 @@ Defined codes: `VALIDATION_ERROR` (400), `EMAIL_TAKEN` (409), `EMAIL_NOT_VERIFIE
   "currency": "UAH",
   "options": [
     {
-      "providerId": "privatbank-deposit",
+      "providerId": "privatbank-ovdp",
       "providerName": "PrivatBank",
-      "instrument": "Строковий депозит 12 міс",
-      "category": "BANK_DEPOSIT",
+      "instrument": "ОВДП 12 міс",
+      "category": "GOV_BOND",
       "expectedReturnPct": { "min": 13.0, "max": 15.5 },
       "riskLevel": "LOW",
       "minAmount": 1000,
@@ -229,7 +229,7 @@ exist in the active catalog (§8.3 enforcement).
 |---|---|---|
 | `_id` | string | stable slug, e.g. `privatbank-deposit` |
 | `name` | string | |
-| `category` | enum | `BANK_DEPOSIT` \| `GOV_BOND` \| `BROKER` \| `FUND` \| `OTHER` |
+| `category` | enum | instrument type: `MILITARY_BOND` \| `GOV_BOND` \| `CASH_CURRENCY` \| `PRECIOUS_METALS` \| `REAL_ESTATE` \| `INDEX_ETF` \| `FOREIGN_STOCKS` \| `CRYPTO` \| `CORPORATE_BOND` \| `CROWDLENDING` \| `PENSION_FUND` \| `LIFE_INSURANCE` \| `BUSINESS_EQUITY` |
 | `description` | string | |
 | `minAmount` / `maxAmount` | number | constraints used to filter pre-prompt |
 | `currencies` | string[] | supported currencies |

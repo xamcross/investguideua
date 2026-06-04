@@ -12,6 +12,10 @@ secrets/
 *.key
 id_rsa*
 
+# Source data workbook — instrument/provider research input, kept local-only (not a build artifact)
+investytsii_ukraina.xlsx
+*.xlsx
+
 # Java / Maven
 backend/target/
 *.class

@@ -43,12 +43,12 @@ final class InvestmentTestFixtures {
     }
 
     static Provider privatbank() {
-        return provider("privatbank", ProviderCategory.BANK_DEPOSIT, List.of("UAH", "USD"),
+        return provider("privatbank", ProviderCategory.GOV_BOND, List.of("UAH", "USD"),
                 100_000L, new ReturnRange(13.0, 15.5), RiskLevel.LOW);
     }
 
     static Provider monobank() {
-        return provider("monobank", ProviderCategory.BANK_DEPOSIT, List.of("UAH"),
+        return provider("monobank", ProviderCategory.GOV_BOND, List.of("UAH"),
                 100_000L, new ReturnRange(12.0, 14.0), RiskLevel.LOW);
     }
 }

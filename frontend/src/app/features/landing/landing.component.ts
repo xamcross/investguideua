@@ -205,9 +205,9 @@ export class LandingComponent implements OnInit {
 
   /** Illustrative sample options (display-only marketing; NOT an advisor call, no token cost). */
   protected readonly samples = [
-    { providerKey: 'landing.sampleProvider1', instrumentKey: 'landing.sampleInstrument1', category: 'BANK_DEPOSIT', risk: 'LOW', min: '14.5', max: '16.0', minAmount: '1 000', rationaleKey: 'landing.sampleRationale1' },
-    { providerKey: 'landing.sampleProvider2', instrumentKey: 'landing.sampleInstrument2', category: 'GOV_BOND', risk: 'LOW', min: '17.0', max: '19.2', minAmount: '1 000', rationaleKey: 'landing.sampleRationale2' },
-    { providerKey: 'landing.sampleProvider3', instrumentKey: 'landing.sampleInstrument3', category: 'FUND', risk: 'MODERATE', min: '13.2', max: '15.0', minAmount: '500', rationaleKey: 'landing.sampleRationale3' },
+    { providerKey: 'landing.sampleProvider1', instrumentKey: 'landing.sampleInstrument1', category: 'GOV_BOND', risk: 'LOW', min: '14.5', max: '16.0', minAmount: '1 000', rationaleKey: 'landing.sampleRationale1' },
+    { providerKey: 'landing.sampleProvider2', instrumentKey: 'landing.sampleInstrument2', category: 'MILITARY_BOND', risk: 'LOW', min: '17.0', max: '19.2', minAmount: '1 000', rationaleKey: 'landing.sampleRationale2' },
+    { providerKey: 'landing.sampleProvider3', instrumentKey: 'landing.sampleInstrument3', category: 'INDEX_ETF', risk: 'MODERATE', min: '7.0', max: '12.0', minAmount: '2 000', rationaleKey: 'landing.sampleRationale3' },
   ];
 
   /** Illustrative pricing preview (display-only marketing; clearly labelled "example"; CTAs to register). */
