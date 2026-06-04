@@ -188,6 +188,11 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
         .ig-hero { grid-template-columns: 1fr; }
         .ig-steps { grid-template-columns: 1fr; }
       }
+      /* On phones the two CTAs otherwise wrap to mismatched widths; stack them full-width. */
+      @media (max-width: 480px) {
+        .ig-cta { flex-direction: column; align-items: stretch; }
+        .ig-cta .ig-btn { width: 100%; }
+      }
       @media (prefers-reduced-motion: reduce) {
         .ig-step::before { transition: none; transform: scaleY(1); }
       }
