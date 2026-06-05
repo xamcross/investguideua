@@ -82,7 +82,7 @@ class ProviderSeederTest {
     }
 
     @Test
-    void removesLegacyAndStaleTaxonomyRowsBeforeSeeding() {
+    void removesNonCanonicalRowsBeforeSeeding() {
         when(mongoTemplate.upsert(any(Query.class), any(Update.class), eq(Provider.class)))
                 .thenReturn(UpdateResult.acknowledged(0, 0L, null));
         when(mongoTemplate.remove(any(Query.class), eq(Provider.class)))
@@ -90,13 +90,27 @@ class ProviderSeederTest {
 
         seeder.run(null);
 
-        // Two cleanup deletes run before seeding: one by superseded legacy slug, one purging any
-        // document whose category predates the 13-instrument taxonomy.
-        ArgumentCaptor<Query> removals = ArgumentCaptor.forClass(Query.class);
-        verify(mongoTemplate, times(2)).remove(removals.capture(), eq(Provider.class));
-        assertThat(removals.getAllValues()).anySatisfy(q ->
-                assertThat(q.getQueryObject().toJson()).contains("_id").contains("privatbank"));
-        assertThat(removals.getAllValues()).anySatisfy(q ->
-                assertThat(q.getQueryObject().toJson()).contains("category"));
+        // Authoritative cleanup: a single delete of every row whose _id is NOT a current canonical
+        // slug (clears earlier seed generations so the catalog equals canonicalProviders()).
+        ArgumentCaptor<Query> removal = ArgumentCaptor.forClass(Query.class);
+        verify(mongoTemplate, times(1)).remove(removal.capture(), eq(Provider.class));
+        String json = removal.getValue().getQueryObject().toJson();
+        assertThat(json).contains("_id").contains("$nin").contains("privatbank-mil-uah");
+    }
+
+    @Test
+    void everyRowIsCurrencyCoherent() {
+        // A row's currencies are either exactly [UAH] or a non-empty subset of {USD, EUR} — never a
+        // mix — so minAmount (quote-currency minor units) and the displayed return are unambiguous.
+        assertThat(ProviderSeeder.canonicalProviders()).allSatisfy(p -> {
+            List<String> c = p.getCurrencies();
+            boolean hasUah = c.contains("UAH");
+            boolean hasFx = c.contains("USD") || c.contains("EUR");
+            assertThat(hasUah && hasFx)
+                    .as("provider %s mixes UAH with FX: %s", p.getId(), c)
+                    .isFalse();
+            assertThat(c).allMatch(x -> x.equals("UAH") || x.equals("USD") || x.equals("EUR"));
+            assertThat(p.getMinAmount()).isGreaterThan(0L);
+        });
     }
 }

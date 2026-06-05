@@ -166,6 +166,7 @@
     "buyMoreSuffix": "to run a search.",
     "amount": "Amount",
     "amountError": "Enter an amount greater than 0.",
+    "amountErrorMax": "Amount must be at most {{max}}.",
     "currency": "Currency",
     "horizon": "Horizon (optional)",
     "risk": "Risk tolerance (optional)",
