@@ -43,6 +43,11 @@ management:
 app:
   version: 1.0.0
   frontend-base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}
+  seed:
+    # DEV ONLY: when true, DevUserSeeder inserts a predefined, ready-to-login user (well-known
+    # password). MUST stay false outside local dev; only the local Docker Compose stack flips it on.
+    dev-user:
+      enabled: ${APP_SEED_DEV_USER_ENABLED:false}
   signup:
     free-tokens: 5
   verification:

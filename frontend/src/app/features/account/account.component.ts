@@ -82,7 +82,7 @@ import { ErrorStateComponent } from '../shared/error-state.component';
     `
       .ig-profile {
         display: grid; grid-template-columns: auto 1fr; gap: 0; margin: 0 0 1.75rem;
-        align-items: baseline;
+        align-items: stretch;
       }
       .ig-profile dt {
         font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
