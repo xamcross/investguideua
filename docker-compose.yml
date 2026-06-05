@@ -21,6 +21,10 @@ services:
     environment:
       # Compose service DNS overrides the .env localhost default for in-network Mongo.
       MONGODB_URI: mongodb://mongo:27017/investguide
+      # LOCAL DEV ONLY: seed a predefined, ready-to-login user (dev@investguide.local /
+      # devpassword123). This stack is never the cloud deployment, so the well-known password
+      # stays contained to the local machine. Cloud (Fly) does not read this file.
+      APP_SEED_DEV_USER_ENABLED: "true"
     depends_on:
       mongo:
         condition: service_healthy
