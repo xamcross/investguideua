@@ -8,7 +8,7 @@ import {
   provideRouter,
 } from '@angular/router';
 import { firstValueFrom, isObservable, Observable } from 'rxjs';
-import { authGuard, verifiedGuard } from './auth.guards';
+import { adminGuard, authGuard, verifiedGuard } from './auth.guards';
 import { AuthService } from './auth.service';
 import { AuthResponse, UserProfile } from './auth.models';
 import { environment } from '../../../environments/environment';
@@ -105,5 +105,38 @@ describe('Route guards (QA2: auth + verified-email redirects)', () => {
     httpMock.expectOne(`${base}/me`).flush(user({ emailVerified: true, tokenBalance: 5 }));
 
     await expectAsync(result).toBeResolvedTo(true);
+  });
+
+  // 008-providers-admin-only US1/US2: adminGuard gates the Providers route on the ADMIN role,
+  // re-checking via a fresh /me rather than a cached flag (mirrors verifiedGuard).
+  it('adminGuard: an ADMIN user is allowed through (US1)', async () => {
+    establishSession({ roles: ['USER', 'ADMIN'] });
+
+    const result = run(adminGuard);
+    httpMock.expectOne(`${base}/me`).flush(user({ roles: ['USER', 'ADMIN'] }));
+
+    await expectAsync(result).toBeResolvedTo(true);
+  });
+
+  it('adminGuard: a USER-only user is redirected to /account (US2)', async () => {
+    establishSession({ roles: ['USER'] });
+
+    const result = run(adminGuard);
+    httpMock.expectOne(`${base}/me`).flush(user({ roles: ['USER'] }));
+
+    const redirect = await result;
+    expect(redirect instanceof UrlTree).toBeTrue();
+    expect((redirect as UrlTree).toString()).toBe('/account');
+  });
+
+  it('adminGuard: an account with empty roles is treated as non-admin and redirected (US2, INV-4)', async () => {
+    establishSession({ roles: [] });
+
+    const result = run(adminGuard);
+    httpMock.expectOne(`${base}/me`).flush(user({ roles: [] }));
+
+    const redirect = await result;
+    expect(redirect instanceof UrlTree).toBeTrue();
+    expect((redirect as UrlTree).toString()).toBe('/account');
   });
 });

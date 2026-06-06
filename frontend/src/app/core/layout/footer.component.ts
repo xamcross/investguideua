@@ -1,12 +1,17 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthService } from '../auth/auth.service';
 
 /**
  * Site footer (standalone, OnPush). Rendered once in the app shell beneath the router outlet, so it
  * appears on every page. Brand + tagline, Product/Legal link groups, copyright, and a "Made in
  * Ukraine" trust mark. All copy via ngx-translate. Group labels are non-heading elements so the
  * footer does not inject extra headings into each page's outline.
+ *
+ * <p>The Providers link is ADMIN-only (008-providers-admin-only): like the top-nav item it is shown
+ * only when {@code auth.isAdmin()} so non-admins never see a link to the admin-gated route. The
+ * `isAdmin` signal makes this reactive even under OnPush change detection.
  */
 @Component({
   selector: 'ig-footer',
@@ -29,7 +34,9 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="ig-footer__col">
               <p class="ig-footer__h">{{ 'footer.product' | translate }}</p>
               <a routerLink="/search">{{ 'nav.search' | translate }}</a>
-              <a routerLink="/providers">{{ 'nav.providers' | translate }}</a>
+              @if (auth.isAdmin()) {
+                <a routerLink="/providers">{{ 'nav.providers' | translate }}</a>
+              }
               <a routerLink="/tokens">{{ 'footer.tokens' | translate }}</a>
             </div>
             <div class="ig-footer__col">
@@ -74,4 +81,6 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
   ],
 })
-export class FooterComponent {}
+export class FooterComponent {
+  protected readonly auth = inject(AuthService);
+}

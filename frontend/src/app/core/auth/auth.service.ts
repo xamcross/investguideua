@@ -48,6 +48,12 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.#accessToken() !== null);
   readonly tokenBalance = computed(() => this._user()?.tokenBalance ?? 0);
   readonly emailVerified = computed(() => this._user()?.emailVerified ?? false);
+  /**
+   * Whether the current user holds the ADMIN role. Drives admin-only UI (the Providers nav item)
+   * and the `adminGuard`. Missing/empty roles read as non-admin. Client-side only and best-effort
+   * UX: the backend is the authoritative gate (it returns 403 for non-admins regardless).
+   */
+  readonly isAdmin = computed(() => (this._user()?.roles ?? []).includes('ADMIN'));
 
   /**
    * Tri-state session status for the shell nav: `unknown` before the startup refresh resolves,

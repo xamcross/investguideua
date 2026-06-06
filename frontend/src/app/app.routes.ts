@@ -1,14 +1,15 @@
 import { Routes } from '@angular/router';
-import { authGuard, verifiedGuard } from './core/auth/auth.guards';
+import { adminGuard, authGuard, verifiedGuard } from './core/auth/auth.guards';
 
 /**
  * Application routes (tickets FE-CORE1, FE-CORE3). Every feature area is lazy-loaded via
  * `loadComponent`.
  *
- * Route guards (FE-CORE3): `authGuard` protects authenticated areas (History, Account, Providers,
- * Payment status); `verifiedGuard` additionally gates the token-spending areas (Search, Buy Tokens)
- * on a freshly re-checked verified email. Guards are best-effort UX - the backend `401`/`403` remain
- * the source of truth and are surfaced by FE-CORE4.
+ * Route guards (FE-CORE3): `authGuard` protects authenticated areas (History, Account, Payment
+ * status); `verifiedGuard` additionally gates the token-spending areas (Search, Buy Tokens) on a
+ * freshly re-checked verified email; `adminGuard` gates the ADMIN-only Providers area on the ADMIN
+ * role (008-providers-admin-only). Guards are best-effort UX - the backend `401`/`403` remain the
+ * source of truth and are surfaced by FE-CORE4.
  *
  * `title` holds a translation KEY (e.g. `title.search`); TranslatedTitleStrategy resolves it
  * via ngx-translate and re-applies it when the language changes.
@@ -79,9 +80,11 @@ export const routes: Routes = [
       import('./features/account/account.component').then((m) => m.AccountComponent),
   },
   {
+    // Providers is ADMIN-only (008-providers-admin-only): authGuard ensures a session, adminGuard
+    // enforces the ADMIN role (non-admins are redirected to /account). The API also enforces ADMIN.
     path: 'providers',
     title: 'title.providers',
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/providers/providers.component').then((m) => m.ProvidersComponent),
   },
