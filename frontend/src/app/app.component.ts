@@ -58,7 +58,11 @@ import { RouteFocusService } from './core/a11y/route-focus.service';
             </a>
             <a routerLink="/search" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.search' | translate }}</a>
             <a routerLink="/history" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.history' | translate }}</a>
-            <a routerLink="/providers" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
+            <!-- Providers is ADMIN-only (008-providers-admin-only): shown only to admins. The route
+                 is also guarded (adminGuard) and the API enforces ADMIN, so this is UX, not the gate. -->
+            @if (auth.isAdmin()) {
+              <a routerLink="/providers" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.providers' | translate }}</a>
+            }
             <a routerLink="/account" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="menuOpen.set(false)">{{ 'nav.account' | translate }}</a>
             <!-- Sign out shows only inside the mobile drawer; on desktop it lives on the Account page. -->
             <button type="button" class="ig-linkbtn ig-nav__signout" (click)="logout()">{{ 'nav.signOut' | translate }}</button>

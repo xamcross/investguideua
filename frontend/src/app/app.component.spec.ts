@@ -93,4 +93,38 @@ describe('AppComponent (US1: tri-state nav, no guest-CTA flash on restore)', () 
     expect(links).not.toContain('/account');
     expect(hasSignOut()).toBeFalse();
   });
+
+  // 008-providers-admin-only US1/US2: the "Providers" nav item is admin-only. It is rendered for an
+  // ADMIN session and hidden for a USER-only session. (UX gate; the route guard + API are authoritative.)
+  it('shows the Providers nav item for an ADMIN user (US1)', () => {
+    fixture.detectChanges();
+    httpMock
+      .expectOne(`${base}/auth/refresh`)
+      .flush({
+        accessToken: 'access-1',
+        expiresInMs: 900000,
+        user: { ...user, roles: ['USER', 'ADMIN'] },
+      } as AuthResponse);
+    fixture.detectChanges();
+
+    const links = hrefs();
+    expect(links).toContain('/providers');
+    expect(links).toContain('/account'); // sanity: authenticated nav is shown
+  });
+
+  it('hides the Providers nav item for a USER-only user (US2)', () => {
+    fixture.detectChanges();
+    httpMock
+      .expectOne(`${base}/auth/refresh`)
+      .flush({
+        accessToken: 'access-1',
+        expiresInMs: 900000,
+        user: { ...user, roles: ['USER'] },
+      } as AuthResponse);
+    fixture.detectChanges();
+
+    const links = hrefs();
+    expect(links).not.toContain('/providers');
+    expect(links).toContain('/account'); // authenticated nav otherwise intact
+  });
 });

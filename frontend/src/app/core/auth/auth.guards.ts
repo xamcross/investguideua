@@ -70,3 +70,43 @@ export const verifiedGuard: CanActivateFn = () => {
     }),
   );
 };
+
+/**
+ * Gate ADMIN-only areas (Providers) on the ADMIN role (008-providers-admin-only, §FR-005).
+ * Best-effort UX only — the backend returns 403 for a non-admin regardless, so a stale client role
+ * cannot leak data. Ensures a live session first (mirrors `authGuard`'s single-flight refresh), then
+ * re-checks the freshly loaded profile's role rather than a possibly-stale cached flag:
+ *
+ *  - not authenticated (and refresh fails)  -> redirect to `/login`
+ *  - authenticated but `/me` unreadable      -> redirect to `/login`
+ *  - authenticated but not ADMIN             -> redirect to `/account` (safe authenticated landing)
+ *  - authenticated and ADMIN                 -> allow
+ */
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  const ensureSession: Observable<boolean> = auth.isAuthenticated()
+    ? of(true)
+    : auth.refresh().pipe(
+        map(() => true),
+        catchError(() => of(false)),
+      );
+
+  return ensureSession.pipe(
+    switchMap((authed) => {
+      if (!authed) {
+        return of(router.parseUrl('/login'));
+      }
+      // Re-fetch the profile so the role check reflects server truth, not a stale cached value.
+      return auth.loadMe().pipe(
+        map((user) => {
+          if (!user) {
+            return router.parseUrl('/login');
+          }
+          return (user.roles ?? []).includes('ADMIN') ? true : router.parseUrl('/account');
+        }),
+      );
+    }),
+  );
+};

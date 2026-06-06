@@ -25,7 +25,8 @@ import java.util.List;
  *   <li>Passwords hashed with BCrypt.</li>
  *   <li>CORS locked to the single configured app origin; credentials allowed (cookie refresh).</li>
  *   <li>Public routes: register, login, refresh, monobank callback, health. Everything else 401s
- *       without a valid token.</li>
+ *       without a valid token. The provider catalog ({@code GET /api/v1/providers}) additionally
+ *       requires the ADMIN role (403 for an authenticated non-admin).</li>
  *   <li>CSRF disabled — safe for a token-authenticated, stateless JSON API with no cookie-based
  *       session auth (the refresh cookie is only read by the dedicated refresh endpoint).</li>
  * </ul>
@@ -68,6 +69,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
+                        // Provider catalog is ADMIN-only (008-providers-admin-only). hasRole("ADMIN")
+                        // matches the ROLE_ADMIN authority JwtAuthenticationFilter derives from the
+                        // token roles claim. Non-admins get 403 (accessDeniedHandler), anonymous 401.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/providers").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoints.unauthorized())
