@@ -1,0 +1,6 @@
+# Node scraper (feature 009) - do not commit installed deps or local env.
+node_modules/
+.env
+*.log
+# Playwright browser binaries live in the user cache, not here, but ignore any local install dir.
+.playwright/

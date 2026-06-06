@@ -1,0 +1,17 @@
+{
+  "name": "investguide-bond-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless-browser scraper for Ukrainian military bond prices (feature 009). Runs in GitHub Actions and locally; never on the backend.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "scrape": "node scrape-bonds.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "playwright": "1.60.0"
+  }
+}
