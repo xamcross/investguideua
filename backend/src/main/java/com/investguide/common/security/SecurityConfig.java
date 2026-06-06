@@ -44,7 +44,12 @@ public class SecurityConfig {
             "/api/v1/auth/verify",
             "/api/v1/auth/login",
             "/api/v1/auth/refresh",
-            "/api/v1/payments/mono/callback"
+            "/api/v1/payments/mono/callback",
+            // Bond price ingest (009) is machine-to-machine: it carries a shared-secret header, not a
+            // user JWT, so it must bypass the JWT chain here. It self-guards via BondIngestAuth (a
+            // blank/missing/incorrect secret -> 401, fail-closed). A user JWT would 401 a no-Bearer
+            // request before the secret check ever ran.
+            "/api/v1/admin/bond-prices"
     };
 
     private final JwtService jwtService;
@@ -73,6 +78,9 @@ public class SecurityConfig {
                         // matches the ROLE_ADMIN authority JwtAuthenticationFilter derives from the
                         // token roles claim. Non-admins get 403 (accessDeniedHandler), anonymous 401.
                         .requestMatchers(HttpMethod.GET, "/api/v1/providers").hasRole("ADMIN")
+                        // Bond price read (009) reuses the same ADMIN gating as the provider catalog:
+                        // authenticated non-admin -> 403, anonymous -> 401.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/bond-prices").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoints.unauthorized())

@@ -68,6 +68,13 @@ app:
   cors:
     allowed-origin: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:4200}
 
+bonds:
+  ingest:
+    # SECRET (env only) - shared machine-to-machine secret for POST /api/v1/admin/bond-prices
+    # (feature 009). Blank default: an unset secret does NOT fail startup, it fails INGEST closed
+    # (every ingest request is rejected 401). Never logged. Set BOND_INGEST_SECRET in prod + CI.
+    secret: ${BOND_INGEST_SECRET:}
+
 mail:
   # Verification-email delivery (003). OPTIONAL: default OFF so the app builds, starts, and registers
   # users with email disabled (a descriptive line is logged once at startup). Set enabled=true AND

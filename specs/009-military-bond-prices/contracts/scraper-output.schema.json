@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investguideua.com/schemas/009/scraper-output.schema.json",
+  "title": "Scraper ingest batch",
+  "description": "The JSON array the bond scraper emits and POSTs to /api/v1/admin/bond-prices. Prices are integer minor units of each record's currency; conversion is done in the scraper with string/integer math (no float).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "isin",
+      "military",
+      "currency",
+      "maturity",
+      "quotationDate",
+      "sellPriceMinor",
+      "buyPriceMinor",
+      "sellYield",
+      "buyYield"
+    ],
+    "properties": {
+      "isin": {
+        "type": "string",
+        "pattern": "^[A-Z0-9]{12}$",
+        "description": "12-char ISIN; document identity / upsert key."
+      },
+      "military": {
+        "type": "boolean",
+        "description": "Source military:true|false flag."
+      },
+      "currency": {
+        "type": "string",
+        "enum": ["UAH", "USD", "EUR"]
+      },
+      "maturity": {
+        "type": "string",
+        "format": "date",
+        "description": "ISO yyyy-MM-dd."
+      },
+      "quotationDate": {
+        "type": "string",
+        "format": "date",
+        "description": "ISO yyyy-MM-dd; source quotationDate."
+      },
+      "sellPriceMinor": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Sell price per 1000 face value, integer minor units (e.g. 1076.58 UAH -> 107658)."
+      },
+      "buyPriceMinor": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Buy price per 1000 face value, integer minor units."
+      },
+      "sellYield": {
+        "type": "number",
+        "description": "Annual sell yield %, reference (kept as double)."
+      },
+      "buyYield": {
+        "type": "number",
+        "description": "Annual buy yield %, reference (kept as double)."
+      }
+    }
+  }
+}
