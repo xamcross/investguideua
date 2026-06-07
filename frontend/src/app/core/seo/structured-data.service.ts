@@ -3,6 +3,9 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { DEFAULT_OG_IMAGE } from './seo-routes.config';
 
+/** Stable JSON-LD node ids for entity-graph consolidation (010 FR-021, US6). */
+const ORG_ID_FRAGMENT = '/#organization';
+
 /** Minimal shape the structured-data service needs from an article. */
 export interface ArticleJsonLdInput {
   title: string;
@@ -29,21 +32,36 @@ export class StructuredDataService {
   private readonly document = inject(DOCUMENT);
   private readonly origin = environment.siteOrigin.replace(/\/+$/, '');
 
+  /** The stable Organization @id used to consolidate the entity graph (010 FR-021). */
+  private get orgId(): string {
+    return this.origin + ORG_ID_FRAGMENT;
+  }
+
   /** Site-wide Organization + WebSite (with SearchAction). Safe to call on every navigation. */
   setBase(lang: string): void {
-    const org = {
+    const org: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
+      '@id': this.orgId,
       name: 'InvestGuideUA',
       url: this.origin + '/',
-      logo: this.origin + DEFAULT_OG_IMAGE,
+      logo: {
+        '@type': 'ImageObject',
+        url: this.abs(DEFAULT_OG_IMAGE),
+        width: 2000,
+        height: 2000,
+      },
     };
+    // sameAs official profiles (010 US6). Always emitted as an array per the structured-data
+    // contract; empty until official profiles exist (deferred gracefully per spec).
+    org['sameAs'] = (environment.orgSameAs ?? []).filter((u) => !!u);
     const website = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'InvestGuideUA',
       url: this.origin + '/',
       inLanguage: lang === 'en' ? 'en' : 'uk',
+      publisher: { '@id': this.orgId },
       potentialAction: {
         '@type': 'SearchAction',
         target: `${this.origin}/search?amount={amount}`,
@@ -65,12 +83,10 @@ export class StructuredDataService {
       datePublished: a.datePublished,
       dateModified: a.dateModified,
       image: this.abs(a.image ?? DEFAULT_OG_IMAGE),
-      author: { '@type': 'Organization', name: 'InvestGuideUA' },
-      publisher: {
-        '@type': 'Organization',
-        name: 'InvestGuideUA',
-        logo: { '@type': 'ImageObject', url: this.abs(DEFAULT_OG_IMAGE) },
-      },
+      // Organization byline (010 clarification: no Person reviewer). Author + publisher reference the
+      // canonical Organization entity by @id (set in setBase) rather than repeating the object.
+      author: { '@id': this.orgId },
+      publisher: { '@id': this.orgId },
       mainEntityOfPage: a.canonicalUrl,
     });
     if (a.breadcrumb?.length) {

@@ -34,6 +34,19 @@ import { Article } from './articles.data';
           <span> &middot; {{ 'articles.updated' | translate }}: {{ a.dateModified }}</span>
         </p>
 
+        <!-- Editorial trust block (010 US1 / FR-001): org-level review attribution + review date,
+             linking to the Editorial Policy page. Machine-detectable via data-trust-block. -->
+        <p class="ig-article__trust" data-trust-block>
+          <span class="ig-article__reviewed">{{ 'articles.reviewedBy' | translate }}: {{ a.reviewedBy }}</span>
+          <span> &middot; {{ 'articles.reviewedOn' | translate }}: {{ a.reviewedOn }}</span>
+          <span> &middot; <a routerLink="/editorial-policy">{{ 'articles.editorialPolicy' | translate }}</a></span>
+        </p>
+
+        <!-- Answer-first lead (010 US7 / FR-022): a direct, extractable answer above the body. -->
+        @if (a.answer) {
+          <p class="ig-article__answer">{{ a.answer }}</p>
+        }
+
         <div class="ig-article__body" [innerHTML]="a.bodyHtml"></div>
 
         <p class="ig-article__disclaimer">{{ 'articles.disclaimer' | translate }}</p>
@@ -63,7 +76,12 @@ import { Article } from './articles.data';
       .ig-breadcrumb { font-size: .85rem; color: var(--muted); margin-bottom: 1rem; }
       .ig-breadcrumb a { color: var(--blue-600); text-decoration: none; }
       .ig-article__title { font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.2; margin: 0 0 .5rem; }
-      .ig-article__dates { color: var(--muted); font-size: .85rem; margin: 0 0 1.5rem; }
+      .ig-article__dates { color: var(--muted); font-size: .85rem; margin: 0 0 .4rem; }
+      .ig-article__trust { color: var(--muted); font-size: .85rem; margin: 0 0 1.5rem; }
+      .ig-article__trust a { color: var(--blue-600); }
+      .ig-article__reviewed { font-weight: 600; color: var(--ink); }
+      .ig-article__answer { font-size: 1.15rem; line-height: 1.6; font-weight: 500; color: var(--ink);
+        margin: 0 0 1.5rem; padding: 0 0 1.25rem; border-bottom: 1px solid var(--line); }
       .ig-article__body { line-height: 1.7; font-size: 1.05rem; }
       .ig-article__body :is(h2, h3) { font-family: var(--font-display); margin-top: 2rem; }
       .ig-article__body a { color: var(--blue-600); }

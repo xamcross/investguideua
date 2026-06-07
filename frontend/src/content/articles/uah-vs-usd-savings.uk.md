@@ -4,6 +4,7 @@ lang: "uk"
 title: "Гривня чи долар: у чому зберігати кошти"
 description: "Як розподілити заощадження між гривнею та доларом в Україні: дохідність гривневих інструментів проти захисту від девальвації у валюті."
 summary: "Переваги й ризики гривневих і валютних заощаджень та ідея валютної диверсифікації."
+answer: "Гривня дає вищі ставки за депозитами, долар - захист від девальвації. Оптимально не обирати щось одне, а диверсифікувати заощадження між валютами відповідно до ваших цілей і строків."
 primaryTopic: "гривня чи долар зберігати"
 keywords: ["гривня чи долар зберігати"]
 datePublished: "2026-06-04"
@@ -11,7 +12,7 @@ dateModified: "2026-06-04"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
 reviewedOn: "2026-06-04"
-relatedSlugs: ["deposits-vs-alternatives", "understanding-investment-risk"]
+relatedSlugs: ["deposits-vs-alternatives", "understanding-investment-risk", "invest-100000-uah-beginner"]
 providersReferenced: ["privatbank", "oschadbank", "otp"]
 ---
 
@@ -26,3 +27,7 @@ providersReferenced: ["privatbank", "oschadbank", "otp"]
 ## Орієнтири
 
 Курс і ставки відстежуйте на сайті [НБУ](https://bank.gov.ua). Жоден курс не можна спрогнозувати напевно.
+
+## Гривня чи долар - у чому зберігати?
+
+Гривня дає вищі ставки, долар захищає від девальвації. Оптимально диверсифікувати заощадження між валютами відповідно до ваших цілей.

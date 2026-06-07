@@ -40,6 +40,11 @@ import { AuthService } from '../auth/auth.service';
               <a routerLink="/tokens">{{ 'footer.tokens' | translate }}</a>
             </div>
             <div class="ig-footer__col">
+              <p class="ig-footer__h">{{ 'footer.company' | translate }}</p>
+              <a routerLink="/editorial-policy">{{ 'footer.editorial' | translate }}</a>
+              <a routerLink="/contact">{{ 'footer.contact' | translate }}</a>
+            </div>
+            <div class="ig-footer__col">
               <p class="ig-footer__h">{{ 'footer.legal' | translate }}</p>
               <a routerLink="/terms">{{ 'footer.terms' | translate }}</a>
               <a routerLink="/privacy">{{ 'footer.privacy' | translate }}</a>

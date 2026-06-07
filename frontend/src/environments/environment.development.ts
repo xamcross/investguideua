@@ -7,4 +7,8 @@ export const environment = {
   apiBaseUrl: '/api/v1',
   /** Canonical site origin used for SEO canonical/hreflang/OG URLs (feature 006). */
   siteOrigin: 'http://localhost:4200',
+  /** Cloudflare Web Analytics token (010). Empty in dev so no beacon loads locally. */
+  cloudflareAnalyticsToken: '',
+  /** Organization sameAs profile URLs (010). Empty in dev. */
+  orgSameAs: [] as string[],
 };

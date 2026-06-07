@@ -12,4 +12,14 @@ export const environment = {
    * before launch (research R3). Overridable at build time without a code change if needed.
    */
   siteOrigin: 'https://investguideua.com',
+  /**
+   * Cloudflare Web Analytics beacon token (010-seo-aeo-optimization). Cookieless, no PII, no consent
+   * banner. Empty = beacon not injected. Set per build/env; the real token is supplied operationally.
+   */
+  cloudflareAnalyticsToken: '0514be08308645b4ab4e9d07532fd92a',
+  /**
+   * Official brand profile URLs for Organization `sameAs` (010, entity presence). Empty by default
+   * (deferred gracefully until profiles exist); add e.g. social/Wikidata URLs here.
+   */
+  orgSameAs: [] as string[],
 };

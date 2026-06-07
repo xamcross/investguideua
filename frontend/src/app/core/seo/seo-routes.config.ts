@@ -41,6 +41,10 @@ export const PUBLIC_PAGES: readonly SeoPage[] = [
   { path: '/articles', titleKey: 'seo.articles.title', descKey: 'seo.articles.desc' },
   { path: '/terms', titleKey: 'seo.terms.title', descKey: 'seo.terms.desc' },
   { path: '/privacy', titleKey: 'seo.privacy.title', descKey: 'seo.privacy.desc' },
+  // Editorial Policy / About + Contact (010-seo-aeo-optimization, E-E-A-T footprint). Mirror these
+  // in tools/seo/build-articles.mjs STATIC_PAGES so they prerender and enter the sitemap/manifest.
+  { path: '/editorial-policy', titleKey: 'seo.editorial.title', descKey: 'seo.editorial.desc' },
+  { path: '/contact', titleKey: 'seo.contact.title', descKey: 'seo.contact.desc' },
 ];
 
 /**
