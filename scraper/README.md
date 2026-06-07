@@ -3,9 +3,20 @@
 Headless-browser scraper that collects Ukrainian military bond (military OVDP) prices from
 PrivatBank's public Privat24 bonds endpoint and POSTs them to the InvestGuideUA backend.
 
-It loads `https://next.privat24.ua/bonds` in real headless Chromium, lets PrivatBank's own SPA
-complete its cross-domain anti-bot (`xref`) handshake, and **intercepts** the
-`POST /api/p24/pub/bonds` XHR response JSON directly. We never reconstruct the `xref` ourselves.
+It loads `https://next.privat24.ua` in real headless Chromium and lets PrivatBank's own SPA complete
+its cross-domain anti-bot handshake (`POST /api/p24/init`), which mints an anonymous session `xref`.
+The scraper **captures that `xref`** and then calls the public bonds endpoint from inside the page
+(same-origin `fetch`, reusing the SPA's cookies + `xref`):
+
+```
+POST /api/p24/pub/bonds   { action: "bargaining", xref }
+```
+
+We never reconstruct the `xref` ourselves - the browser performs the handshake; we only reuse the
+token it produced. (Note: navigating straight to `/bonds` does **not** auto-fire this XHR - an
+anonymous session is redirected to the wallet home - so the scraper issues the call explicitly.) The
+response is `{ status: "success", data: [...] }`; dates arrive as `DD.MM.YYYY` and are converted to
+ISO `yyyy-MM-dd`, and bonds quoting only one side (missing a buy or sell price) are skipped.
 
 This tool runs **only** on GitHub Actions (scheduled) and on a developer machine. It must **not** run
 on the Fly backend (512 MB; Chromium would OOM) nor as an in-process job (the backend scales to zero).
