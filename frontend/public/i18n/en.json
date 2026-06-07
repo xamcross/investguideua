@@ -28,7 +28,10 @@
     "terms": "Terms",
     "privacy": "Privacy",
     "made": "Made in Ukraine",
-    "rights": "(c) 2026 InvestGuideUA"
+    "rights": "(c) 2026 InvestGuideUA",
+    "company": "Company",
+    "editorial": "Editorial policy",
+    "contact": "Contact"
   },
   "common": {
     "loading": "Loading...",
@@ -488,6 +491,12 @@
           "body": [
             "For privacy questions and to exercise your rights, email privacy@investguide.ua."
           ]
+        },
+        {
+          "heading": "Analytics",
+          "body": [
+            "We use Cloudflare Web Analytics - a cookieless analytics service that collects no personal data and needs no consent banner. It only counts page views and referrers so we can understand which content is useful."
+          ]
         }
       ]
     }
@@ -567,6 +576,14 @@
     "privacy": {
       "title": "Privacy Policy - InvestGuideUA",
       "desc": "InvestGuideUA privacy policy: what data we collect, how we use and protect it, and how to delete your account and personal data at any time."
+    },
+    "editorial": {
+      "title": "Editorial Policy - InvestGuideUA",
+      "desc": "How InvestGuideUA produces and reviews its content: sources, independence principles, article updates, and who is accountable for what we publish."
+    },
+    "contact": {
+      "title": "Contact - InvestGuideUA",
+      "desc": "Get in touch with the InvestGuideUA editorial team by email for questions about our content, corrections, and partnership enquiries. We aim to reply quickly."
     }
   },
   "articles": {
@@ -579,6 +596,60 @@
     "updated": "Updated",
     "disclaimer": "This article is informational and is not individualized financial advice. Always verify terms directly with the provider before investing.",
     "related": "Related articles",
-    "cta": "Find investment options"
+    "cta": "Find investment options",
+    "reviewedBy": "Reviewed by",
+    "reviewedOn": "Reviewed on",
+    "editorialPolicy": "Editorial policy"
+  },
+  "pages": {
+    "editorial": {
+      "title": "Editorial Policy",
+      "intro": "InvestGuideUA is an independent information project about investing in Ukraine. Below we explain who produces the content, how we review it, and which sources we rely on.",
+      "sections": [
+        {
+          "heading": "Who we are",
+          "body": [
+            "Content is produced by the InvestGuideUA editorial team. We write in plain language about deposits, war bonds (OVDP), currency savings, and risk management for everyday investors in Ukraine."
+          ]
+        },
+        {
+          "heading": "How we review content",
+          "body": [
+            "Every published article is reviewed by the editorial team before publication; the review date is shown at the top of each article. We update content when terms, rates, or rules change."
+          ]
+        },
+        {
+          "heading": "Sources",
+          "body": [
+            "We rely on primary sources - the National Bank of Ukraine, the Ministry of Finance, and providers' official pages. We link to them directly within the articles."
+          ]
+        },
+        {
+          "heading": "Independence and disclaimer",
+          "body": [
+            "We do not provide individual investment advice. Options are drawn only from a curated catalog of providers. Always verify terms directly with the provider before investing."
+          ]
+        }
+      ]
+    },
+    "contact": {
+      "title": "Contact",
+      "intro": "Have a question about our content, spotted an inaccuracy, or want to collaborate? Get in touch.",
+      "email": "support@investguide.ua",
+      "sections": [
+        {
+          "heading": "Email",
+          "body": [
+            "The fastest way to reach us is by email. We aim to reply within a few business days."
+          ]
+        },
+        {
+          "heading": "Corrections",
+          "body": [
+            "If you spot an error in an article, let us know - we will review it and, if needed, update the content with a new last-updated date."
+          ]
+        }
+      ]
+    }
   }
 }

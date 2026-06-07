@@ -8,6 +8,9 @@
 # `npm run seo:articles` (the `build` script runs it first), so they are not committed.
 /src/app/features/articles/articles.data.ts
 /prerender-routes.txt
+# SEO manifest (feature 010-seo-aeo-optimization). Single source for sitemap/robots/llms,
+# emitted by `npm run seo:articles`; not committed.
+/seo-manifest.json
 
 # misc
 *.log

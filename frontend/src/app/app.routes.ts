@@ -116,6 +116,22 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/legal/legal-document.component').then((m) => m.LegalDocumentComponent),
   },
+  // E-E-A-T footprint (010-seo-aeo-optimization). Public, indexable, prerendered. One shared
+  // ContentPageComponent renders both; `data.doc` selects the i18n namespace via input binding.
+  {
+    path: 'editorial-policy',
+    title: 'seo.editorial.title',
+    data: { doc: 'editorial' },
+    loadComponent: () =>
+      import('./features/pages/content-page.component').then((m) => m.ContentPageComponent),
+  },
+  {
+    path: 'contact',
+    title: 'seo.contact.title',
+    data: { doc: 'contact' },
+    loadComponent: () =>
+      import('./features/pages/content-page.component').then((m) => m.ContentPageComponent),
+  },
   {
     path: '**',
     title: 'title.notFound',

@@ -39,3 +39,6 @@ frontend/.angular/
 /.claude/skills/speckit-specify/SKILL.md
 /.claude/skills/speckit-tasks/SKILL.md
 /.claude/skills/speckit-taskstoissues/SKILL.md
+
+# Local Claude Code session/worktree data (large, machine-local)
+.claude/

@@ -9,6 +9,7 @@ import { LanguageService } from './core/i18n/language.service';
 import { PluralPipe } from './core/i18n/plural.pipe';
 import { SeoService } from './core/seo/seo.service';
 import { StructuredDataService } from './core/seo/structured-data.service';
+import { AnalyticsService } from './core/seo/analytics.service';
 import { RouteFocusService } from './core/a11y/route-focus.service';
 
 /**
@@ -270,6 +271,7 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly routeFocus = inject(RouteFocusService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -287,6 +289,10 @@ export class AppComponent implements OnInit {
 
     // Site-wide structured data (Organization + WebSite + SearchAction) on every page.
     this.structuredData.setBase(this.lang.current());
+
+    // Cookieless Cloudflare Web Analytics beacon (010). Bakes into prerendered HTML; no-op when the
+    // token is unset (local dev). No cookies => no consent banner.
+    this.analytics.init();
 
     // Move focus to the main landmark after each SPA navigation (a11y; browser-only, FR-001).
     this.routeFocus.init();
