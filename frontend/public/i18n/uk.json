@@ -199,7 +199,8 @@
     "expectedReturn": "Очікувана дохідність",
     "currency": "Валюта",
     "minAmount": "Мінімальна сума",
-    "liquidity": "Ліквідність"
+    "liquidity": "Ліквідність",
+    "pricePerGram": "Ціна за грам"
   },
   "currency": {
     "UAH": "грн",

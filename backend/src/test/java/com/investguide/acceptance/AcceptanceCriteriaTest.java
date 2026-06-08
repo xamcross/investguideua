@@ -362,10 +362,14 @@ class AcceptanceCriteriaTest {
                                                   ProviderCatalogService catalog,
                                                   SearchRequestRepository reqRepo,
                                                   SearchRateLimiter limiter) {
+        com.investguide.metals.MetalPriceService metalPriceService =
+                mock(com.investguide.metals.MetalPriceService.class);
+        when(metalPriceService.currentSalePricePerGramMinor(anyString()))
+                .thenReturn(java.util.Optional.empty());
         return new InvestmentSearchService(
                 store.repository(), reqRepo, ledger, catalog,
                 new PromptBuilder(appProperties, llmProperties), advisor,
-                new AdvisorOutputParser(new ObjectMapper(), appProperties, llmProperties),
+                new AdvisorOutputParser(new ObjectMapper(), appProperties, llmProperties, metalPriceService),
                 new Disclaimers(), limiter, appProperties, llmProperties);
     }
 

@@ -22,6 +22,13 @@ import com.investguide.catalog.RiskLevel;
  * currency the provider actually supports, defaulting to the requested currency. It drives the
  * currency-risk disclaimer (BE-S7): if any option's {@code currency} differs from the request currency,
  * the additional disclaimer is appended.
+ *
+ * <p><b>Precious-metals grounding (feature 011):</b> {@code metal} and {@code metalPricePerGramMinor}
+ * are set ONLY for a {@code PRECIOUS_METALS} option, server-side from stored PrivatBank quotes - the
+ * model never supplies the price. {@code metal} is {@code GOLD}/{@code SILVER}; {@code
+ * metalPricePerGramMinor} is the exact current bank sale rate in integer minor units (kopiykas) per
+ * gram. Both are {@code null} for every other option, and {@code null} for legacy persisted searches
+ * (boxed types, so a missing stored field reads back null).
  */
 public record InvestmentOption(
         String providerId,
@@ -34,6 +41,8 @@ public record InvestmentOption(
         long minAmount,
         String liquidity,
         String rationale,
-        String sourceUrl
+        String sourceUrl,
+        String metal,
+        Long metalPricePerGramMinor
 ) {
 }

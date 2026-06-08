@@ -199,7 +199,8 @@
     "expectedReturn": "Expected return",
     "currency": "Currency",
     "minAmount": "Min amount",
-    "liquidity": "Liquidity"
+    "liquidity": "Liquidity",
+    "pricePerGram": "Price per gram"
   },
   "currency": {
     "UAH": "UAH",

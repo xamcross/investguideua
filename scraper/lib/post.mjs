@@ -1,12 +1,18 @@
-// Warmup + single POST helper (feature 009, research R9/R12).
+// Warmup + single POST helper (features 009, 011, research R9/R12).
 //
 // The production backend (Fly.io) scales to zero, so a cold start can take ~20-35s. A bare retried
 // POST is a poor wake probe (it may time out mid-boot). Instead we WARM UP with GET /api/v1/ping
 // (a public, cheap route) using backoff until it returns 200, then POST the batch ONCE. The shared
-// secret travels only in the X-Bond-Ingest-Secret header and is never logged.
+// secret travels only in the ingest header and is never logged.
+//
+// The ingest path, header name, and secret-env-name (used only in the "not set" error message) are
+// parameterizable via opts; they DEFAULT to the bond values so feature 009 is unchanged. The metals
+// scraper (011) passes its own values to reuse the same warmup-then-POST + scaled-to-zero wake.
 
 const PING_PATH = '/api/v1/ping';
-const INGEST_PATH = '/api/v1/admin/bond-prices';
+const DEFAULT_INGEST_PATH = '/api/v1/admin/bond-prices';
+const DEFAULT_INGEST_HEADER = 'X-Bond-Ingest-Secret';
+const DEFAULT_SECRET_ENV = 'BOND_INGEST_SECRET';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -49,19 +55,24 @@ export async function warmup(baseUrl, { attempts = 6, perRequestTimeoutMs = 4500
 
 /**
  * Warm up the backend, then POST the batch once with the shared secret.
+ * @param {object} [opts] {ingestPath, headerName, secretEnvName, ...warmup opts}; defaults are the
+ *   feature-009 bond values so existing callers are unchanged.
  * @returns {Promise<{accepted:number, rejected:number}>}
  */
 export async function warmupAndPost(baseUrl, secret, batch, opts = {}) {
+  const ingestPath = opts.ingestPath ?? DEFAULT_INGEST_PATH;
+  const headerName = opts.headerName ?? DEFAULT_INGEST_HEADER;
+  const secretEnvName = opts.secretEnvName ?? DEFAULT_SECRET_ENV;
   if (!secret) {
-    throw new Error('BOND_INGEST_SECRET is not set; refusing to POST');
+    throw new Error(`${secretEnvName} is not set; refusing to POST`);
   }
   await warmup(baseUrl, opts);
 
-  const res = await fetchWithTimeout(`${baseUrl}${INGEST_PATH}`, {
+  const res = await fetchWithTimeout(`${baseUrl}${ingestPath}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Bond-Ingest-Secret': secret,
+      [headerName]: secret,
     },
     body: JSON.stringify(batch),
   }, opts.perRequestTimeoutMs ?? 45000);
