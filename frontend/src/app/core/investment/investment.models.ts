@@ -59,6 +59,10 @@ export interface InvestmentOption {
   liquidity: string;
   rationale: string;
   sourceUrl: string;
+  /** Precious-metals grounding (feature 011): set only for a PRECIOUS_METALS option. */
+  metal?: 'GOLD' | 'SILVER' | null;
+  /** Exact current bank sale rate in minor units (kopiykas) per gram; null unless a metals option. */
+  metalPricePerGramMinor?: number | null;
 }
 
 /** Response from POST /investments/search and GET /investments/{id} (rendered identically). */

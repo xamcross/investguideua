@@ -75,6 +75,17 @@ bonds:
     # (every ingest request is rejected 401). Never logged. Set BOND_INGEST_SECRET in prod + CI.
     secret: ${BOND_INGEST_SECRET:}
 
+metals:
+  ingest:
+    # SECRET (env only) - shared machine-to-machine secret for POST /api/v1/admin/metal-prices
+    # (feature 011), DISTINCT from BOND_INGEST_SECRET. Blank default: an unset secret does NOT fail
+    # startup, it fails INGEST closed (every ingest request is rejected 401). Never logged. Set
+    # METAL_INGEST_SECRET in prod + CI.
+    secret: ${METAL_INGEST_SECRET:}
+  # Source rate-group key whose smallest weight tier supplies the canonical per-gram sale rate
+  # backfilled onto a precious-metals investment option (feature 011, FR-018). Non-secret tunable.
+  primary-rate-group: ${METALS_PRIMARY_RATE_GROUP:one}
+
 mail:
   # Verification-email delivery (003). OPTIONAL: default OFF so the app builds, starts, and registers
   # users with email disabled (a descriptive line is logged once at startup). Set enabled=true AND

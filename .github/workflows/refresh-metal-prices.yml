@@ -1,0 +1,45 @@
+# Scheduled precious metals price refresh (feature 011). Runs the plain-fetch scraper on GitHub's
+# Ubuntu runners (NOT the small Fly backend, which scales to zero). Unlike the bond workflow this needs
+# NO headless browser: the metals endpoint is a public GET with no anti-bot handshake. Consumed on
+# Linux runners, so this file is UTF-8/LF per CLAUDE.md.
+name: refresh-metal-prices
+
+on:
+  schedule:
+    # 07:00 UTC DAILY = 10:00 Kyiv in summer (EEST) / 09:00 in winter (EET). Metals quotes publish every
+    # day (not business-day only), so this is '* * *', unlike the bond workflow's '1-5'. GitHub cron has
+    # no time zone; the one-hour DST drift is accepted (see spec Assumptions). Cron is best-effort and
+    # may be delayed; GitHub also disables schedules after ~60 days of repo inactivity.
+    - cron: '0 7 * * *'
+  workflow_dispatch: {}   # manual trigger (off-schedule refresh)
+
+# Avoid overlapping runs (a slow fetch + a manual kick racing the cron).
+concurrency:
+  group: refresh-metal-prices
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    name: Scrape and ingest metal prices
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: scraper/package-lock.json
+
+      - name: Install dependencies
+        working-directory: scraper
+        run: npm ci
+
+      - name: Run scraper -> ingest
+        working-directory: scraper
+        env:
+          BACKEND_BASE_URL: https://api.investguideua.com
+          METAL_INGEST_SECRET: ${{ secrets.METAL_INGEST_SECRET }}
+        run: npm run scrape:metals

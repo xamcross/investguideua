@@ -4,6 +4,7 @@ import com.investguide.config.AppProperties;
 import com.investguide.config.BondsProperties;
 import com.investguide.config.LlmProperties;
 import com.investguide.config.MailProperties;
+import com.investguide.config.MetalsProperties;
 import com.investguide.config.PaymentProperties;
 import com.investguide.config.SecurityProperties;
 import org.springframework.boot.SpringApplication;
@@ -22,6 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
         BondsProperties.class,
         LlmProperties.class,
         MailProperties.class,
+        MetalsProperties.class,
         PaymentProperties.class,
         SecurityProperties.class
 })

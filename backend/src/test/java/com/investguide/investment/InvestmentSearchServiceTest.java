@@ -176,7 +176,7 @@ class InvestmentSearchServiceTest {
         when(advisor.advise("sys", "usr")).thenReturn(new AdvisorResult("{json}", 200, 100));
         InvestmentOption opt = new InvestmentOption("privatbank", "PrivatBank", "ОВДП",
                 ProviderCategory.GOV_BOND, SearchCurrency.UAH, new ReturnRange(13, 15),
-                RiskLevel.LOW, 100_000L, "строк", "ок", "https://privatbank.ua");
+                RiskLevel.LOW, 100_000L, "строк", "ок", "https://privatbank.ua", null, null);
         when(outputParser.parse(any(), any(), eq(SearchCurrency.UAH))).thenReturn(List.of(opt));
         when(searchRequestRepository.save(any(SearchRequest.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -202,7 +202,7 @@ class InvestmentSearchServiceTest {
         when(advisor.advise("sys", "usr")).thenReturn(new AdvisorResult("{json}", 10, 10));
         InvestmentOption usdOpt = new InvestmentOption("privatbank", "PrivatBank", "USD bond",
                 ProviderCategory.GOV_BOND, SearchCurrency.USD, new ReturnRange(3, 5),
-                RiskLevel.LOW, 100_000L, "term", "ok", "https://privatbank.ua");
+                RiskLevel.LOW, 100_000L, "term", "ok", "https://privatbank.ua", null, null);
         when(outputParser.parse(any(), any(), eq(SearchCurrency.UAH))).thenReturn(List.of(usdOpt));
         when(searchRequestRepository.save(any(SearchRequest.class))).thenAnswer(inv -> inv.getArgument(0));
 

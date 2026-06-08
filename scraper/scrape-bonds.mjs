@@ -27,6 +27,7 @@
 
 import { chromium } from 'playwright';
 import { toMinorUnits } from './lib/convert.mjs';
+import { toIsoDate } from './lib/date.mjs';
 import { validateBatch, DEFAULT_MIN_RECORDS } from './lib/validate.mjs';
 import { warmupAndPost } from './lib/post.mjs';
 
@@ -54,15 +55,6 @@ function toIngestRecord(raw) {
     sellYield: Number(raw.sellYield),
     buyYield: Number(raw.buyYield),
   };
-}
-
-/** PrivatBank quotes dates as DD.MM.YYYY; convert to ISO yyyy-MM-dd (pass through if already ISO). */
-function toIsoDate(value) {
-  const s = String(value || '').trim();
-  const dmy = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-  return s; // leave unrecognised values for validation to reject
 }
 
 /** Launch the browser, let the SPA mint an xref, then fetch the bonds payload reusing it. */

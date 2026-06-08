@@ -57,6 +57,12 @@ import { EmptyStateComponent } from '../shared/empty-state.component';
                   <dt>{{ 'results.liquidity' | translate }}</dt>
                   <dd>{{ opt.liquidity || ('common.dash' | translate) }}</dd>
                 </div>
+                @if (opt.metal && opt.metalPricePerGramMinor != null) {
+                  <div class="ig-fact">
+                    <dt>{{ 'results.pricePerGram' | translate }}</dt>
+                    <dd>{{ formatMetalPrice(opt) }}</dd>
+                  </div>
+                }
               </dl>
               @if (opt.rationale) {
                 <p class="ig-opt__rationale">{{ opt.rationale }}</p>
@@ -91,5 +97,10 @@ export class ResultsComponent {
 
   formatMoney(opt: InvestmentOption): string {
     return formatMinorUnits(opt.minAmount, opt.currency);
+  }
+
+  /** Exact current metal price (kopiykas/gram) for a grounded PRECIOUS_METALS option (feature 011). */
+  formatMetalPrice(opt: InvestmentOption): string {
+    return formatMinorUnits(opt.metalPricePerGramMinor ?? 0, opt.currency);
   }
 }

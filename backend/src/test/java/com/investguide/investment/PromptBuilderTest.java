@@ -96,6 +96,17 @@ class PromptBuilderTest {
         assertThat(prompt.user()).contains("empty options array");
     }
 
+    @Test
+    void build_instructsMetalFieldForPreciousMetalsOptions() {
+        // Feature 011: the model must be told to emit metal=GOLD|SILVER for a PRECIOUS_METALS option,
+        // otherwise the server drops every metals option and the exact-price grounding never appears.
+        PromptBuilder.Prompt prompt = builder(3000).build(input(null), List.of(privat()));
+        assertThat(prompt.system()).contains("metal");
+        assertThat(prompt.system()).contains("GOLD");
+        assertThat(prompt.system()).contains("SILVER");
+        assertThat(prompt.system()).contains("PRECIOUS_METALS");
+    }
+
     private static Provider privat() {
         return InvestmentTestFixtures.privatbank();
     }

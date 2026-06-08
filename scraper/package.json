@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Headless-browser scraper for Ukrainian military bond prices (feature 009). Runs in GitHub Actions and locally; never on the backend.",
+  "description": "Scrapers for Ukrainian military bond prices (feature 009, headless browser) and PrivatBank precious-metal prices (feature 011, plain fetch). Runs in GitHub Actions and locally; never on the backend.",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "scrape": "node scrape-bonds.mjs",
+    "scrape:metals": "node scrape-metals.mjs",
     "test": "node --test"
   },
   "dependencies": {

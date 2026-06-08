@@ -3,15 +3,19 @@ package com.investguide.investment;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.investguide.catalog.Provider;
+import com.investguide.catalog.ProviderCategory;
 import com.investguide.catalog.RiskLevel;
 import com.investguide.catalog.ReturnRange;
 import com.investguide.config.AppProperties;
 import com.investguide.config.LlmProperties;
+import com.investguide.metals.MetalPriceService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Parses + validates the advisor's reply into safe {@link InvestmentOption}s (SPECIFICATION §5.4, §8.3,
@@ -44,13 +48,16 @@ public class AdvisorOutputParser {
     private final ObjectMapper objectMapper;
     private final AppProperties appProperties;
     private final LlmProperties llmProperties;
+    private final MetalPriceService metalPriceService;
 
     public AdvisorOutputParser(ObjectMapper objectMapper,
                                AppProperties appProperties,
-                               LlmProperties llmProperties) {
+                               LlmProperties llmProperties,
+                               MetalPriceService metalPriceService) {
         this.objectMapper = objectMapper;
         this.appProperties = appProperties;
         this.llmProperties = llmProperties;
+        this.metalPriceService = metalPriceService;
     }
 
     /**
@@ -73,6 +80,7 @@ public class AdvisorOutputParser {
         int rawCount = optionsNode.size();
         int maxOptions = appProperties.search().maxOptions();
         List<InvestmentOption> valid = new ArrayList<>();
+        int inCatalog = 0; // catalog-grounded candidates BEFORE the metals post-filter (the hallucination gate)
         for (JsonNode node : optionsNode) {
             if (valid.size() >= maxOptions) {
                 break;
@@ -85,17 +93,43 @@ public class AdvisorOutputParser {
             if (provider == null) {
                 continue; // out-of-catalog -> dropped (AC #4).
             }
-            valid.add(toOption(node, provider, requestCurrency));
+            inCatalog++;
+            // Stage 2 (feature 011): a precious-metals option that cannot be grounded with a stored
+            // price returns null here and is dropped WITHOUT throwing - it referenced a real provider,
+            // so it is not a hallucination (FR-019, SC-010).
+            InvestmentOption option = toOption(node, provider, requestCurrency);
+            if (option != null) {
+                valid.add(option);
+            }
         }
 
-        if (rawCount > 0 && valid.isEmpty()) {
+        if (rawCount > 0 && inCatalog == 0) {
             // The model proposed only out-of-catalog providers -> treat as invalid (hallucination).
             throw new AdvisorOutputException("Advisor output contained no in-catalog providers");
         }
         return List.copyOf(valid);
     }
 
+    /**
+     * Build one option, or {@code null} to DROP it. Drop applies only to a precious-metals option that
+     * cannot be grounded with a stored price (feature 011, FR-019) - never to a non-metals option.
+     */
     private InvestmentOption toOption(JsonNode node, Provider provider, SearchCurrency requestCurrency) {
+        String metal = null;
+        Long metalPricePerGramMinor = null;
+        if (provider.getCategory() == ProviderCategory.PRECIOUS_METALS) {
+            String resolvedMetal = resolveMetal(text(node.path("metal")));
+            if (resolvedMetal == null) {
+                return null; // missing/invalid metal -> drop (FR-019)
+            }
+            Optional<Long> price = metalPriceService.currentSalePricePerGramMinor(resolvedMetal);
+            if (price.isEmpty()) {
+                return null; // no stored price for this metal -> drop (FR-019)
+            }
+            metal = resolvedMetal;
+            metalPricePerGramMinor = price.get();
+        }
+
         String instrument = truncate(text(node.path("instrument")), INSTRUMENT_MAX);
         if (instrument == null) {
             instrument = provider.getName();
@@ -107,6 +141,7 @@ public class AdvisorOutputParser {
         SearchCurrency currency = parseCurrency(text(node.path("currency")), provider, requestCurrency);
 
         // Identity + reference fields come from the catalog, never the model (anti-hallucination, §8.3).
+        // The metal price is grounded server-side too; the model never supplies it (feature 011, FR-018).
         return new InvestmentOption(
                 provider.getId(),
                 provider.getName(),
@@ -118,7 +153,18 @@ public class AdvisorOutputParser {
                 provider.getMinAmount(),
                 liquidity == null ? "" : liquidity,
                 rationale == null ? "" : rationale,
-                provider.getSourceUrl());
+                provider.getSourceUrl(),
+                metal,
+                metalPricePerGramMinor);
+    }
+
+    /** Normalise the model's metal discriminator to {@code GOLD}/{@code SILVER}, or {@code null} if invalid. */
+    private static String resolveMetal(String value) {
+        if (value == null) {
+            return null;
+        }
+        String upper = value.trim().toUpperCase(Locale.ROOT);
+        return ("GOLD".equals(upper) || "SILVER".equals(upper)) ? upper : null;
     }
 
     /**

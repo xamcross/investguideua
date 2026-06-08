@@ -1,22 +1,26 @@
-// Exact decimal -> integer minor-unit conversion (feature 009).
+// Exact decimal -> integer minor-unit conversion (features 009, 011).
 //
 // Money is integer minor units (kopiykas/cents); floats are prohibited. PrivatBank quotes prices as
-// decimals (e.g. 1076.58 per 1000 face value); we convert to minor units using STRING/INTEGER math
-// (BigInt) so there is no IEEE-754 drift (1076.58 * 100 is NOT exactly 107658 in floating point).
+// decimals (e.g. 1076.58 per 1000 face value, or "6 780.00" for metals with a space thousands
+// separator); we convert to minor units using STRING/INTEGER math (BigInt) so there is no IEEE-754
+// drift (1076.58 * 100 is NOT exactly 107658 in floating point).
 //
 // Rounding: values with more than 2 fraction digits are rounded half-up at the 2nd decimal. A
 // missing/empty/non-numeric value throws (the caller must reject that record, never store 0).
 
 /**
  * Convert a price expressed in major units (number or numeric string) to integer minor units.
- * @param {number|string} value e.g. 1076.58 or "1076.58"
- * @returns {number} integer minor units, e.g. 107658
+ * @param {number|string} value e.g. 1076.58, "1076.58", or "6 780.00"
+ * @returns {number} integer minor units, e.g. 107658 or 678000
  */
 export function toMinorUnits(value) {
   if (value === null || value === undefined || value === '') {
     throw new Error('missing price value');
   }
-  const s = String(value).trim();
+  // Strip ANY whitespace used as a thousands separator, including non-ASCII spaces (NBSP U+00A0,
+  // thin U+2009, narrow no-break U+202F, figure U+2007, ...). JS \s matches all of these. A comma is
+  // NOT whitespace and stays rejected, so a locale-comma value like "1,076.58" still throws.
+  const s = String(value).replace(/\s/g, '');
   if (!/^-?\d+(\.\d+)?$/.test(s)) {
     throw new Error(`invalid numeric price: ${JSON.stringify(value)}`);
   }

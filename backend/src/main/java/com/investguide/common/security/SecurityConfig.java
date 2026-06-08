@@ -49,7 +49,10 @@ public class SecurityConfig {
             // user JWT, so it must bypass the JWT chain here. It self-guards via BondIngestAuth (a
             // blank/missing/incorrect secret -> 401, fail-closed). A user JWT would 401 a no-Bearer
             // request before the secret check ever ran.
-            "/api/v1/admin/bond-prices"
+            "/api/v1/admin/bond-prices",
+            // Metal price ingest (011) is the same machine-to-machine pattern with its own distinct
+            // shared secret; self-guards via MetalIngestAuth (fail-closed).
+            "/api/v1/admin/metal-prices"
     };
 
     private final JwtService jwtService;
@@ -81,6 +84,8 @@ public class SecurityConfig {
                         // Bond price read (009) reuses the same ADMIN gating as the provider catalog:
                         // authenticated non-admin -> 403, anonymous -> 401.
                         .requestMatchers(HttpMethod.GET, "/api/v1/bond-prices").hasRole("ADMIN")
+                        // Metal price read (011) reuses the same ADMIN gating.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/metal-prices").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoints.unauthorized())
