@@ -46,6 +46,31 @@ public class BondPriceService {
         this.validator = validator;
     }
 
+    /**
+     * The latest stored quote for one bond, by ISIN (the {@code _id}). Used to ground a bond investment
+     * option server-side (feature 012); empty when the ISIN is not stored, so the option is dropped.
+     */
+    public java.util.Optional<BondPrice> findByIsin(String isin) {
+        if (isin == null || isin.isBlank()) {
+            return java.util.Optional.empty();
+        }
+        return repository.findById(isin.trim());
+    }
+
+    /**
+     * Stored bonds in the given currency, for listing to the advisor so it can choose a real ISIN
+     * (feature 012). Filtered to the exact currency string (so e.g. EUR bonds are excluded from a UAH or
+     * USD search). The caller bounds/truncates the list to fit the prompt token budget.
+     */
+    public java.util.List<BondPrice> listForPrompt(String currency) {
+        if (currency == null) {
+            return java.util.List.of();
+        }
+        return repository.findAll().stream()
+                .filter(b -> currency.equalsIgnoreCase(b.getCurrency()))
+                .toList();
+    }
+
     public IngestResult ingest(java.util.List<IngestBondRequest> batch) {
         if (batch == null || batch.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_ERROR, "Bond price batch is empty.");

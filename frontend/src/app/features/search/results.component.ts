@@ -40,7 +40,13 @@ import { EmptyStateComponent } from '../shared/empty-state.component';
               </div>
               <div class="ig-opt__instrument">{{ opt.instrument }}</div>
               <div class="ig-opt__return">
-                <span class="ig-opt__fig">{{ opt.expectedReturnPct.min }}&ndash;{{ opt.expectedReturnPct.max }}</span>
+                <span class="ig-opt__fig">
+                  @if (opt.expectedReturnPct.min === opt.expectedReturnPct.max) {
+                    {{ opt.expectedReturnPct.min }}
+                  } @else {
+                    {{ opt.expectedReturnPct.min }}&ndash;{{ opt.expectedReturnPct.max }}
+                  }
+                </span>
                 <span class="ig-opt__unit">% {{ 'common.perYear' | translate }}</span>
                 <span class="ig-opt__lbl">{{ 'results.expectedReturn' | translate }}</span>
               </div>
@@ -61,6 +67,12 @@ import { EmptyStateComponent } from '../shared/empty-state.component';
                   <div class="ig-fact">
                     <dt>{{ 'results.pricePerGram' | translate }}</dt>
                     <dd>{{ formatMetalPrice(opt) }}</dd>
+                  </div>
+                }
+                @if (opt.bondIsin && opt.bondSellPriceMinor != null) {
+                  <div class="ig-fact">
+                    <dt>{{ 'results.bondPrice' | translate }}</dt>
+                    <dd>{{ formatBondPrice(opt) }}</dd>
                   </div>
                 }
               </dl>
@@ -102,5 +114,10 @@ export class ResultsComponent {
   /** Exact current metal price (kopiykas/gram) for a grounded PRECIOUS_METALS option (feature 011). */
   formatMetalPrice(opt: InvestmentOption): string {
     return formatMinorUnits(opt.metalPricePerGramMinor ?? 0, opt.currency);
+  }
+
+  /** Exact current bond sell price (kopiykas per 1000 face value) for a grounded bond option (feature 012). */
+  formatBondPrice(opt: InvestmentOption): string {
+    return formatMinorUnits(opt.bondSellPriceMinor ?? 0, opt.currency);
   }
 }

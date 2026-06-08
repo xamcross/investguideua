@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,5 +157,43 @@ class BondPriceServiceTest {
         assertThat(stamp).isNotNull();
         assertThat(saved).allSatisfy(b -> assertThat(b.getFetchedAt()).isEqualTo(stamp));
         assertThat(stamp).isBetween(before, after);
+    }
+
+    // ---- feature 012: read access used to ground bond investment options --------------------
+
+    private static BondPrice bond(String isin, String currency, long sellMinor, double sellYield) {
+        return new BondPrice(isin, true, currency,
+                LocalDate.of(2026, 11, 18), LocalDate.of(2026, 6, 8),
+                sellMinor, sellMinor - 700L, sellYield, sellYield + 0.5, Instant.now());
+    }
+
+    @Test
+    void findByIsin_returnsStoredRecordOrEmpty() {
+        when(repository.findById("UA4000227545"))
+                .thenReturn(java.util.Optional.of(bond("UA4000227545", "UAH", 107658L, 15.25)));
+        when(repository.findById("UA0000000000")).thenReturn(java.util.Optional.empty());
+
+        assertThat(service.findByIsin("UA4000227545")).isPresent()
+                .get().satisfies(b -> assertThat(b.getSellPriceMinor()).isEqualTo(107658L));
+        assertThat(service.findByIsin("UA0000000000")).isEmpty();
+        assertThat(service.findByIsin(null)).isEmpty();
+        assertThat(service.findByIsin("  ")).isEmpty();
+    }
+
+    @Test
+    void listForPrompt_returnsOnlyRequestedCurrency_excludingOthers() {
+        when(repository.findAll()).thenReturn(List.of(
+                bond("UA4000227545", "UAH", 107658L, 15.25),
+                bond("UA4000226893", "UAH", 101200L, 16.10),
+                bond("XS0000000001", "USD", 99000L, 5.0),
+                bond("XS0000000002", "EUR", 98000L, 4.0)));
+
+        List<BondPrice> uah = service.listForPrompt("UAH");
+
+        assertThat(uah).extracting(BondPrice::getIsin)
+                .containsExactly("UA4000227545", "UA4000226893"); // USD + EUR excluded
+        assertThat(service.listForPrompt("USD")).extracting(BondPrice::getIsin)
+                .containsExactly("XS0000000001");
+        assertThat(service.listForPrompt(null)).isEmpty();
     }
 }

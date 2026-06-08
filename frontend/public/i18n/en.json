@@ -200,7 +200,8 @@
     "currency": "Currency",
     "minAmount": "Min amount",
     "liquidity": "Liquidity",
-    "pricePerGram": "Price per gram"
+    "pricePerGram": "Price per gram",
+    "bondPrice": "Bond price (per 1000 face value)"
   },
   "currency": {
     "UAH": "UAH",

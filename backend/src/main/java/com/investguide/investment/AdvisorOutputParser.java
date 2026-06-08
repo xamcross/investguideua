@@ -2,6 +2,8 @@ package com.investguide.investment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.investguide.bonds.BondPrice;
+import com.investguide.bonds.BondPriceService;
 import com.investguide.catalog.Provider;
 import com.investguide.catalog.ProviderCategory;
 import com.investguide.catalog.RiskLevel;
@@ -49,15 +51,18 @@ public class AdvisorOutputParser {
     private final AppProperties appProperties;
     private final LlmProperties llmProperties;
     private final MetalPriceService metalPriceService;
+    private final BondPriceService bondPriceService;
 
     public AdvisorOutputParser(ObjectMapper objectMapper,
                                AppProperties appProperties,
                                LlmProperties llmProperties,
-                               MetalPriceService metalPriceService) {
+                               MetalPriceService metalPriceService,
+                               BondPriceService bondPriceService) {
         this.objectMapper = objectMapper;
         this.appProperties = appProperties;
         this.llmProperties = llmProperties;
         this.metalPriceService = metalPriceService;
+        this.bondPriceService = bondPriceService;
     }
 
     /**
@@ -140,8 +145,34 @@ public class AdvisorOutputParser {
         ReturnRange expected = clampReturn(node.path("expectedReturnPct"), provider.getTypicalReturnPct());
         SearchCurrency currency = parseCurrency(text(node.path("currency")), provider, requestCurrency);
 
+        // Bond grounding (feature 012): for a government/military-bond option, ground the model-named
+        // ISIN against the stored bondPrices quote. Drop (null) on missing/unknown ISIN or a currency
+        // mismatch - the server, not the prompt list, is the guarantee. The stored sell yield REPLACES
+        // the model's expected-return range, and the stored sell price is surfaced. The model never
+        // supplies these values (FR-003, FR-004, FR-010, FR-011).
+        String bondIsin = null;
+        Long bondSellPriceMinor = null;
+        if (provider.getCategory() == ProviderCategory.MILITARY_BOND
+                || provider.getCategory() == ProviderCategory.GOV_BOND) {
+            String isin = text(node.path("isin"));
+            if (isin == null) {
+                return null; // no ISIN -> cannot ground -> drop
+            }
+            BondPrice bond = bondPriceService.findByIsin(isin).orElse(null);
+            if (bond == null) {
+                return null; // unknown/unpriced ISIN -> drop
+            }
+            if (bond.getCurrency() == null || !bond.getCurrency().equalsIgnoreCase(currency.name())) {
+                return null; // currency mismatch -> drop (never surface a cross-currency price)
+            }
+            bondIsin = bond.getIsin();
+            bondSellPriceMinor = bond.getSellPriceMinor();
+            double y = clamp(bond.getSellYield(), llmProperties.maxReturnPct());
+            expected = new ReturnRange(y, y); // real sell yield becomes the authoritative return figure
+        }
+
         // Identity + reference fields come from the catalog, never the model (anti-hallucination, §8.3).
-        // The metal price is grounded server-side too; the model never supplies it (feature 011, FR-018).
+        // The metal/bond prices are grounded server-side too; the model never supplies them (011/012).
         return new InvestmentOption(
                 provider.getId(),
                 provider.getName(),
@@ -155,7 +186,9 @@ public class AdvisorOutputParser {
                 rationale == null ? "" : rationale,
                 provider.getSourceUrl(),
                 metal,
-                metalPricePerGramMinor);
+                metalPricePerGramMinor,
+                bondIsin,
+                bondSellPriceMinor);
     }
 
     /** Normalise the model's metal discriminator to {@code GOLD}/{@code SILVER}, or {@code null} if invalid. */

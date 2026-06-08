@@ -200,7 +200,8 @@
     "currency": "Валюта",
     "minAmount": "Мінімальна сума",
     "liquidity": "Ліквідність",
-    "pricePerGram": "Ціна за грам"
+    "pricePerGram": "Ціна за грам",
+    "bondPrice": "Ціна облігації (за 1000 номіналу)"
   },
   "currency": {
     "UAH": "грн",

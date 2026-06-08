@@ -46,9 +46,11 @@ final class AcceptanceFixtures {
                 7000L, 0.0065, 1.0, 5.0);
     }
 
-    /** PrivatBank: supports both UAH and USD, min 100000 kopiykas (1000 UAH). */
+    /** PrivatBank: supports both UAH and USD, min 100000 kopiykas (1000 UAH). Category CASH_CURRENCY
+     *  (non-grounded) so the acceptance flows are not subject to bond/metals grounding (011/012); the
+     *  acceptance ACs here test token ledger, catalog grounding, and disclaimers, not bond grounding. */
     static Provider privatbank() {
-        return new Provider("privatbank", "PrivatBank", ProviderCategory.GOV_BOND, "desc",
+        return new Provider("privatbank", "PrivatBank", ProviderCategory.CASH_CURRENCY, "desc",
                 100_000L, null, List.of("UAH", "USD"), new ReturnRange(13.0, 15.5), RiskLevel.LOW,
                 "https://privatbank.ua/invest", true);
     }
