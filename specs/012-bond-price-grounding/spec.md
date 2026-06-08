@@ -19,6 +19,13 @@ feature does the same for bonds, **per-ISIN** (Option A): the model names the sp
 grounds its real values. This is the third stage (fetch -> persist -> **use as real price**) that bonds
 are currently missing.
 
+## Clarifications
+
+### Session 2026-06-08
+
+- Q: How is the specific bond (ISIN) for a bond option chosen? → A: List the currently stored bonds (ISIN + maturity + currency + indicative yield) to the model alongside the allowed providers; the model picks a real ISIN; the server validates it against the stored set and drops the option if it is missing/unknown. This keeps the ISIN as the model's editorial choice while making that choice valid (avoiding near-total drops).
+- Q: Which exact stored values does a grounded bond option carry, and how do they relate to the existing expected-return range? → A: The bond's real sell yield REPLACES the option's expected-return range (becomes the authoritative return figure, a degenerate range where min == max == the stored sell yield), and the sell price (per 1000 face value, integer minor units) is added as a new bond field along with the chosen ISIN. Sell-side only (no buy price/yield surfaced in v1).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Bond investment options show the exact current price and yield (Priority: P1)
@@ -40,9 +47,10 @@ is not presented.
 **Acceptance Scenarios**:
 
 1. **Given** a current quote for a specific bond ISIN is stored and the existing generator presents a
-   bond option that names that ISIN, **When** the search completes, **Then** that option's grounded
-   values equal the stored exact values for that ISIN (sell price in minor units, sell yield) and no
-   model-estimated figure is used for them.
+   bond option that names that ISIN, **When** the search completes, **Then** the option's expected-
+   return figure equals the stored sell yield (min == max == sell yield) and the option carries the
+   stored sell price (minor units per 1000 face) and the ISIN, with no model-estimated figure used for
+   them.
 2. **Given** the generator presents a bond option whose named ISIN is not in the stored set (or the
    ISIN is missing/unparseable), **When** the search completes, **Then** that option is dropped
    server-side and not shown to the user; the rest of the search still returns.
@@ -85,6 +93,11 @@ non-administrator can read raw bond prices.
   charged a corrective retry (the same non-throwing drop semantics feature 011 established).
 - **Stale stored quote**: The grounded values reflect the latest stored quote; freshness is judged by
   the stored fetch time (as in 009). A stale-but-present quote is still used (not dropped).
+- **Currency mismatch**: If the named ISIN's stored quote is in a different currency than the option's
+  resolved currency, the option is dropped (never surface a price in the wrong currency). EUR-stored
+  bonds are never listed to the model (no search requests EUR), so they are never grounded in v1.
+- **Per-1000-face display**: The grounded sell price is quoted per 1000 face value (not the user's
+  outlay); the user-facing label MUST say so explicitly to avoid being read as the cost to invest.
 - **Mixed option set**: A non-bond option in the same result is never altered by bond grounding.
 - **Multiple ISINs for one issuer**: The model selects a single ISIN per bond option; the server grounds
   that one. There is no aggregation across ISINs.
@@ -99,11 +112,11 @@ non-administrator can read raw bond prices.
   a model-estimated value for those grounded fields.
 - **FR-002**: The specific bond MUST be identified by an ISIN supplied by the model on that option (a
   per-option discriminator), validated server-side against the stored bond set.
-- **FR-003**: The grounded values taken from the stored quote MUST include the bond's sell price
-  (integer minor units per 1000 face value) and its sell yield. [NEEDS CLARIFICATION: should the
-  grounded sell yield REPLACE the option's existing expected-return range, or be surfaced as separate
-  bond-specific fields alongside it? And should buy price/buy yield also be surfaced, or sell-side
-  only?]
+- **FR-003**: For a grounded bond option, the bond's stored **sell yield** MUST become the option's
+  expected-return figure (replacing the model/catalog expected-return range with a degenerate range
+  whose min and max both equal the stored sell yield), and the bond's stored **sell price** (integer
+  minor units per 1000 face value) MUST be added as a new bond field together with the chosen ISIN.
+  Only sell-side values are surfaced in v1 (buy price/buy yield are not shown).
 - **FR-004**: When the generator would present a bond option but the named ISIN is missing,
   unparseable, not in the stored set, or has no stored price, the system MUST drop the option
   server-side (it is not shown to the user); it MUST NOT substitute an estimated value and MUST NOT
@@ -115,33 +128,43 @@ non-administrator can read raw bond prices.
   NOT alter any other option.
 - **FR-007**: The grounding MUST read from the existing stored bond data (feature 009's `bondPrices`)
   and MUST NOT trigger a live fetch from the source.
-- **FR-008**: For the model to name a valid ISIN, the system MUST make the set of currently stored bond
-  identifiers available to the option generator. [NEEDS CLARIFICATION: should the available bonds
-  (ISIN + maturity + currency + indicative yield) be listed to the model in the prompt so it can choose
-  a real one, or is the model expected to know ISINs and the server simply drops invalid ones? The
-  former is needed to avoid nearly all bond options dropping; confirm the approach and any prompt
-  size/budget impact.]
+- **FR-008**: The system MUST present the set of currently stored bonds (ISIN + maturity + currency +
+  indicative yield) to the option generator alongside the allowed providers, so the model can choose a
+  real ISIN for a bond option. The server MUST still validate the chosen ISIN against the stored set and
+  drop the option on a missing/unknown ISIN (FR-004). The bond list MUST be assembled within the
+  existing input-token budget (subject to the same deterministic truncation the provider list uses).
 - **FR-009**: Raw bond-price read access MUST remain administrator-only (unchanged from feature 009);
   end users MUST only see the grounded option, never a raw bond-price endpoint.
 - **FR-010**: The model MUST contribute only the ISIN selection for a bond option; the price and yield
-  values MUST always be the server-grounded stored values, never model-supplied.
+  values MUST always be the server-grounded stored values, never model-supplied. In particular, any
+  expected-return range the model emits for a grounded bond option MUST be discarded and replaced by the
+  stored sell yield (FR-003).
+- **FR-011**: The server MUST guarantee currency consistency: a bond option MUST only be grounded with a
+  stored quote whose currency matches the option's resolved currency. If the named ISIN's stored
+  currency does not match, the option MUST be dropped (the server is the guarantee — the prompt list is
+  only steering). The search request currency is one of UAH or USD; bonds stored in a currency that no
+  search can request (e.g. EUR) are simply never listed and never grounded in v1.
+- **FR-012**: When a grounded bond option's return figure is a single value (sell yield, where the
+  expected-return min equals max), the user-facing display MUST present it as one number (not a
+  degenerate "X-X" range).
 
 ### Key Entities *(include if feature involves data)*
 
 - **Bond Price Record** (existing, feature 009): the stored latest quote for one bond, keyed by ISIN,
   carrying sell/buy price (integer minor units per 1000 face), sell/buy yield, maturity, currency,
   quotation date, fetched-at. This feature consumes it read-only; it adds no new storage.
-- **Investment Option** (existing): gains grounded bond fields for a `MILITARY_BOND`/`GOV_BOND` option
-  — at minimum the bond ISIN and its exact stored sell price and sell yield. Exact field shape and the
-  relationship to the existing expected-return range is pending FR-003 clarification. Null/absent for
-  non-bond options and for legacy persisted searches.
+- **Investment Option** (existing): for a grounded `MILITARY_BOND`/`GOV_BOND` option, its expected-
+  return figure is set to the bond's stored sell yield (min == max == sell yield), and it gains two new
+  bond fields: the chosen ISIN and the bond's stored sell price (integer minor units per 1000 face
+  value). The new fields are null/absent for non-bond options and for legacy persisted searches.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
 - **SC-001**: 100% of presented bond options carry the exact stored values for their named ISIN; 0%
-  carry a model-estimated bond price or yield in the grounded fields.
+  carry a model-estimated bond price or yield in the grounded fields. A model-supplied price or
+  expected-return range on a grounded bond option is always overwritten by the stored values.
 - **SC-002**: When the named ISIN has no stored quote, 100% of those would-be bond options are dropped
   (none shown with an estimated or blank grounded value), and the rest of the search still returns.
 - **SC-003**: An all-bond-ungroundable result never fails the search and never charges a corrective
@@ -151,7 +174,9 @@ non-administrator can read raw bond prices.
 - **SC-005**: Raw bond-price reads remain administrator-only; 100% of non-administrator raw-read
   attempts are denied (unchanged from feature 009).
 - **SC-006**: For a verified sample, each grounded option's values match the stored record for its ISIN
-  exactly (no rounding drift; minor units preserved).
+  exactly (no rounding drift; the sell-price minor-unit integer is copied as-is).
+- **SC-007**: 100% of grounded bond options whose stored quote currency differs from the option's
+  resolved currency are dropped (no cross-currency price is ever shown).
 
 ## Assumptions
 
@@ -162,12 +187,13 @@ non-administrator can read raw bond prices.
 - **Bond identity is the model's editorial choice; values are grounded**: Choosing which bond to
   recommend (its ISIN) is the model's job, exactly like choosing the instrument text; the price and
   yield are always server-grounded, so the model can never invent bond economics.
-- **Default grounded fields (pending FR-003)**: absent other direction, the option surfaces the bond's
-  sell price (minor units) and sell yield as the grounded values, with the real sell yield treated as
-  the authoritative return figure for that option.
-- **Default discriminator delivery (pending FR-008)**: absent other direction, the currently stored
-  bond identifiers (ISIN + maturity + currency + indicative yield) are listed to the model alongside
-  the allowed providers so it can pick a real ISIN, keeping within the existing input-token budget.
+- **Grounded fields (resolved, FR-003)**: the option's expected-return figure is set to the bond's
+  stored sell yield (degenerate min == max range), and the bond's stored sell price (minor units per
+  1000 face) plus the chosen ISIN are added as new fields; sell-side only in v1.
+- **Discriminator delivery (resolved, FR-008)**: the currently stored bond identifiers (ISIN +
+  maturity + currency + indicative yield) are listed to the model alongside the allowed providers so it
+  can pick a real ISIN, kept within the existing input-token budget via the same deterministic
+  truncation the provider list uses.
 - **Latest-quote-only**: only the latest stored quote per ISIN is used (no history), consistent with
   feature 009.
 - **No model/option-selection change**: this feature does not change which options the generator

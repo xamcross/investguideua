@@ -42,13 +42,16 @@ final class InvestmentTestFixtures {
                 currencies, typical, risk, "https://" + slug + ".example/invest", true);
     }
 
+    // Generic, NON-grounded providers (category CASH_CURRENCY) used by the catalog-backfill tests so
+    // they are not subject to the bond grounding (feature 012) or metals grounding (feature 011). Bond-
+    // and metals-specific tests use dedicated providers of the grounded categories.
     static Provider privatbank() {
-        return provider("privatbank", ProviderCategory.GOV_BOND, List.of("UAH", "USD"),
+        return provider("privatbank", ProviderCategory.CASH_CURRENCY, List.of("UAH", "USD"),
                 100_000L, new ReturnRange(13.0, 15.5), RiskLevel.LOW);
     }
 
     static Provider monobank() {
-        return provider("monobank", ProviderCategory.GOV_BOND, List.of("UAH"),
+        return provider("monobank", ProviderCategory.CASH_CURRENCY, List.of("UAH"),
                 100_000L, new ReturnRange(12.0, 14.0), RiskLevel.LOW);
     }
 }

@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,14 +31,12 @@
 
 ## Notes
 
-- **Two open clarifications remain** (deliberately left for `/speckit.clarify`), each with a documented
-  reasonable default in Assumptions so the spec is otherwise complete:
-  1. **FR-003** — which grounded value(s) a bond option surfaces (sell price + sell yield; sell-side
-     only?) and whether the real sell yield REPLACES the existing expected-return range or sits beside
-     it as separate fields.
-  2. **FR-008** — how the model is given valid ISINs to choose from (list the stored bonds in the
-     prompt vs. validate-and-drop only). This materially affects whether bond options ground at all and
-     the prompt token budget.
+- **Both clarifications resolved** (`/speckit.clarify`, session 2026-06-08):
+  1. **FR-008** — the stored bonds (ISIN + maturity + currency + indicative yield) are listed to the
+     model in the prompt so it can pick a real ISIN; server validates + drops invalid ones.
+  2. **FR-003** — the bond's stored sell yield becomes the option's expected-return figure (min == max
+     == sell yield); the stored sell price (minor units per 1000 face) + the ISIN are added as new
+     fields; sell-side only in v1.
 - Scope (Option A, per-ISIN) is fixed by the user; Option B (category aggregate) is an explicit
   non-goal.
 - This feature is grounding-only: it reuses feature 009 storage and the feature 011 grounding pattern

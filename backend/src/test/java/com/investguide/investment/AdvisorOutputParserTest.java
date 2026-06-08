@@ -1,6 +1,8 @@
 package com.investguide.investment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.investguide.bonds.BondPrice;
+import com.investguide.bonds.BondPriceService;
 import com.investguide.catalog.Provider;
 import com.investguide.catalog.ProviderCategory;
 import com.investguide.catalog.ReturnRange;
@@ -29,11 +31,13 @@ class AdvisorOutputParserTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final MetalPriceService metalPriceService = mock(MetalPriceService.class);
+    private final BondPriceService bondPriceService = mock(BondPriceService.class);
     private final AdvisorOutputParser parser = new AdvisorOutputParser(
             mapper,
             InvestmentTestFixtures.appProperties(100_000_000L, 5, 5),
             InvestmentTestFixtures.llmProperties(3000, 40.0),
-            metalPriceService);
+            metalPriceService,
+            bondPriceService);
 
     private Map<String, Provider> catalog() {
         Map<String, Provider> bySlug = new LinkedHashMap<>();
@@ -52,6 +56,24 @@ class AdvisorOutputParserTest {
         Provider p = metalsProvider();
         bySlug.put(p.getId(), p);
         return bySlug;
+    }
+
+    private static Provider bondProvider() {
+        return InvestmentTestFixtures.provider("mof-bonds", ProviderCategory.GOV_BOND,
+                List.of("UAH"), 100_000L, new ReturnRange(13.0, 16.0), RiskLevel.LOW);
+    }
+
+    private Map<String, Provider> bondCatalog() {
+        Map<String, Provider> bySlug = new LinkedHashMap<>();
+        Provider p = bondProvider();
+        bySlug.put(p.getId(), p);
+        return bySlug;
+    }
+
+    private static BondPrice storedBond(String isin, String currency, long sellMinor, double sellYield) {
+        return new BondPrice(isin, true, currency,
+                java.time.LocalDate.of(2026, 11, 18), java.time.LocalDate.of(2026, 6, 8),
+                sellMinor, sellMinor - 700L, sellYield, sellYield + 0.4, java.time.Instant.now());
     }
 
     @Test
@@ -128,7 +150,8 @@ class AdvisorOutputParserTest {
                 mapper,
                 InvestmentTestFixtures.appProperties(100_000_000L, 2, 5),  // maxOptions = 2
                 InvestmentTestFixtures.llmProperties(3000, 40.0),
-                metalPriceService);
+                metalPriceService,
+                bondPriceService);
         String dup = "{\"providerId\":\"privatbank\",\"instrument\":\"x\","
                 + "\"expectedReturnPct\":{\"min\":13,\"max\":15}}";
         String json = "{\"options\":[" + dup + "," + dup + "," + dup + "]}";
@@ -254,5 +277,140 @@ class AdvisorOutputParserTest {
 
         assertThat(o.metal()).isNull();
         assertThat(o.metalPricePerGramMinor()).isNull();
+        assertThat(o.bondIsin()).isNull();
+        assertThat(o.bondSellPriceMinor()).isNull();
+    }
+
+    // ---- feature 012: government/military bond price grounding (FR-001..012, SC-001..007) -------
+
+    @Test
+    void parse_groundsBondOption_withExactStoredPrice_andYieldAsReturn_ignoringModelNumbers() {
+        when(bondPriceService.findByIsin("UA4000227545"))
+                .thenReturn(Optional.of(storedBond("UA4000227545", "UAH", 107658L, 15.25)));
+        // The model supplies its own (wrong) return range and a bogus price field - both must be ignored.
+        String json = """
+                {"options":[{"providerId":"mof-bonds","instrument":"OVDP 1y","isin":"UA4000227545",
+                "currency":"UAH","expectedReturnPct":{"min":2,"max":99},"bondSellPriceMinor":1,
+                "riskLevel":"LOW"}]}
+                """;
+
+        InvestmentOption o = parser.parse(json, bondCatalog(), SearchCurrency.UAH).get(0);
+
+        assertThat(o.bondIsin()).isEqualTo("UA4000227545");
+        assertThat(o.bondSellPriceMinor()).isEqualTo(107658L);                 // exact stored value (SC-006)
+        assertThat(o.expectedReturnPct().min()).isEqualTo(15.25);              // sell yield, not model 2
+        assertThat(o.expectedReturnPct().max()).isEqualTo(15.25);              // degenerate range (FR-003)
+    }
+
+    @Test
+    void parse_dropsBondOption_whenIsinMissing() {
+        String json = """
+                {"options":[{"providerId":"mof-bonds","instrument":"OVDP",
+                "expectedReturnPct":{"min":13,"max":15}}]}
+                """;
+        // Only ungroundable bonds -> empty result, NO exception (FR-004/FR-005/SC-003).
+        assertThat(parser.parse(json, bondCatalog(), SearchCurrency.UAH)).isEmpty();
+    }
+
+    @Test
+    void parse_dropsBondOption_whenIsinUnknown() {
+        when(bondPriceService.findByIsin("UA0000000000")).thenReturn(Optional.empty());
+        String json = """
+                {"options":[{"providerId":"mof-bonds","instrument":"OVDP","isin":"UA0000000000",
+                "expectedReturnPct":{"min":13,"max":15}}]}
+                """;
+        assertThat(parser.parse(json, bondCatalog(), SearchCurrency.UAH)).isEmpty();
+    }
+
+    @Test
+    void parse_dropsBondOption_onCurrencyMismatch() {
+        // Isolate the bond-branch currency check from parseCurrency fallback: the provider genuinely
+        // supports USD so the option resolves to USD, but the stored bond is UAH -> mismatch -> drop
+        // (FR-011/SC-007), never surface a UAH price under a USD option.
+        Provider usdBondProvider = InvestmentTestFixtures.provider("mof-bonds-usd",
+                ProviderCategory.GOV_BOND, List.of("USD"), 100_000L, new ReturnRange(3.0, 6.0), RiskLevel.LOW);
+        Map<String, Provider> bySlug = new LinkedHashMap<>();
+        bySlug.put(usdBondProvider.getId(), usdBondProvider);
+        when(bondPriceService.findByIsin("UA-UAH"))
+                .thenReturn(Optional.of(storedBond("UA-UAH", "UAH", 100000L, 15.0)));
+        String json = """
+                {"options":[{"providerId":"mof-bonds-usd","instrument":"USD bond","isin":"UA-UAH",
+                "currency":"USD","expectedReturnPct":{"min":4,"max":6}}]}
+                """;
+        assertThat(parser.parse(json, bySlug, SearchCurrency.USD)).isEmpty();
+    }
+
+    @Test
+    void parse_keepsGroundedBond_dropsUngroundableBond_andRestStillReturns() {
+        // AC-2: one bond grounds, a sibling bond is ungroundable -> the groundable one survives, the
+        // other is dropped, and the search still returns (no throw).
+        when(bondPriceService.findByIsin("UA-OK"))
+                .thenReturn(Optional.of(storedBond("UA-OK", "UAH", 100000L, 15.0)));
+        when(bondPriceService.findByIsin("UA-BAD")).thenReturn(Optional.empty());
+        String json = """
+                {"options":[
+                  {"providerId":"mof-bonds","instrument":"Good","isin":"UA-OK","expectedReturnPct":{"min":1,"max":2}},
+                  {"providerId":"mof-bonds","instrument":"Bad","isin":"UA-BAD","expectedReturnPct":{"min":1,"max":2}}
+                ]}
+                """;
+
+        List<InvestmentOption> options = parser.parse(json, bondCatalog(), SearchCurrency.UAH);
+
+        assertThat(options).hasSize(1);
+        assertThat(options.get(0).bondIsin()).isEqualTo("UA-OK");
+    }
+
+    @Test
+    void parse_allBondsUngroundable_yieldsEmpty_withoutThrowing() {
+        when(bondPriceService.findByIsin(anyString())).thenReturn(Optional.empty());
+        String json = """
+                {"options":[
+                  {"providerId":"mof-bonds","instrument":"A","isin":"UA1","expectedReturnPct":{"min":1,"max":2}},
+                  {"providerId":"mof-bonds","instrument":"B","isin":"UA2","expectedReturnPct":{"min":1,"max":2}}
+                ]}
+                """;
+        assertThat(parser.parse(json, bondCatalog(), SearchCurrency.UAH)).isEmpty();
+    }
+
+    @Test
+    void parse_mixedBondIsins_eachKeepsOwnValues_noCrossContamination() {
+        when(bondPriceService.findByIsin("UA-A"))
+                .thenReturn(Optional.of(storedBond("UA-A", "UAH", 100000L, 15.0)));
+        when(bondPriceService.findByIsin("UA-B"))
+                .thenReturn(Optional.of(storedBond("UA-B", "UAH", 200000L, 17.0)));
+        String json = """
+                {"options":[
+                  {"providerId":"mof-bonds","instrument":"A","isin":"UA-A","expectedReturnPct":{"min":1,"max":2}},
+                  {"providerId":"mof-bonds","instrument":"B","isin":"UA-B","expectedReturnPct":{"min":1,"max":2}}
+                ]}
+                """;
+
+        List<InvestmentOption> options = parser.parse(json, bondCatalog(), SearchCurrency.UAH);
+
+        assertThat(options).hasSize(2);
+        assertThat(options).anySatisfy(o -> {
+            assertThat(o.bondIsin()).isEqualTo("UA-A");
+            assertThat(o.bondSellPriceMinor()).isEqualTo(100000L);
+            assertThat(o.expectedReturnPct().min()).isEqualTo(15.0);
+        });
+        assertThat(options).anySatisfy(o -> {
+            assertThat(o.bondIsin()).isEqualTo("UA-B");
+            assertThat(o.bondSellPriceMinor()).isEqualTo(200000L);
+            assertThat(o.expectedReturnPct().max()).isEqualTo(17.0);
+        });
+    }
+
+    @Test
+    void parse_clampsSkyHighStoredBondYield_toMaxReturnPct() {
+        when(bondPriceService.findByIsin("UA-X"))
+                .thenReturn(Optional.of(storedBond("UA-X", "UAH", 100000L, 999.0)));
+        String json = """
+                {"options":[{"providerId":"mof-bonds","instrument":"X","isin":"UA-X",
+                "expectedReturnPct":{"min":1,"max":2}}]}
+                """;
+
+        InvestmentOption o = parser.parse(json, bondCatalog(), SearchCurrency.UAH).get(0);
+
+        assertThat(o.expectedReturnPct().max()).isEqualTo(40.0); // clamped to maxReturnPct
     }
 }

@@ -29,6 +29,14 @@ import com.investguide.catalog.RiskLevel;
  * metalPricePerGramMinor} is the exact current bank sale rate in integer minor units (kopiykas) per
  * gram. Both are {@code null} for every other option, and {@code null} for legacy persisted searches
  * (boxed types, so a missing stored field reads back null).
+ *
+ * <p><b>Bond grounding (feature 012):</b> {@code bondIsin} and {@code bondSellPriceMinor} are set ONLY
+ * for a grounded {@code MILITARY_BOND}/{@code GOV_BOND} option, server-side from the stored feature-009
+ * {@code bondPrices} quote for the model-named ISIN - the model never supplies the price. For such an
+ * option {@code expectedReturnPct} is also set server-side to a degenerate range (min == max) equal to
+ * the bond's stored sell yield. {@code bondSellPriceMinor} is the stored sell price in integer minor
+ * units (kopiykas) per 1000 face value. Both are {@code null} for every other option and for legacy
+ * persisted searches.
  */
 public record InvestmentOption(
         String providerId,
@@ -43,6 +51,8 @@ public record InvestmentOption(
         String rationale,
         String sourceUrl,
         String metal,
-        Long metalPricePerGramMinor
+        Long metalPricePerGramMinor,
+        String bondIsin,
+        Long bondSellPriceMinor
 ) {
 }

@@ -366,10 +366,15 @@ class AcceptanceCriteriaTest {
                 mock(com.investguide.metals.MetalPriceService.class);
         when(metalPriceService.currentSalePricePerGramMinor(anyString()))
                 .thenReturn(java.util.Optional.empty());
+        com.investguide.bonds.BondPriceService bondPriceService =
+                mock(com.investguide.bonds.BondPriceService.class);
+        when(bondPriceService.findByIsin(anyString())).thenReturn(java.util.Optional.empty());
+        when(bondPriceService.listForPrompt(anyString())).thenReturn(java.util.List.of());
         return new InvestmentSearchService(
                 store.repository(), reqRepo, ledger, catalog,
-                new PromptBuilder(appProperties, llmProperties), advisor,
-                new AdvisorOutputParser(new ObjectMapper(), appProperties, llmProperties, metalPriceService),
+                new PromptBuilder(appProperties, llmProperties, bondPriceService), advisor,
+                new AdvisorOutputParser(new ObjectMapper(), appProperties, llmProperties,
+                        metalPriceService, bondPriceService),
                 new Disclaimers(), limiter, appProperties, llmProperties);
     }
 

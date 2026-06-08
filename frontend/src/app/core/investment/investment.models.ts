@@ -63,6 +63,10 @@ export interface InvestmentOption {
   metal?: 'GOLD' | 'SILVER' | null;
   /** Exact current bank sale rate in minor units (kopiykas) per gram; null unless a metals option. */
   metalPricePerGramMinor?: number | null;
+  /** Bond grounding (feature 012): the grounded bond's ISIN; null unless a GOV_BOND/MILITARY_BOND option. */
+  bondIsin?: string | null;
+  /** Exact stored sell price in minor units (kopiykas) per 1000 face value; null unless a bond option. */
+  bondSellPriceMinor?: number | null;
 }
 
 /** Response from POST /investments/search and GET /investments/{id} (rendered identically). */
