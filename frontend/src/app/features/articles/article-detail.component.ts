@@ -49,6 +49,18 @@ import { Article } from './articles.data';
 
         <div class="ig-article__body" [innerHTML]="a.bodyHtml"></div>
 
+        <!-- FAQ (013): visible Q&A matching the FAQPage JSON-LD 1:1 (schema guidelines require the
+             marked-up content to be visible on the page). Machine-detectable via data-faq-block. -->
+        @if (a.faq.length) {
+          <section class="ig-article__faq" data-faq-block>
+            <h2>{{ 'articles.faq' | translate }}</h2>
+            @for (f of a.faq; track f.q) {
+              <h3 class="ig-article__faq-q">{{ f.q }}</h3>
+              <p class="ig-article__faq-a">{{ f.a }}</p>
+            }
+          </section>
+        }
+
         <p class="ig-article__disclaimer">{{ 'articles.disclaimer' | translate }}</p>
 
         <div class="ig-article__cta">
@@ -85,6 +97,10 @@ import { Article } from './articles.data';
       .ig-article__body { line-height: 1.7; font-size: 1.05rem; }
       .ig-article__body :is(h2, h3) { font-family: var(--font-display); margin-top: 2rem; }
       .ig-article__body a { color: var(--blue-600); }
+      .ig-article__faq { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 1.25rem; }
+      .ig-article__faq h2 { font-family: var(--font-display); margin: 0 0 .75rem; }
+      .ig-article__faq-q { font-size: 1.05rem; margin: 1.25rem 0 .35rem; }
+      .ig-article__faq-a { margin: 0; line-height: 1.65; color: var(--ink); }
       .ig-article__disclaimer { margin-top: 2rem; padding: 1rem; border-left: 3px solid var(--gold-500); background: var(--gold-100, #fff8e1); color: var(--muted); font-size: .9rem; border-radius: 6px; }
       .ig-article__cta { margin: 2rem 0; text-align: center; }
       .ig-article__related { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }

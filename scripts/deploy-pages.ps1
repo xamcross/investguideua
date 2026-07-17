@@ -6,8 +6,11 @@
     Runs the full SEO build pipeline and uploads the static output to Cloudflare Pages via
     'npx wrangler pages deploy'. Steps:
       1. npm ci                (unless -SkipInstall)
-      2. npm run build         (seo:articles -> ng build; prerenders public routes)
-      3. npm run seo:generate  (writes robots.txt + sitemap.xml into the build output)
+      2. npm run build         (seo:articles -> seo:og -> ng build -> seo:generate; prerenders
+                                public routes, renders per-article OG images, flattens the
+                                output and writes robots.txt/sitemap.xml/llms.txt)
+      3. npm run seo:generate  (idempotent re-run; kept so older branches still get
+                                robots.txt + sitemap.xml)
       4. npm run seo:audit     (SEO acceptance gate; aborts the deploy on any violation
                                 unless -SkipAudit)
       5. npx wrangler pages deploy dist/investguide-frontend/browser

@@ -1,0 +1,12 @@
+Font binaries used ONLY by the build-time OG-image generator (tools/seo/generate-og-images.mjs).
+They are not shipped to the browser (the site self-hosts woff2 subsets under public/fonts/).
+
+All three files are licensed under the SIL Open Font License 1.1 (OFL-1.1), which permits
+redistribution. Downloaded as static TTF instances from the Google Fonts API (fonts.gstatic.com):
+
+- PlayfairDisplay-700.ttf  (c) The Playfair Display Project Authors
+  https://github.com/clauseggers/Playfair-Display  - OFL-1.1
+- Manrope-400.ttf / Manrope-700.ttf  (c) The Manrope Project Authors
+  https://github.com/sharanda/manrope  - OFL-1.1
+
+OFL-1.1 text: https://openfontlicense.org

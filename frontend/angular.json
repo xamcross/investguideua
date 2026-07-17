@@ -31,9 +31,10 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               { "glob": "**/*", "input": "public/i18n", "output": "/i18n" },
-              { "glob": "**/*", "input": "public/seo", "output": "/" }
+              { "glob": "**/*", "input": "public/seo", "output": "/" },
+              { "glob": "**/*.woff2", "input": "public/fonts", "output": "/fonts" }
             ],
-            "styles": ["src/styles.css"],
+            "styles": ["src/fonts.css", "src/styles.css"],
             "scripts": []
           },
           "configurations": {

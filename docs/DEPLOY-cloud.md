@@ -297,7 +297,10 @@ In **Cloudflare -> Workers & Pages -> Create -> Pages -> Connect to Git**, pick 
 - **Production branch:** `main`
 - **Build command:** `cd frontend && npm ci && npm run build && npm run seo:generate && npm run seo:audit`
   (the trailing `seo:audit` makes the Git build fail on any SEO regression, matching the CI gate and
-  `scripts/deploy-pages.ps1`)
+  `scripts/deploy-pages.ps1`. Since feature 013 `npm run build` already runs `seo:og` + `seo:generate`
+  itself — including the prerender **flattening** that makes canonical non-slash URLs serve 200 — so
+  the explicit `seo:generate` here is a harmless idempotent re-run; keeping it means older branch
+  builds still produce robots/sitemap/llms.)
 - **Build output directory:** `frontend/dist/investguide-frontend/browser`
 - **Root directory:** `/` (repo root)
 - **Environment variable (recommended):** `SEO_SITE_ORIGIN=https://investguideua.com` (used by `seo:generate` for canonical/sitemap/robots URLs).
@@ -339,10 +342,20 @@ npx wrangler pages deploy dist/investguide-frontend/browser --project-name inves
 In the Pages project -> **Custom domains** -> add `investguideua.com`. Cloudflare creates the proxied DNS records automatically. Verify:
 
 ```powershell
-curl -I https://investguideua.com   # 200, served by Cloudflare
+curl.exe -I https://investguideua.com   # 200, served by Cloudflare
 ```
 
-> **`www` must redirect, not serve.** The backend allows exactly **one** CORS origin (`APP_CORS_ALLOWED_ORIGIN`, set to `https://investguideua.com` — exact match, no wildcard). If you also serve the SPA on `https://www.investguideua.com`, API calls from `www` are blocked by CORS and the refresh cookie won't apply. So **redirect `www` -> apex** instead of adding it as a Pages custom domain: in **Cloudflare -> Rules -> Redirect Rules**, create a 301 from `www.investguideua.com/*` to `https://investguideua.com/$1`. (Or pick `www` as the single canonical origin and set every URL/CORS value to match — but redirecting to the apex is simpler.)
+> **`www` must redirect, not serve.** The backend allows exactly **one** CORS origin (`APP_CORS_ALLOWED_ORIGIN`, set to `https://investguideua.com` — exact match, no wildcard). If you also serve the SPA on `https://www.investguideua.com`, API calls from `www` are blocked by CORS and the refresh cookie won't apply. So **redirect `www` -> apex** instead of adding it as a Pages custom domain. Two steps, both required:
+>
+> 1. **DNS record first.** A Redirect Rule only fires for requests that reach Cloudflare, so `www` needs a **proxied (orange-cloud) DNS record**: in **Cloudflare -> DNS -> Records**, add `CNAME` `www` -> `investguideua.com`, Proxy status **Proxied**. *(As of 2026-07-17 this record was missing — `www.investguideua.com` returned NXDOMAIN, so all `www` traffic and inbound `www` links were lost.)*
+> 2. **Redirect Rule.** In **Cloudflare -> Rules -> Redirect Rules**, create a 301 from `www.investguideua.com/*` to `https://investguideua.com/$1` (or use a "Redirect from WWW to Root" template).
+>
+> Verify both:
+>
+> ```powershell
+> nslookup www.investguideua.com              # must resolve (proxied Cloudflare IPs)
+> curl.exe -I https://www.investguideua.com   # 301 -> https://investguideua.com/
+> ```
 
 ---
 

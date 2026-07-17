@@ -10,6 +10,11 @@
  * routes), A21 (true sitemap lastmod), A22 (no /en alternate while EN disabled), A23 (img alt),
  * A24 (Organization @id graph), A25 (analytics beacon).
  *
+ * 013 adds: A26 (flattened <route>.html layout so canonical non-slash URLs serve 200 on Cloudflare
+ * Pages instead of 308), A27 (canonical uses the expected production origin - catches a dev-built
+ * dist), A28 (per-article FAQ: visible data-faq-block + FAQPage JSON-LD), A29 (per-article OG
+ * image asset generated and referenced).
+ *
  * Scope: the /en mirror is a later increment; the audit requires uk + x-default hreflang and FAILS
  * if an en alternate appears while EN_ENABLED is false (A22).
  */
@@ -22,6 +27,12 @@ const ROOT = join(__dirname, '..', '..');
 const OUT = join(ROOT, 'dist', 'investguide-frontend', 'browser');
 const MANIFEST = join(ROOT, 'seo-manifest.json');
 const MIN_ARTICLES = 8;
+
+/**
+ * Expected canonical origin (013 A27). A prerender built with the dev configuration stamps
+ * http://localhost:4200 into every canonical/OG/JSON-LD URL - such an artifact must never deploy.
+ */
+const SITE_ORIGIN = (process.env.SEO_SITE_ORIGIN || 'https://investguideua.com').replace(/\/+$/, '');
 
 /** Major AI crawlers that must be explicitly allowed (mirror generate-sitemap.mjs AI_CRAWLERS). */
 const AI_CRAWLERS = ['GPTBot', 'Google-Extended', 'PerplexityBot', 'ClaudeBot'];
@@ -48,8 +59,11 @@ function attr(html, re) {
   return m ? m[1] : null;
 }
 
-// Collect prerendered public HTML pages (index.html files under the output, excluding the static
-// 404.html which is not a routed page).
+// Collect prerendered public HTML pages. Supports the flattened Cloudflare Pages layout produced
+// by flatten-prerender.mjs (<route>.html; the root stays index.html) and the raw Angular layout
+// (<route>/index.html), so the audit works whether or not flattening already ran (A26 separately
+// asserts that it did). Excludes non-routed root assets: 404.html, index.csr.html and google*.html.
+const NON_ROUTED_ROOT_HTML = /^(404\.html|index\.csr\.html|google.*\.html)$/;
 function findPages(dir, base = '') {
   const out = [];
   for (const e of readdirSync(dir)) {
@@ -57,8 +71,17 @@ function findPages(dir, base = '') {
     const rel = base ? `${base}/${e}` : e;
     if (statSync(p).isDirectory()) out.push(...findPages(p, rel));
     else if (e === 'index.html') out.push(rel);
+    else if (e.endsWith('.html') && !(base === '' && NON_ROUTED_ROOT_HTML.test(e))) out.push(rel);
   }
   return out;
+}
+
+/** Map a page file's output-relative path to its served route path. */
+function relToPath(rel) {
+  const norm = rel.replace(/\\/g, '/');
+  if (norm === 'index.html') return '/';
+  if (norm.endsWith('/index.html')) return '/' + norm.slice(0, -'/index.html'.length);
+  return '/' + norm.replace(/\.html$/, '');
 }
 
 if (!existsSync(OUT)) {
@@ -73,8 +96,7 @@ let beaconPages = 0;
 
 group(`A1-A9: per-page checks (${pages.length} prerendered pages)`);
 for (const rel of pages) {
-  const url = '/' + rel.replace(/index\.html$/, '').replace(/\/$/, '');
-  const path = url === '' ? '/' : url;
+  const path = relToPath(rel);
   const html = read(rel);
   const isArticle = path.startsWith('/articles/') && path !== '/articles';
 
@@ -91,9 +113,11 @@ for (const rel of pages) {
   check(desc != null && desc.length >= 110 && desc.length <= 160, `${path}: description length ${desc ? desc.length : 'MISSING'} (must be 110-160)`);
   if (desc) { check(!descs.has(desc), `${path}: duplicate description (also ${descs.get(desc)})`); descs.set(desc, path); }
 
-  // A4: canonical self
+  // A4 + A27 (013): canonical is absolute, self-referential AND on the expected production origin
+  // (exact match; a dev-built dist with localhost canonicals fails here).
   const canon = attr(html, /<link rel="canonical" href="([^"]*)"/);
-  check(canon != null && canon.endsWith(path === '/' ? '/' : path), `${path}: canonical missing/incorrect (${canon})`);
+  const expectedCanon = SITE_ORIGIN + (path === '/' ? '/' : path);
+  check(canon === expectedCanon, `${path}: canonical is "${canon}", expected "${expectedCanon}"`);
 
   // A5: hreflang uk + x-default
   check(/hreflang="uk"/.test(html), `${path}: missing hreflang="uk"`);
@@ -139,14 +163,23 @@ for (const rel of pages) {
     // A19 (010): editorial trust block (marker + review date + editorial-policy link).
     check(/data-trust-block/.test(html), `${path}: missing editorial trust block (data-trust-block)`);
     check(/editorial-policy/.test(html), `${path}: trust block missing link to /editorial-policy`);
+    // A28 (013): FAQ - a visible FAQ section + matching FAQPage JSON-LD on every article.
+    check(/"@type":"FAQPage"/.test(html), `${path}: missing FAQPage JSON-LD`);
+    check(/data-faq-block/.test(html), `${path}: missing visible FAQ section (data-faq-block)`);
+    // A29 (013): per-article OG image - og:image points at the generated /og/<slug>.png and the
+    // asset ships in the output.
+    const slug = path.slice('/articles/'.length);
+    const ogImg = attr(html, /property="og:image" content="([^"]*)"/);
+    check(ogImg != null && ogImg.endsWith(`/og/${slug}.png`), `${path}: og:image is "${ogImg}", expected .../og/${slug}.png`);
+    check(existsSync(join(OUT, 'og', `${slug}.png`)), `${path}: missing generated OG image og/${slug}.png (run seo:og)`);
   }
 }
 
 group('A20: editorial-policy + contact routes prerendered & indexable');
-for (const p of ['editorial-policy/index.html', 'contact/index.html']) {
-  const html = read(p);
-  check(html != null, `missing prerendered route /${p.replace('/index.html', '')}`);
-  if (html) check(/name="robots" content="index,follow"/.test(html), `/${p.replace('/index.html', '')}: not index,follow`);
+for (const r of ['editorial-policy', 'contact']) {
+  const html = read(`${r}.html`) ?? read(`${r}/index.html`);
+  check(html != null, `missing prerendered route /${r}`);
+  if (html) check(/name="robots" content="index,follow"/.test(html), `/${r}: not index,follow`);
 }
 
 group('A25: analytics beacon');
@@ -204,6 +237,18 @@ if (sitemap) {
   }
 }
 
+group('A26 (013): flattened layout - canonical non-slash URLs serve 200 on Cloudflare Pages');
+if (manifest) {
+  for (const e of manifest.filter((x) => x.indexable && x.path !== '/')) {
+    const relFlat = e.path.slice(1) + '.html';
+    check(existsSync(join(OUT, relFlat)), `${e.path}: missing flattened ${relFlat} (run flatten-prerender via seo:generate)`);
+    check(
+      !existsSync(join(OUT, e.path.slice(1), 'index.html')),
+      `${e.path}: nested ${e.path.slice(1)}/index.html still present - Cloudflare Pages would 308 the canonical URL`,
+    );
+  }
+}
+
 group('A18: llms.txt');
 const llms = read('llms.txt');
 check(llms != null, 'llms.txt missing');
@@ -229,7 +274,7 @@ if (redirects) {
 }
 
 group('A15: article count + OG image asset');
-const articlePages = pages.filter((p) => p.startsWith('articles/') && p !== 'articles/index.html');
+const articlePages = pages.filter((p) => p.startsWith('articles/') && p !== 'articles/index.html' && p !== 'articles/index.csr.html');
 check(articlePages.length >= MIN_ARTICLES, `only ${articlePages.length} articles prerendered (need >= ${MIN_ARTICLES})`);
 check(existsSync(join(OUT, 'og-default.png')), 'og-default.png missing');
 

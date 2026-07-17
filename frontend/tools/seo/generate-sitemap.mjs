@@ -65,7 +65,11 @@ function loadManifest() {
   return entries;
 }
 
-/** Slugs of articles actually prerendered to dist/.../articles/<slug>/index.html. */
+/**
+ * Slugs of articles actually prerendered - accepts both output layouts: the raw Angular layout
+ * (articles/<slug>/index.html) and the flattened Cloudflare Pages layout (articles/<slug>.html,
+ * produced by flatten-prerender.mjs so canonical non-slash URLs serve 200).
+ */
 function prerenderedArticleSlugs() {
   const dir = join(OUTPUT_DIR, 'articles');
   if (!existsSync(dir)) return new Set();
@@ -73,6 +77,7 @@ function prerenderedArticleSlugs() {
   for (const e of readdirSync(dir)) {
     const p = join(dir, e);
     if (statSync(p).isDirectory() && existsSync(join(p, 'index.html'))) slugs.add(e);
+    else if (statSync(p).isFile() && e.endsWith('.html')) slugs.add(e.replace(/\.html$/, ''));
   }
   return slugs;
 }
