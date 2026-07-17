@@ -93,6 +93,24 @@ function validate(fm, file, content) {
       .split(/\r?\n/)
       .some((line) => /^##\s+.*\?\s*$/.test(line.trim()));
     if (!hasQuestionHeading) fail(`${file}: published article needs >= 1 question-style "## ...?" heading (FR-022)`);
+    // 013: every published article carries a real FAQ (rendered visibly + emitted as FAQPage
+    // JSON-LD). >= 2 entries; question must read as a question; answer must be substantive.
+    const faq = fm.faq || [];
+    if (!Array.isArray(faq) || faq.length < 2) {
+      fail(`${file}: published article needs >= 2 "faq" entries (visible FAQ + FAQPage JSON-LD, 013)`);
+    }
+    const seenQuestions = new Set();
+    for (const f of faq) {
+      if (!f || typeof f.q !== 'string' || !f.q.trim().endsWith('?')) {
+        fail(`${file}: each faq entry needs a question "q" ending with "?"`);
+      }
+      // Questions must be unique: the FAQ template tracks items by question text (NG0955 on dupes).
+      const q = f.q.trim();
+      if (seenQuestions.has(q)) fail(`${file}: duplicate faq question "${q}"`);
+      seenQuestions.add(q);
+      const alen = typeof f.a === 'string' ? f.a.trim().length : 0;
+      if (alen < 40 || alen > 400) fail(`${file}: faq answer for "${f && f.q}" out of 40-400 chars (${alen})`);
+    }
   }
 }
 
@@ -122,7 +140,10 @@ function loadArticles() {
       keywords: fm.keywords || [],
       datePublished: String(fm.datePublished),
       dateModified: String(fm.dateModified),
-      ogImage: fm.ogImage || null,
+      // 013: per-article Open Graph image. Defaults to the build-generated branded card
+      // (tools/seo/generate-og-images.mjs -> public/seo/og/<slug>.png -> served at /og/<slug>.png);
+      // an explicit frontmatter ogImage still wins.
+      ogImage: fm.ogImage || `/og/${fm.slug}.png`,
       relatedSlugs: fm.relatedSlugs || [],
       reviewedBy: fm.reviewedBy,
       reviewedOn: String(fm.reviewedOn),

@@ -12,7 +12,7 @@ implementation tickets.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Angular 17+ (standalone) — *FE-CORE1 onward; X1 ships a static placeholder* |
+| Frontend | Angular 17+ (standalone) |
 | Backend | Java 21 + Spring Boot 3.4 (single deployable JAR) |
 | Database | MongoDB 7 |
 | LLM | Anthropic Claude Haiku (`claude-haiku-4-5-20251001`), server-side only |

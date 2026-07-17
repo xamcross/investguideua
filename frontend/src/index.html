@@ -5,19 +5,13 @@
   <title>InvestGuideUA</title>
   <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Load the Google Fonts stylesheet non-render-blocking (Core Web Vitals / LCP, 010 US4): the
-       print-media swap lets the page paint immediately with the system fallback (display=swap), then
-       upgrades to the web fonts on load. noscript keeps it working without JS. -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;0,900;1,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
-    rel="stylesheet" media="print" onload="this.media='all'" />
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;0,900;1,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
-      rel="stylesheet" />
-  </noscript>
+  <!-- Fonts are self-hosted (feature 013): woff2 latin+cyrillic subsets under /fonts with
+       @font-face (font-display: swap) bundled via src/fonts.css - no third-party DNS/TLS on the
+       critical rendering path. Preload only the two above-the-fold faces (body text + display
+       headings, cyrillic); the rest load on demand via unicode-range. crossorigin is required for
+       font preloads even same-origin. -->
+  <link rel="preload" href="/fonts/manrope-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/playfair-display-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
   <meta name="description" content="Invest in Ukraine, for Ukrainians. Curated, catalog-grounded investment options." />
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

@@ -11,6 +11,8 @@
 # SEO manifest (feature 010-seo-aeo-optimization). Single source for sitemap/robots/llms,
 # emitted by `npm run seo:articles`; not committed.
 /seo-manifest.json
+# Per-article OG images (feature 013). Rendered on every build by `npm run seo:og`; not committed.
+/public/seo/og/
 
 # misc
 *.log
