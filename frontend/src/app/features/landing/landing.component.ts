@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
+import { ArticleService } from '../articles/article.service';
 
 /**
  * Guest landing page (ticket FE-AUTH0, §3 Guest role, §12 Landing). Product summary, how it works,
@@ -117,6 +119,22 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
       </p>
     </section>
 
+    <section class="ig-articles" aria-labelledby="ig-articles-title">
+      <p class="ig-kicker">{{ 'landing.articlesKicker' | translate }}</p>
+      <h2 id="ig-articles-title">{{ 'landing.articlesTitle' | translate }}</h2>
+      <ul class="ig-arts">
+        @for (a of latestArticles(); track a.slug; let i = $index) {
+          <li [class]="'ig-card ig-art reveal d' + (i + 1)">
+            <a [routerLink]="['/articles', a.slug]" class="ig-art__link">
+              <h3 class="ig-art__title">{{ a.title }}</h3>
+              <p class="ig-muted ig-art__summary">{{ a.summary }}</p>
+            </a>
+          </li>
+        }
+      </ul>
+      <a routerLink="/articles" class="ig-btn ig-btn--ghost">{{ 'landing.articlesAll' | translate }}</a>
+    </section>
+
     <section class="ig-section--dark ig-pricing" aria-labelledby="ig-pricing-title">
       <p class="ig-kicker">{{ 'landing.pricingKicker' | translate }}</p>
       <h2 id="ig-pricing-title">{{ 'landing.pricingTitle' | translate }}</h2>
@@ -184,9 +202,18 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
       .ig-samples { padding: 1rem 0 0; }
       .ig-samples h2 { margin-bottom: 1.25rem; }
       .ig-opt__src--sample { cursor: default; }
+      .ig-articles { padding: 2rem 0 0; }
+      .ig-arts { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 1rem; padding: 0; margin: 1.25rem 0 1.5rem; }
+      .ig-art { padding: 0; }
+      .ig-art__link { display: block; height: 100%; padding: 1.25rem; text-decoration: none; color: inherit; }
+      .ig-art__title { margin: 0 0 .5rem; font-size: 1.05rem; }
+      .ig-art__link:hover .ig-art__title { color: var(--blue-600); }
+      .ig-art__summary { margin: 0; font-size: .9rem; }
       @media (max-width: 900px) {
         .ig-hero { grid-template-columns: 1fr; }
         .ig-steps { grid-template-columns: 1fr; }
+        .ig-arts { grid-template-columns: 1fr; }
       }
       /* On phones the two CTAs otherwise wrap to mismatched widths; stack them full-width. */
       @media (max-width: 480px) {
@@ -202,6 +229,13 @@ import { PluralPipe } from '../../core/i18n/plural.pipe';
 export class LandingComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly articleService = inject(ArticleService);
+  private readonly lang = inject(LanguageService);
+
+  /** Three newest published guides (list() sorts newest-first); reacts to language switches. */
+  protected readonly latestArticles = computed(() =>
+    this.articleService.list(this.lang.current()).slice(0, 3),
+  );
 
   /** Illustrative sample options (display-only marketing; NOT an advisor call, no token cost). */
   protected readonly samples = [
