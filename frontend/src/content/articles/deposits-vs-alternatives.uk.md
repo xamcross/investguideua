@@ -1,17 +1,17 @@
 ---
 slug: "deposits-vs-alternatives"
 lang: "uk"
-title: "Депозит чи альтернативи: куди вкласти гроші"
+title: "Депозит чи ОВДП у 2026: куди вкласти гроші"
 description: "Порівняння банківського депозиту з ОВДП та фондами грошового ринку в Україні: дохідність, ризик, ліквідність і податки - без перебільшень."
 summary: "Чим депозит відрізняється від ОВДП і фондів грошового ринку, і коли що обрати."
 answer: "Депозит - найпростіший варіант із гарантією держави до межі відшкодування; ОВДП часто дають вищу дохідність без податку на дохід, а фонди грошового ринку - гнучкість. Вибір залежить від строку та мети."
 primaryTopic: "банківський депозит чи облігації"
 keywords: ["банківський депозит чи облігації"]
 datePublished: "2026-06-04"
-dateModified: "2026-07-17"
+dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
-reviewedOn: "2026-07-17"
+reviewedOn: "2026-07-24"
 relatedSlugs: ["ovdp-war-bonds", "understanding-investment-risk", "deposit-ovdp-taxes"]
 providersReferenced: ["privatbank", "oschadbank", "otp", "universalbank"]
 faq:

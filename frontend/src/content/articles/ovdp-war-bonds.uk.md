@@ -1,17 +1,17 @@
 ---
 slug: "ovdp-war-bonds"
 lang: "uk"
-title: "ОВДП: як інвестувати у військові облігації"
+title: "ОВДП 2026: як купити військові облігації"
 description: "Що таке ОВДП (військові облігації), яка дохідність, чому дохід не оподатковується і як купити їх через банк або брокера в Україні."
 summary: "Покроково про військові облігації України: дохідність, податкові переваги та як купити через банк."
 answer: "ОВДП (військові облігації) можна купити через застосунок банку, брокера або Дію: відкрийте рахунок, пройдіть ідентифікацію та оберіть випуск із потрібним строком. Дохід звільнено від податку, ризик низький."
 primaryTopic: "як купити військові облігації ОВДП"
 keywords: ["як купити військові облігації ОВДП"]
 datePublished: "2026-06-04"
-dateModified: "2026-07-17"
+dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
-reviewedOn: "2026-07-17"
+reviewedOn: "2026-07-24"
 relatedSlugs: ["deposits-vs-alternatives", "uah-vs-usd-savings", "buy-ovdp-via-diia", "deposit-ovdp-taxes"]
 providersReferenced: ["privatbank", "oschadbank", "monobank", "minfin"]
 faq:
