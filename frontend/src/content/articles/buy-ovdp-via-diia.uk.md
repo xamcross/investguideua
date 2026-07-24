@@ -12,7 +12,7 @@ dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
 reviewedOn: "2026-07-24"
-relatedSlugs: ["ovdp-war-bonds", "deposit-ovdp-taxes", "invest-50000-uah-safely"]
+relatedSlugs: ["ovdp-war-bonds", "deposit-ovdp-taxes", "invest-50000-uah-safely", "sell-ovdp-before-maturity", "ovdp-minimum-investment"]
 providersReferenced: ["sensebank", "ukrgasbank", "privatbank", "monobank", "oschadbank"]
 faq:
   - q: "Хто може купити військові облігації в Дії?"

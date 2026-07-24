@@ -12,7 +12,7 @@ dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
 reviewedOn: "2026-07-24"
-relatedSlugs: ["ovdp-war-bonds", "deposits-vs-alternatives"]
+relatedSlugs: ["ovdp-war-bonds", "deposits-vs-alternatives", "ovdp-for-fop"]
 providersReferenced: ["privatbank", "oschadbank", "minfin"]
 faq:
   - q: "Скільки податку я заплачу з депозиту?"

@@ -12,7 +12,7 @@ dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
 reviewedOn: "2026-07-24"
-relatedSlugs: ["deposits-vs-alternatives", "uah-vs-usd-savings", "buy-ovdp-via-diia", "deposit-ovdp-taxes"]
+relatedSlugs: ["deposits-vs-alternatives", "uah-vs-usd-savings", "buy-ovdp-via-diia", "deposit-ovdp-taxes", "sell-ovdp-before-maturity", "ovdp-for-fop"]
 providersReferenced: ["privatbank", "oschadbank", "monobank", "minfin"]
 faq:
   - q: "Скільки можна заробити на військових облігаціях?"

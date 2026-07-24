@@ -8,11 +8,11 @@ answer: "Інвестиційний ризик - це ймовірність в�
 primaryTopic: "що таке інвестиційний ризик"
 keywords: ["що таке інвестиційний ризик"]
 datePublished: "2026-06-04"
-dateModified: "2026-07-17"
+dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
-reviewedOn: "2026-07-17"
-relatedSlugs: ["beginner-guide-investing-ukraine", "deposits-vs-alternatives", "avoid-investment-scams"]
+reviewedOn: "2026-07-24"
+relatedSlugs: ["beginner-guide-investing-ukraine", "deposits-vs-alternatives", "avoid-investment-scams", "gold-vs-ovdp"]
 providersReferenced: ["minfin"]
 faq:
   - q: "Чи бувають інвестиції зовсім без ризику?"

@@ -12,7 +12,7 @@ dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
 reviewedOn: "2026-07-24"
-relatedSlugs: ["deposits-vs-alternatives", "understanding-investment-risk", "invest-100000-uah-beginner", "deposit-ovdp-taxes"]
+relatedSlugs: ["deposits-vs-alternatives", "understanding-investment-risk", "invest-100000-uah-beginner", "deposit-ovdp-taxes", "gold-vs-ovdp"]
 providersReferenced: ["privatbank", "oschadbank", "otp"]
 faq:
   - q: "Яка частка валюти є розумною у заощадженнях?"
