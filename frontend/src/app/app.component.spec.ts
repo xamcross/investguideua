@@ -112,6 +112,26 @@ describe('AppComponent (US1: tri-state nav, no guest-CTA flash on restore)', () 
     expect(links).toContain('/account'); // sanity: authenticated nav is shown
   });
 
+  // 014-seo-content: the Статті (articles) link must render in EVERY auth state — including the
+  // startup 'unknown' state, because prerendering happens in that state and the link must be part
+  // of the prerendered HTML for crawlers to discover the content section.
+  it('shows the Articles link while refresh is pending (prerender state) and when authenticated (014)', () => {
+    fixture.detectChanges();
+    const req = httpMock.expectOne(`${base}/auth/refresh`);
+    expect(hrefs()).withContext('articles link must be outside the auth conditionals').toContain('/articles');
+
+    req.flush({ accessToken: 'access-1', expiresInMs: 900000, user } as AuthResponse);
+    fixture.detectChanges();
+    expect(hrefs()).toContain('/articles');
+  });
+
+  it('shows the Articles link for resolved guests (014)', () => {
+    fixture.detectChanges();
+    httpMock.expectOne(`${base}/auth/refresh`).flush(null, { status: 401, statusText: 'Unauthorized' });
+    fixture.detectChanges();
+    expect(hrefs()).toContain('/articles');
+  });
+
   it('hides the Providers nav item for a USER-only user (US2)', () => {
     fixture.detectChanges();
     httpMock
