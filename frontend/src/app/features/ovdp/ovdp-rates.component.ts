@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -26,7 +27,7 @@ import { BondSnapshot } from './bond-snapshot.data';
 
       @if (snap().bonds.length) {
         <p class="ig-ovdp__asof" data-ovdp-asof>
-          {{ 'ovdp.asOf' | translate }} {{ snap().fetchedAt | date: 'dd.MM.yyyy HH:mm' }}
+          {{ 'ovdp.asOf' | translate }} {{ (snap().fetchedAt | date: 'dd.MM.yyyy HH:mm') || '-' }}
         </p>
         <div class="ig-ovdp__scroll">
           <table class="ig-ovdp__table">
@@ -110,14 +111,19 @@ export class OvdpRatesComponent implements OnInit, OnDestroy {
   private readonly structuredData = inject(StructuredDataService);
   private readonly translate = inject(TranslateService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly snap = signal<BondSnapshot>(this.snapshots.snapshot());
   protected readonly faq = signal<readonly { q: string; a: string }[]>([]);
 
   ngOnInit(): void {
     // FAQ copy + JSON-LD from i18n; re-resolved on language switch like ContentPageComponent.
+    // takeUntilDestroyed: a zombie subscription would re-inject this page's JSON-LD onto whatever
+    // route the user is on at the next language switch.
     this.loadFaqAndJsonLd();
-    this.translate.onLangChange.subscribe(() => this.loadFaqAndJsonLd());
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadFaqAndJsonLd());
 
     // Browser-only refresh; prerender must stay network-free and a failure keeps the snapshot.
     if (isPlatformBrowser(this.platformId)) {
@@ -146,7 +152,7 @@ export class OvdpRatesComponent implements OnInit, OnDestroy {
           '@type': 'Dataset',
           name: t['seo.ovdpRates.title'],
           description: t['seo.ovdpRates.desc'],
-          url: 'https://investguideua.com/ovdp/rates',
+          url: this.structuredData.pageUrl('/ovdp/rates'),
           inLanguage: 'uk',
           isAccessibleForFree: true,
           dateModified: this.snap().fetchedAt ?? undefined,

@@ -44,9 +44,20 @@ export class BondSnapshotService {
   }
 }
 
+const CURRENCIES = new Set(['UAH', 'USD', 'EUR']);
+
+/** Mirrors the build-time sanitize() in tools/seo/fetch-bond-snapshot.mjs - keep the two aligned. */
 function toSnapshot(rows: readonly BondPriceRow[]): BondSnapshot {
   const bonds: BondSnapshotEntry[] = rows
-    .filter((r) => Number.isInteger(r.sellPriceMinor) && Number.isInteger(r.buyPriceMinor))
+    .filter(
+      (r) =>
+        Number.isInteger(r.sellPriceMinor) &&
+        Number.isInteger(r.buyPriceMinor) &&
+        Number.isFinite(r.sellYield) &&
+        Number.isFinite(r.buyYield) &&
+        CURRENCIES.has(r.currency) &&
+        /^\d{4}-\d{2}-\d{2}$/.test(r.maturity ?? ''),
+    )
     .map((r) => ({
       isin: r.isin,
       military: r.military,

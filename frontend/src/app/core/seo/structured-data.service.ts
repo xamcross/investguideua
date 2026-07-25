@@ -122,7 +122,12 @@ export class StructuredDataService {
 
   /** Stable Organization @id, for publisher/creator references in page-level blocks (015). */
   get organizationId(): string {
-    return this.origin + '/#organization';
+    return this.orgId;
+  }
+
+  /** Absolute URL for a site path, for `url` fields in page-level blocks (origin-aware, 015). */
+  pageUrl(path: string): string {
+    return this.abs(path);
   }
 
   /**

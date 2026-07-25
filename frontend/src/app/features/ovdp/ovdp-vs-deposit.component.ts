@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,7 +28,7 @@ import { depositNetKop, grossIncomeKop, ovdpNetKop } from './ovdp-math';
 
       @if (snap().bonds.length) {
         <p class="ig-ovdp__asof" data-ovdp-asof>
-          {{ 'ovdp.asOf' | translate }} {{ snap().fetchedAt | date: 'dd.MM.yyyy HH:mm' }}
+          {{ 'ovdp.asOf' | translate }} {{ (snap().fetchedAt | date: 'dd.MM.yyyy HH:mm') || '-' }}
         </p>
       } @else {
         <p class="ig-ovdp__empty" data-ovdp-empty>{{ 'ovdp.empty' | translate }}</p>
@@ -134,14 +135,16 @@ export class OvdpVsDepositComponent implements OnInit, OnDestroy {
   private readonly structuredData = inject(StructuredDataService);
   private readonly translate = inject(TranslateService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly snap = signal<BondSnapshot>(this.snapshots.snapshot());
   protected readonly faq = signal<readonly { q: string; a: string }[]>([]);
   protected readonly amountUah = signal(50000);
   protected readonly termMonths = signal(12);
-  /** Both sides default to the same rate (snapshot median or 16) so the delta isolates taxes. */
-  protected readonly ovdpRate = signal(medianYield(this.snapshots.snapshot()));
-  protected readonly depositRate = signal(medianYield(this.snapshots.snapshot()));
+  /** Both sides default to the same rate (UAH-median or 16) so the delta isolates taxes. */
+  private readonly initialRate = medianYield(this.snapshots.snapshot());
+  protected readonly ovdpRate = signal(this.initialRate);
+  protected readonly depositRate = signal(this.initialRate);
 
   protected readonly ovdpNet = computed(() =>
     ovdpNetKop(grossIncomeKop(toMinorUnits(this.amountUah()), this.ovdpRate(), this.termMonths())),
@@ -153,7 +156,9 @@ export class OvdpVsDepositComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadFaqAndJsonLd();
-    this.translate.onLangChange.subscribe(() => this.loadFaqAndJsonLd());
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadFaqAndJsonLd());
     if (isPlatformBrowser(this.platformId)) {
       this.snapshots.latest().subscribe({
         next: (s) => { if (s.bonds.length) this.snap.set(s); },
@@ -185,7 +190,7 @@ export class OvdpVsDepositComponent implements OnInit, OnDestroy {
           '@type': 'WebApplication',
           name: t['seo.ovdpVsDeposit.title'],
           description: t['seo.ovdpVsDeposit.desc'],
-          url: 'https://investguideua.com/ovdp/vs-deposit',
+          url: this.structuredData.pageUrl('/ovdp/vs-deposit'),
           applicationCategory: 'FinanceApplication',
           operatingSystem: 'Web',
           inLanguage: 'uk',
@@ -208,9 +213,15 @@ export class OvdpVsDepositComponent implements OnInit, OnDestroy {
   }
 }
 
-/** Median sell yield of the snapshot, rounded to 0.1; 16 when the snapshot is empty. */
+/**
+ * Median sell yield of the snapshot's UAH issues, rounded to 0.1; 16 when none. FX issues are
+ * excluded - their few-percent dollar/euro yields would drag a hryvnia comparison down.
+ */
 function medianYield(snapshot: BondSnapshot): number {
-  const yields = snapshot.bonds.map((b) => b.sellYield).sort((a, b) => a - b);
+  const yields = snapshot.bonds
+    .filter((b) => b.currency === 'UAH')
+    .map((b) => b.sellYield)
+    .sort((a, b) => a - b);
   if (!yields.length) return 16;
   const mid = Math.floor(yields.length / 2);
   const median = yields.length % 2 ? yields[mid] : (yields[mid - 1] + yields[mid]) / 2;

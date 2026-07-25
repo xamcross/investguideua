@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,7 +28,7 @@ import { depositNetKop, grossIncomeKop, ovdpNetKop } from './ovdp-math';
 
       @if (snap().bonds.length) {
         <p class="ig-ovdp__asof" data-ovdp-asof>
-          {{ 'ovdp.asOf' | translate }} {{ snap().fetchedAt | date: 'dd.MM.yyyy HH:mm' }}
+          {{ 'ovdp.asOf' | translate }} {{ (snap().fetchedAt | date: 'dd.MM.yyyy HH:mm') || '-' }}
         </p>
       } @else {
         <p class="ig-ovdp__empty" data-ovdp-empty>{{ 'ovdp.empty' | translate }}</p>
@@ -48,7 +49,7 @@ import { depositNetKop, grossIncomeKop, ovdpNetKop } from './ovdp-math';
           <span>{{ 'ovdp.calc.issue' | translate }}</span>
           <select (change)="selectIssue($event)">
             <option value="">{{ 'ovdp.calc.customRate' | translate }}</option>
-            @for (b of snap().bonds; track b.isin) {
+            @for (b of uahBonds(); track b.isin) {
               <option [value]="b.isin" [selected]="selectedIsin() === b.isin">
                 {{ b.isin }} - {{ b.maturity | date: 'dd.MM.yyyy' }} - {{ b.sellYield }}%
               </option>
@@ -121,6 +122,7 @@ export class OvdpCalculatorComponent implements OnInit, OnDestroy {
   private readonly structuredData = inject(StructuredDataService);
   private readonly translate = inject(TranslateService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly snap = signal<BondSnapshot>(this.snapshots.snapshot());
   protected readonly faq = signal<readonly { q: string; a: string }[]>([]);
@@ -130,9 +132,12 @@ export class OvdpCalculatorComponent implements OnInit, OnDestroy {
   protected readonly selectedIsin = signal('');
   protected readonly customRate = signal(16);
 
+  /** UAH issues only: the amount input is in грн, so applying an FX yield would be meaningless. */
+  protected readonly uahBonds = computed(() => this.snap().bonds.filter((b) => b.currency === 'UAH'));
+
   protected readonly rate = computed(() => {
     const isin = this.selectedIsin();
-    const bond = isin ? this.snap().bonds.find((b) => b.isin === isin) : undefined;
+    const bond = isin ? this.uahBonds().find((b) => b.isin === isin) : undefined;
     return bond ? bond.sellYield : this.customRate();
   });
   protected readonly gross = computed(() =>
@@ -144,7 +149,9 @@ export class OvdpCalculatorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadFaqAndJsonLd();
-    this.translate.onLangChange.subscribe(() => this.loadFaqAndJsonLd());
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadFaqAndJsonLd());
     if (isPlatformBrowser(this.platformId)) {
       this.snapshots.latest().subscribe({
         next: (s) => { if (s.bonds.length) this.snap.set(s); },
@@ -180,7 +187,7 @@ export class OvdpCalculatorComponent implements OnInit, OnDestroy {
           '@type': 'WebApplication',
           name: t['seo.ovdpCalculator.title'],
           description: t['seo.ovdpCalculator.desc'],
-          url: 'https://investguideua.com/ovdp/calculator',
+          url: this.structuredData.pageUrl('/ovdp/calculator'),
           applicationCategory: 'FinanceApplication',
           operatingSystem: 'Web',
           inLanguage: 'uk',

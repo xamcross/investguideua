@@ -2,11 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { OvdpRatesComponent } from './ovdp-rates.component';
 import { BondSnapshotService } from './bond-snapshot.service';
 import { BondSnapshot } from './bond-snapshot.data';
+import { StructuredDataService } from '../../core/seo/structured-data.service';
 
 /**
  * 015-ovdp-data-pages: the rates page renders the bundled snapshot (so prerendered HTML always
@@ -53,5 +54,16 @@ describe('OvdpRatesComponent', () => {
     const el = setup({ fetchedAt: null, bonds: [] }).nativeElement as HTMLElement;
     expect(el.querySelector('[data-ovdp-empty]')).toBeTruthy();
     expect(el.querySelector('table')).toBeNull();
+  });
+
+  it('does NOT re-inject page JSON-LD after destroy when the language changes (leak guard)', () => {
+    const fixture = setup(FAKE);
+    const structured = TestBed.inject(StructuredDataService);
+    const spy = spyOn(structured, 'setPageBlocks');
+
+    fixture.destroy();
+    TestBed.inject(TranslateService).use('en');
+
+    expect(spy).not.toHaveBeenCalled();
   });
 });

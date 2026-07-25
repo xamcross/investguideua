@@ -593,11 +593,11 @@
     },
     "ovdpRates": {
       "title": "OVDP rates today: bond yields - InvestGuideUA",
-      "desc": "Current prices and yields of Ukrainian war bonds by issue: ISIN, maturity, price per 1000 UAH face value. Data refreshes automatically from stored quotes."
+      "desc": "Current prices and yields of Ukrainian war bonds by issue: ISIN, maturity, price per 1000 face value. Data refreshes automatically from stored quotes."
     },
     "ovdpCalculator": {
       "title": "OVDP yield calculator - InvestGuideUA",
-      "desc": "Calculate income from Ukrainian war bonds: amount, term and real issue rates - see exactly what you take home. Tax-free, based on live issue prices."
+      "desc": "Calculate income from Ukrainian war bonds: amount, term and real issue rates - see exactly what you take home. Tax-free, based on live issue rates."
     },
     "ovdpVsDeposit": {
       "title": "OVDP vs deposit: calculator - InvestGuideUA",
@@ -611,7 +611,7 @@
     "rates": {
       "kicker": "Live data",
       "title": "OVDP rates today",
-      "intro": "Real prices and yields of domestic government bonds by issue - the same quotes at which banks sell the securities to individuals. Prices are per one bond of 1000 UAH face value (or 1000 currency units for FX issues).",
+      "intro": "Real prices and yields of domestic government bonds by issue - quotes at which a partner bank sells the securities to individuals. Prices are per one bond of 1000 UAH face value (or 1000 currency units for FX issues).",
       "colIsin": "Issue (ISIN)",
       "colType": "Type",
       "colCurrency": "Currency",
@@ -647,7 +647,7 @@
       "depositLabel": "A deposit at the same rate would net",
       "totalLabel": "Total at the end of the term",
       "h2How": "How do we calculate?",
-      "howBody": "Income = amount x rate x term / 12 months, without compounding. For the deposit we additionally subtract the 23% taxes (18% PIT + 5% military levy) that the bank withholds from interest automatically. OVDP income is exempt from both taxes under the Tax Code.",
+      "howBody": "Income = amount × rate × term / 12 months, without compounding. For the deposit we additionally subtract the 23% taxes (18% PIT + 5% military levy) that the bank withholds from interest automatically. OVDP income is exempt from both taxes under the Tax Code.",
       "linkRates": "Current issue rates",
       "linkVs": "Compare with a deposit",
       "faq": [

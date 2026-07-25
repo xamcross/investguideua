@@ -26,6 +26,8 @@ const OUT_TS = join(ROOT, 'src', 'app', 'features', 'ovdp', 'bond-snapshot.data.
 const API = (process.env.BOND_SNAPSHOT_API || 'https://api.investguideua.com/api/v1/bond-prices/latest').trim();
 const TIMEOUT_MS = 10000;
 
+const CURRENCIES = new Set(['UAH', 'USD', 'EUR']);
+
 /** Keep only structurally valid records; prices MUST be integers (minor units per 1000 face). */
 function sanitize(records) {
   const out = [];
@@ -35,10 +37,13 @@ function sanitize(records) {
     if (!Number.isInteger(r.sellPriceMinor) || !Number.isInteger(r.buyPriceMinor)) continue;
     if (!Number.isFinite(r.sellYield) || !Number.isFinite(r.buyYield)) continue;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(r.maturity || ''))) continue;
+    const currency = String(r.currency || '').trim();
+    // Never guess a currency: a mislabeled record is worse than a dropped one.
+    if (!CURRENCIES.has(currency)) continue;
     out.push({
       isin,
       military: Boolean(r.military),
-      currency: String(r.currency || 'UAH').trim(),
+      currency,
       maturity: r.maturity,
       sellPriceMinor: r.sellPriceMinor,
       buyPriceMinor: r.buyPriceMinor,
@@ -107,11 +112,22 @@ export const BOND_SNAPSHOT: BondSnapshot = ${JSON.stringify({ fetchedAt, bonds }
   writeFileSync(OUT_TS, ts);
 }
 
+/**
+ * The committed fallback refreshes only on explicit request (BOND_SNAPSHOT_REFRESH_FALLBACK=true,
+ * for a deliberate "update the fallback" commit) AND when the payload clears a minimum-record
+ * floor - a truncated-but-valid payload must never silently replace a good fallback. Routine dev
+ * builds keep `git status` clean.
+ */
+const REFRESH_FALLBACK = String(process.env.BOND_SNAPSHOT_REFRESH_FALLBACK || '').toLowerCase() === 'true';
+const MIN_FALLBACK_RECORDS = 10;
+
 let snapshot;
 try {
   snapshot = await fromApi();
-  // Refresh the committed fallback so the repo tracks the last good live fetch.
-  writeFileSync(FALLBACK, JSON.stringify({ fetchedAt: snapshot.fetchedAt, bonds: snapshot.bonds }, null, 2) + '\n');
+  if (REFRESH_FALLBACK && snapshot.bonds.length >= MIN_FALLBACK_RECORDS) {
+    writeFileSync(FALLBACK, JSON.stringify({ fetchedAt: snapshot.fetchedAt, bonds: snapshot.bonds }, null, 2) + '\n');
+    console.log(`[seo:snapshot] committed fallback refreshed (${snapshot.bonds.length} bonds).`);
+  }
 } catch (err) {
   if (!existsSync(FALLBACK)) {
     console.error(`[seo:snapshot] API failed (${err.message}) and no fallback exists - cannot continue.`);
