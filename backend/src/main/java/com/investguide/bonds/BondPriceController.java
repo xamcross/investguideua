@@ -22,9 +22,11 @@ import java.util.List;
 public class BondPriceController {
 
     private final BondPriceRepository repository;
+    private final BondPriceService service;
 
-    public BondPriceController(BondPriceRepository repository) {
+    public BondPriceController(BondPriceRepository repository, BondPriceService service) {
         this.repository = repository;
+        this.service = service;
     }
 
     @GetMapping("/bond-prices")
@@ -35,17 +37,21 @@ public class BondPriceController {
     /**
      * Public latest-per-ISIN snapshot (feature 015, {@code GET /api/v1/bond-prices/latest}).
      *
-     * <p>The collection stores exactly one document per ISIN (ingest upserts), so {@code findAll()}
-     * IS the latest snapshot - there is no history to reduce over. Whitelisted for anonymous reads
+     * <p>The collection stores exactly one document per ISIN (ingest upserts), so the service's
+     * {@code listCurrent()} IS the latest snapshot - there is no history to reduce over, and
+     * matured zombies (ISINs that left the source feed) are filtered out. Whitelisted for anonymous reads
      * in {@link com.investguide.common.security.SecurityConfig}: it feeds the public SEO data pages
      * (/ovdp/rates and the calculators) both at build time and via browser hydration. Cacheable for
      * an hour - ingest runs on a slow external cadence, and quote data is not user-specific.
      */
     @GetMapping("/bond-prices/latest")
     public ResponseEntity<List<BondPriceResponse>> latestBondPrices() {
+        List<BondPriceResponse> body = service.listCurrent().stream()
+                .map(BondPriceResponse::from)
+                .toList();
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic())
-                .body(snapshot());
+                .body(body);
     }
 
     private List<BondPriceResponse> snapshot() {

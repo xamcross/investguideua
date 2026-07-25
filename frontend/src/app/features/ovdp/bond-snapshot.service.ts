@@ -48,6 +48,9 @@ const CURRENCIES = new Set(['UAH', 'USD', 'EUR']);
 
 /** Mirrors the build-time sanitize() in tools/seo/fetch-bond-snapshot.mjs - keep the two aligned. */
 function toSnapshot(rows: readonly BondPriceRow[]): BondSnapshot {
+  // Matured quotes must never render (defense-in-depth: the backend filters too, but an old
+  // backend or cached payload must not surface zombies). ISO yyyy-MM-dd compares lexically.
+  const today = new Date().toISOString().slice(0, 10);
   const bonds: BondSnapshotEntry[] = rows
     .filter(
       (r) =>
@@ -56,7 +59,8 @@ function toSnapshot(rows: readonly BondPriceRow[]): BondSnapshot {
         Number.isFinite(r.sellYield) &&
         Number.isFinite(r.buyYield) &&
         CURRENCIES.has(r.currency) &&
-        /^\d{4}-\d{2}-\d{2}$/.test(r.maturity ?? ''),
+        /^\d{4}-\d{2}-\d{2}$/.test(r.maturity ?? '') &&
+        r.maturity >= today,
     )
     .map((r) => ({
       isin: r.isin,

@@ -28,8 +28,14 @@ const TIMEOUT_MS = 10000;
 
 const CURRENCIES = new Set(['UAH', 'USD', 'EUR']);
 
-/** Keep only structurally valid records; prices MUST be integers (minor units per 1000 face). */
+/**
+ * Keep only structurally valid, NOT-YET-MATURED records; prices MUST be integers (minor units per
+ * 1000 face). The maturity guard mirrors the backend's listCurrent() and the browser sanitizer -
+ * it also keeps an aging committed fallback honest (fully expired fallback -> empty snapshot ->
+ * the pages' explicit empty state, never stale rows).
+ */
 function sanitize(records) {
+  const today = new Date().toISOString().slice(0, 10);
   const out = [];
   for (const r of Array.isArray(records) ? records : []) {
     const isin = String(r.isin || '').trim();
@@ -37,6 +43,7 @@ function sanitize(records) {
     if (!Number.isInteger(r.sellPriceMinor) || !Number.isInteger(r.buyPriceMinor)) continue;
     if (!Number.isFinite(r.sellYield) || !Number.isFinite(r.buyYield)) continue;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(r.maturity || ''))) continue;
+    if (r.maturity < today) continue;
     const currency = String(r.currency || '').trim();
     // Never guess a currency: a mislabeled record is worse than a dropped one.
     if (!CURRENCIES.has(currency)) continue;
