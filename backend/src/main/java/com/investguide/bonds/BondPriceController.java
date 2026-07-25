@@ -29,9 +29,7 @@ public class BondPriceController {
 
     @GetMapping("/bond-prices")
     public List<BondPriceResponse> bondPrices() {
-        return repository.findAll().stream()
-                .map(BondPriceResponse::from)
-                .toList();
+        return snapshot();
     }
 
     /**
@@ -45,11 +43,14 @@ public class BondPriceController {
      */
     @GetMapping("/bond-prices/latest")
     public ResponseEntity<List<BondPriceResponse>> latestBondPrices() {
-        List<BondPriceResponse> body = repository.findAll().stream()
-                .map(BondPriceResponse::from)
-                .toList();
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic())
-                .body(body);
+                .body(snapshot());
+    }
+
+    private List<BondPriceResponse> snapshot() {
+        return repository.findAll().stream()
+                .map(BondPriceResponse::from)
+                .toList();
     }
 }
