@@ -1,10 +1,13 @@
 package com.investguide.bonds;
 
 import com.investguide.bonds.dto.BondPriceResponse;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -29,5 +32,24 @@ public class BondPriceController {
         return repository.findAll().stream()
                 .map(BondPriceResponse::from)
                 .toList();
+    }
+
+    /**
+     * Public latest-per-ISIN snapshot (feature 015, {@code GET /api/v1/bond-prices/latest}).
+     *
+     * <p>The collection stores exactly one document per ISIN (ingest upserts), so {@code findAll()}
+     * IS the latest snapshot - there is no history to reduce over. Whitelisted for anonymous reads
+     * in {@link com.investguide.common.security.SecurityConfig}: it feeds the public SEO data pages
+     * (/ovdp/rates and the calculators) both at build time and via browser hydration. Cacheable for
+     * an hour - ingest runs on a slow external cadence, and quote data is not user-specific.
+     */
+    @GetMapping("/bond-prices/latest")
+    public ResponseEntity<List<BondPriceResponse>> latestBondPrices() {
+        List<BondPriceResponse> body = repository.findAll().stream()
+                .map(BondPriceResponse::from)
+                .toList();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic())
+                .body(body);
     }
 }

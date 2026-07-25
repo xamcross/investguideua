@@ -15,10 +15,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -109,6 +112,31 @@ class BondPriceControllerTest {
                 .andExpect(jsonPath("$[0].isin").value("UA4000227545"));
 
         verify(repository).findAll();
+    }
+
+    // Feature 015: /bond-prices/latest is the PUBLIC snapshot for the SEO data pages. Anonymous
+    // reads must succeed with a 1h public cache header; the admin listing above stays gated.
+    @Test
+    void latestIsPublicForAnonymous() throws Exception {
+        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+
+        mockMvc.perform(get("/api/v1/bond-prices/latest"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", containsString("max-age=3600")))
+                .andExpect(jsonPath("$[0].isin").value("UA4000227545"))
+                .andExpect(jsonPath("$[0].sellPriceMinor").value(107658))
+                .andExpect(jsonPath("$[0].sellYield").value(15.25));
+
+        verify(repository).findAll();
+    }
+
+    @Test
+    void latestReturnsEmptyArrayWhenNoData() throws Exception {
+        when(repository.findAll()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/bond-prices/latest"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 
     @Test
