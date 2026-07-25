@@ -182,6 +182,23 @@ for (const r of ['editorial-policy', 'contact']) {
   if (html) check(/name="robots" content="index,follow"/.test(html), `/${r}: not index,follow`);
 }
 
+group('A30 (015): /ovdp data pages prerendered, stamped, structured');
+for (const r of ['ovdp/rates', 'ovdp/calculator', 'ovdp/vs-deposit']) {
+  const html = read(`${r}.html`) ?? read(`${r}/index.html`);
+  check(html != null, `missing prerendered route /${r}`);
+  if (!html) continue;
+  check(/name="robots" content="index,follow"/.test(html), `/${r}: not index,follow`);
+  // Honesty stamp: either real data with its as-of date, or the explicit empty state - never
+  // silently neither (which would mean the snapshot pipeline broke without anyone noticing).
+  check(/data-ovdp-asof|data-ovdp-empty/.test(html), `/${r}: missing data-ovdp-asof / data-ovdp-empty stamp`);
+  check(html.includes('"FAQPage"'), `/${r}: FAQPage JSON-LD missing`);
+  const pageOg = attr(html, /<meta property="og:image" content="([^"]*)"/);
+  check(pageOg != null && pageOg.includes('/og/ovdp-'), `/${r}: per-page og:image missing (got ${pageOg})`);
+}
+check(read('og/ovdp-rates.png') != null, 'og/ovdp-rates.png asset missing from build output');
+check(read('og/ovdp-calculator.png') != null, 'og/ovdp-calculator.png asset missing from build output');
+check(read('og/ovdp-vs-deposit.png') != null, 'og/ovdp-vs-deposit.png asset missing from build output');
+
 group('A25: analytics beacon');
 if (beaconPages === 0) {
   console.warn(`  WARN: Cloudflare Web Analytics beacon not present on any page (cloudflareAnalyticsToken unset in this build). Set the token to enable measurement.`);

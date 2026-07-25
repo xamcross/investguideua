@@ -19,6 +19,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -109,6 +111,65 @@ class BondPriceControllerTest {
                 .andExpect(jsonPath("$[0].isin").value("UA4000227545"));
 
         verify(repository).findAll();
+    }
+
+    // Feature 015: /bond-prices/latest is the PUBLIC snapshot for the SEO data pages. Anonymous
+    // reads must succeed with a 1h public cache header; the admin listing above stays gated.
+    @Test
+    void latestIsPublicForAnonymous() throws Exception {
+        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+
+        // Exact header: "public" is load-bearing - it is what authorizes shared/CDN caching even
+        // when a logged-in browser attaches an Authorization header (RFC 9111 s3.5).
+        mockMvc.perform(get("/api/v1/bond-prices/latest"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=3600, public"))
+                .andExpect(jsonPath("$[0].isin").value("UA4000227545"))
+                .andExpect(jsonPath("$[0].sellPriceMinor").value(107658))
+                .andExpect(jsonPath("$[0].sellYield").value(15.25));
+
+        verify(repository).findAll();
+    }
+
+    @Test
+    void latestReturnsEmptyArrayWhenNoData() throws Exception {
+        when(repository.findAll()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/bond-prices/latest"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=3600, public"))
+                .andExpect(content().json("[]"));
+    }
+
+    /**
+     * A stale/garbage Bearer token must NOT break the public page: the JWT filter swallows the
+     * JwtException and continues anonymously. Pins that behavior - a "reject invalid tokens"
+     * hardening refactor would otherwise 401 every logged-out browser holding an expired token.
+     */
+    @Test
+    void latestIgnoresInvalidBearerToken() throws Exception {
+        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+
+        mockMvc.perform(get("/api/v1/bond-prices/latest").header("Authorization", "Bearer garbage"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].isin").value("UA4000227545"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void latestIsAlsoServedToAuthenticatedUsers() throws Exception {
+        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+
+        mockMvc.perform(get("/api/v1/bond-prices/latest"))
+                .andExpect(status().isOk());
+    }
+
+    /** The whitelist is an exact PathPattern match: the trailing-slash variant stays fail-closed. */
+    @Test
+    void latestTrailingSlashIsNotWhitelisted() throws Exception {
+        mockMvc.perform(get("/api/v1/bond-prices/latest/"))
+                .andExpect(status().isUnauthorized());
+        verify(repository, never()).findAll();
     }
 
     @Test

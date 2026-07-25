@@ -141,6 +141,16 @@ async function main() {
 
   if (dryRun) {
     console.log('[bonds] DRY RUN - not posting. Sample:', JSON.stringify(batch[0]));
+    // Optional full-batch dump (feature 015): seeds the frontend bond-snapshot fallback without
+    // needing a deployed backend. Only ever written in dry-run mode. NOTE: this is the bare ingest
+    // array; the fallback file wants {fetchedAt, bonds:[...]} with quotationDate dropped - wrap it
+    // when seeding (see tools/seo/fetch-bond-snapshot.mjs sanitize()).
+    const outFile = process.env.BONDS_DRY_RUN_OUT || '';
+    if (outFile) {
+      const { writeFileSync } = await import('node:fs');
+      writeFileSync(outFile, JSON.stringify(batch, null, 2) + '\n');
+      console.log(`[bonds] DRY RUN - full batch (${batch.length}) written to ${outFile}`);
+    }
     return;
   }
 

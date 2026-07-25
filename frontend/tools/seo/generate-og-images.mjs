@@ -121,7 +121,8 @@ function main() {
   if (!existsSync(MANIFEST)) {
     throw new Error(`seo-manifest.json not found at ${MANIFEST}. Run "npm run seo:articles" first.`);
   }
-  const entries = JSON.parse(readFileSync(MANIFEST, 'utf-8')).filter((e) => e.kind === 'article');
+  const manifest = JSON.parse(readFileSync(MANIFEST, 'utf-8'));
+  const entries = manifest.filter((e) => e.kind === 'article');
   // Clear stale images first: renamed/unpublished article PNGs would otherwise linger locally and
   // ship as orphan /og/*.png via the public/seo assets glob.
   rmSync(OUT_DIR, { recursive: true, force: true });
@@ -130,7 +131,16 @@ function main() {
     const slug = e.path.replace(/^\/articles\//, '');
     writeFileSync(join(OUT_DIR, `${slug}.png`), render(buildSvg(e.title)));
   }
-  console.log(`[seo:og] Rendered ${entries.length} per-article OG image(s) to ${OUT_DIR}`);
+  // OVDP data pages (015): per-page OG images with flat filenames (/og/ovdp-<name>.png), matching
+  // the ogImage values on their PUBLIC_PAGES entries. Titles come from the manifest (i18n-resolved),
+  // stripped of the " - InvestGuideUA" suffix the branded OG frame already carries.
+  const ovdpPages = manifest.filter((e) => e.path.startsWith('/ovdp/'));
+  for (const e of ovdpPages) {
+    const name = 'ovdp-' + e.path.replace(/^\/ovdp\//, '').replace(/\//g, '-');
+    const title = e.title.replace(/\s*-\s*InvestGuideUA\s*$/, '');
+    writeFileSync(join(OUT_DIR, `${name}.png`), render(buildSvg(title)));
+  }
+  console.log(`[seo:og] Rendered ${entries.length} article + ${ovdpPages.length} data-page OG image(s) to ${OUT_DIR}`);
 }
 
 main();

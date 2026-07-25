@@ -1,0 +1,285 @@
+{
+  "fetchedAt": "2026-07-25T12:02:08Z",
+  "bonds": [
+    {
+      "isin": "UA4000235865",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2026-09-16",
+      "sellPriceMinor": 106245,
+      "buyPriceMinor": 105954,
+      "sellYield": 13,
+      "buyYield": 15
+    },
+    {
+      "isin": "UA4000238281",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2026-12-16",
+      "sellPriceMinor": 102682,
+      "buyPriceMinor": 102210,
+      "sellYield": 13.75,
+      "buyYield": 15
+    },
+    {
+      "isin": "UA4000234413",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2027-01-13",
+      "sellPriceMinor": 101675,
+      "buyPriceMinor": 101233,
+      "sellYield": 14,
+      "buyYield": 15
+    },
+    {
+      "isin": "UA4000236541",
+      "military": true,
+      "currency": "USD",
+      "maturity": "2027-02-04",
+      "sellPriceMinor": 103242,
+      "buyPriceMinor": 102337,
+      "sellYield": 1.75,
+      "buyYield": 3.5
+    },
+    {
+      "isin": "UA4000237077",
+      "military": false,
+      "currency": "EUR",
+      "maturity": "2027-02-25",
+      "sellPriceMinor": 101876,
+      "buyPriceMinor": 101449,
+      "sellYield": 2.25,
+      "buyYield": 3
+    },
+    {
+      "isin": "UA4000236228",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2027-03-10",
+      "sellPriceMinor": 107958,
+      "buyPriceMinor": 107417,
+      "sellYield": 15,
+      "buyYield": 16
+    },
+    {
+      "isin": "UA4000238976",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2027-03-24",
+      "sellPriceMinor": 106039,
+      "buyPriceMinor": 105470,
+      "sellYield": 15,
+      "buyYield": 16
+    },
+    {
+      "isin": "UA4000233704",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2027-04-14",
+      "sellPriceMinor": 105587,
+      "buyPriceMinor": 105031,
+      "sellYield": 15.1,
+      "buyYield": 16
+    },
+    {
+      "isin": "UA4000238364",
+      "military": true,
+      "currency": "EUR",
+      "maturity": "2027-05-06",
+      "sellPriceMinor": 101302,
+      "buyPriceMinor": 100737,
+      "sellYield": 2.5,
+      "buyYield": 3.25
+    },
+    {
+      "isin": "UA4000234223",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2027-06-09",
+      "sellPriceMinor": 103324,
+      "buyPriceMinor": 102510,
+      "sellYield": 15.15,
+      "buyYield": 16.25
+    },
+    {
+      "isin": "UA4000237424",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2027-06-23",
+      "sellPriceMinor": 103587,
+      "buyPriceMinor": 102736,
+      "sellYield": 15.15,
+      "buyYield": 16.25
+    },
+    {
+      "isin": "UA4000237994",
+      "military": true,
+      "currency": "USD",
+      "maturity": "2027-07-01",
+      "sellPriceMinor": 101676,
+      "buyPriceMinor": 100773,
+      "sellYield": 2.5,
+      "buyYield": 3.5
+    },
+    {
+      "isin": "UA4000230270",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2027-07-07",
+      "sellPriceMinor": 104216,
+      "buyPriceMinor": 103406,
+      "sellYield": 15.25,
+      "buyYield": 16.25
+    },
+    {
+      "isin": "UA4000239016",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2027-07-21",
+      "sellPriceMinor": 100630,
+      "buyPriceMinor": 99809,
+      "sellYield": 15.25,
+      "buyYield": 16.25
+    },
+    {
+      "isin": "UA4000238422",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2027-08-04",
+      "sellPriceMinor": 110265,
+      "buyPriceMinor": 109489,
+      "sellYield": 15.35,
+      "buyYield": 16.25
+    },
+    {
+      "isin": "UA4000231195",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2027-08-25",
+      "sellPriceMinor": 109916,
+      "buyPriceMinor": 109096,
+      "sellYield": 15.35,
+      "buyYield": 16.25
+    },
+    {
+      "isin": "UA4000233712",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2027-11-03",
+      "sellPriceMinor": 105388,
+      "buyPriceMinor": 104338,
+      "sellYield": 15.5,
+      "buyYield": 16.5
+    },
+    {
+      "isin": "UA4000239065",
+      "military": true,
+      "currency": "EUR",
+      "maturity": "2027-11-18",
+      "sellPriceMinor": 100979,
+      "buyPriceMinor": 100225,
+      "sellYield": 2.9,
+      "buyYield": 3.5
+    },
+    {
+      "isin": "UA4000231625",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2028-02-09",
+      "sellPriceMinor": 109861,
+      "buyPriceMinor": 108618,
+      "sellYield": 15.75,
+      "buyYield": 16.75
+    },
+    {
+      "isin": "UA4000237804",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2028-03-22",
+      "sellPriceMinor": 109122,
+      "buyPriceMinor": 107921,
+      "sellYield": 15.85,
+      "buyYield": 16.75
+    },
+    {
+      "isin": "UA4000239032",
+      "military": true,
+      "currency": "USD",
+      "maturity": "2028-03-30",
+      "sellPriceMinor": 101497,
+      "buyPriceMinor": 99673,
+      "sellYield": 2.85,
+      "buyYield": 4
+    },
+    {
+      "isin": "UA4000235196",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2028-04-12",
+      "sellPriceMinor": 108516,
+      "buyPriceMinor": 107482,
+      "sellYield": 16,
+      "buyYield": 16.75
+    },
+    {
+      "isin": "UA4000239040",
+      "military": true,
+      "currency": "UAH",
+      "maturity": "2028-04-26",
+      "sellPriceMinor": 104528,
+      "buyPriceMinor": 103494,
+      "sellYield": 16,
+      "buyYield": 16.75
+    },
+    {
+      "isin": "UA4000239008",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2028-06-14",
+      "sellPriceMinor": 102347,
+      "buyPriceMinor": 101247,
+      "sellYield": 16,
+      "buyYield": 16.75
+    },
+    {
+      "isin": "UA4000236475",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2028-09-27",
+      "sellPriceMinor": 109869,
+      "buyPriceMinor": 108683,
+      "sellYield": 16.05,
+      "buyYield": 16.75
+    },
+    {
+      "isin": "UA4000237556",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2028-11-15",
+      "sellPriceMinor": 107668,
+      "buyPriceMinor": 106068,
+      "sellYield": 16.1,
+      "buyYield": 17
+    },
+    {
+      "isin": "UA4000238968",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2029-03-07",
+      "sellPriceMinor": 110402,
+      "buyPriceMinor": 108547,
+      "sellYield": 16.3,
+      "buyYield": 17.25
+    },
+    {
+      "isin": "UA4000238992",
+      "military": false,
+      "currency": "UAH",
+      "maturity": "2029-04-25",
+      "sellPriceMinor": 104801,
+      "buyPriceMinor": 103106,
+      "sellYield": 16.4,
+      "buyYield": 17.25
+    }
+  ]
+}

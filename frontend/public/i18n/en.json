@@ -590,6 +590,99 @@
     "contact": {
       "title": "Contact - InvestGuideUA",
       "desc": "Get in touch with the InvestGuideUA editorial team by email for questions about our content, corrections, and partnership enquiries. We aim to reply quickly."
+    },
+    "ovdpRates": {
+      "title": "OVDP rates today: bond yields - InvestGuideUA",
+      "desc": "Current prices and yields of Ukrainian war bonds by issue: ISIN, maturity, price per 1000 face value. Data refreshes automatically from stored quotes."
+    },
+    "ovdpCalculator": {
+      "title": "OVDP yield calculator - InvestGuideUA",
+      "desc": "Calculate income from Ukrainian war bonds: amount, term and real issue rates - see exactly what you take home. Tax-free, based on live issue rates."
+    },
+    "ovdpVsDeposit": {
+      "title": "OVDP vs deposit: calculator - InvestGuideUA",
+      "desc": "Compare the same amount in war bonds and a bank deposit: bonds are tax-exempt while deposit interest loses 23% to taxes. An honest side-by-side result."
+    }
+  },
+  "ovdp": {
+    "asOf": "Data as of",
+    "empty": "Issue data is temporarily unavailable. The table will refresh automatically after the next price sync.",
+    "disclaimer": "This material is informational and is not investment advice. Prices and yields change daily - verify terms with your bank or broker before buying.",
+    "rates": {
+      "kicker": "Live data",
+      "title": "OVDP rates today",
+      "intro": "Real prices and yields of domestic government bonds by issue - quotes at which a partner bank sells the securities to individuals. Prices are per one bond of 1000 UAH face value (or 1000 currency units for FX issues).",
+      "colIsin": "Issue (ISIN)",
+      "colType": "Type",
+      "colCurrency": "Currency",
+      "colMaturity": "Maturity",
+      "colPrice": "Price per 1000 face value",
+      "colYield": "Yield",
+      "typeMilitary": "Military",
+      "typeRegular": "Regular",
+      "h2How": "How to read this table?",
+      "howBody": "The price is what one bond costs right now: it can be below or above face value depending on the term and market rates. The yield shows what you earn per annum if you buy at this price and hold to maturity. OVDP income is tax-exempt - the whole rate is net.",
+      "h2Where": "Where to buy these issues",
+      "whereBody": "War bonds are sold in bank apps (PrivatBank, monobank, Oschadbank), via Diia and licensed brokers. Availability of a specific issue depends on the partner - FX-denominated OVDP, for example, are not sold in Diia.",
+      "linkCalc": "Estimate your income in the calculator",
+      "linkVs": "Compare with a deposit",
+      "linkGuide": "How to buy OVDP: the full guide",
+      "faq": [
+        { "q": "Why does the price differ from the 1000 UAH face value?", "a": "The price reflects accrued coupon income and current market rates: issues with below-market coupons trade at a discount, above-market ones at a premium. At maturity the state repays exactly the face value." },
+        { "q": "How often is the data refreshed?", "a": "Quotes sync from the source automatically on a schedule. The last-update date is shown above the table - re-check the live price in your bank or broker app before buying." },
+        { "q": "Is income from these bonds taxed?", "a": "No, OVDP coupon payments and redemption income are exempt from personal income tax and the military levy. That is why the yields in this table are take-home rates." }
+      ]
+    },
+    "calc": {
+      "kicker": "Calculator",
+      "title": "OVDP yield calculator",
+      "intro": "Estimate what war bonds will earn: pick an issue with its real yield or set your own rate. The calculation is simple (no coupon reinvestment) and shows take-home income - OVDP income is tax-free.",
+      "amount": "Investment amount, UAH",
+      "term": "Term, months",
+      "issue": "Issue",
+      "customRate": "Custom rate",
+      "ratePct": "Rate, % p.a.",
+      "resultTitle": "Result",
+      "grossLabel": "OVDP income (take-home)",
+      "depositLabel": "A deposit at the same rate would net",
+      "totalLabel": "Total at the end of the term",
+      "h2How": "How do we calculate?",
+      "howBody": "Income = amount × rate × term / 12 months, without compounding. For the deposit we additionally subtract the 23% taxes (18% PIT + 5% military levy) that the bank withholds from interest automatically. OVDP income is exempt from both taxes under the Tax Code.",
+      "linkRates": "Current issue rates",
+      "linkVs": "Compare with a deposit",
+      "faq": [
+        { "q": "Does the calculator account for coupon reinvestment?", "a": "No, the calculation is simple: it shows income without compounding, as for an issue held to maturity. Reinvesting coupons into new bonds would add a compound-interest effect on top." },
+        { "q": "Where do the issue rates come from?", "a": "From stored quotes at which banks sell bonds to individuals; they refresh automatically. If the issue you need is missing, use the custom-rate field." }
+      ]
+    },
+    "vs": {
+      "kicker": "Comparison",
+      "title": "OVDP vs deposit: which earns more",
+      "intro": "Same amount, same term - an honest comparison: banks withhold 23% in taxes from deposit interest, while OVDP income is not taxed at all. Set your own rates or use the defaults.",
+      "amount": "Amount, UAH",
+      "term": "Term, months",
+      "ovdpRate": "OVDP rate, % p.a.",
+      "depositRate": "Deposit rate, % p.a.",
+      "ovdpPanel": "OVDP",
+      "depositPanel": "Deposit",
+      "netLabel": "Take-home over the term",
+      "taxNote": "after 23% taxes",
+      "taxFreeNote": "no taxes",
+      "deltaPrefix": "OVDP earn",
+      "deltaSuffix": "more over this term",
+      "deltaNegativePrefix": "The deposit earns",
+      "deltaNegativeSuffix": "more over this term",
+      "h2Why": "Why is the difference so visible?",
+      "whyBody": "Taxes eat almost a quarter of deposit income: 18% PIT and the 5% military levy are withheld automatically when interest is paid. OVDP income is exempt from both, so even at a lower nominal rate bonds often net more. Deposits win on flexibility and familiarity.",
+      "ctaTitle": "Want to compare real offers?",
+      "ctaBody": "InvestGuideUA matches options from a vetted catalog - deposits, OVDP and funds - to your amount and term.",
+      "cta": "Find my options (after signing up)",
+      "linkRates": "Current issue rates",
+      "linkCalc": "OVDP calculator",
+      "faq": [
+        { "q": "Is it fair to compare nominal deposit and OVDP rates?", "a": "No - compare take-home income: deposit interest loses 23% to taxes while OVDP income is not taxed. That is why a 17% deposit nets less than a 16% OVDP." },
+        { "q": "Which is safer - a deposit or OVDP?", "a": "Both are low-risk: deposits are guaranteed by the state Deposit Guarantee Fund, and OVDP are backed by the state budget. The main practical difference is terms: deposits are more flexible, bonds pay off best held to maturity." }
+      ]
     }
   },
   "articles": {

@@ -41,6 +41,10 @@ const STATIC_PAGES = [
   { path: '/privacy', titleKey: 'seo.privacy.title', descKey: 'seo.privacy.desc' },
   { path: '/editorial-policy', titleKey: 'seo.editorial.title', descKey: 'seo.editorial.desc' },
   { path: '/contact', titleKey: 'seo.contact.title', descKey: 'seo.contact.desc' },
+  // OVDP data pages (015).
+  { path: '/ovdp/rates', titleKey: 'seo.ovdpRates.title', descKey: 'seo.ovdpRates.desc' },
+  { path: '/ovdp/calculator', titleKey: 'seo.ovdpCalculator.title', descKey: 'seo.ovdpCalculator.desc' },
+  { path: '/ovdp/vs-deposit', titleKey: 'seo.ovdpVsDeposit.title', descKey: 'seo.ovdpVsDeposit.desc' },
 ];
 
 /** Minimum inbound peer cross-links a published article needs to not be an orphan (FR-023, clarified = 2). */

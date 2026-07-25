@@ -120,6 +120,29 @@ export class StructuredDataService {
     this.remove('article');
   }
 
+  /** Stable Organization @id, for publisher/creator references in page-level blocks (015). */
+  get organizationId(): string {
+    return this.orgId;
+  }
+
+  /** Absolute URL for a site path, for `url` fields in page-level blocks (origin-aware, 015). */
+  pageUrl(path: string): string {
+    return this.abs(path);
+  }
+
+  /**
+   * Page-scoped JSON-LD for non-article pages (feature 015: Dataset, WebApplication, FAQPage on
+   * the /ovdp data pages). Grouped under data-ld="page"; callers own the block shapes and must
+   * clear on destroy so blocks never leak onto the next route.
+   */
+  setPageBlocks(blocks: readonly Record<string, unknown>[]): void {
+    this.write('page', [...blocks]);
+  }
+
+  clearPageBlocks(): void {
+    this.remove('page');
+  }
+
   private abs(path: string): string {
     return path.startsWith('http') ? path : this.origin + (path.startsWith('/') ? path : '/' + path);
   }

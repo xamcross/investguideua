@@ -37,6 +37,9 @@ public class SecurityConfig {
     /** Public endpoints (SPECIFICATION §5.1 auth column + §4.3 callback + §11 health). */
     private static final String[] PUBLIC_GET = {
             "/api/v1/ping",
+            // Latest bond-price snapshot (015): anonymous read for the public SEO data pages. The
+            // exact-match ADMIN rule on /api/v1/bond-prices below does not cover this sub-path.
+            "/api/v1/bond-prices/latest",
             "/actuator/health"
     };
     private static final String[] PUBLIC_POST = {
