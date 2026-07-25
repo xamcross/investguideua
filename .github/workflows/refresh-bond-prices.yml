@@ -51,3 +51,17 @@ jobs:
           BACKEND_BASE_URL: https://api.investguideua.com
           BOND_INGEST_SECRET: ${{ secrets.BOND_INGEST_SECRET }}
         run: npm run scrape
+
+      # Feature 015: the /ovdp data pages bundle a build-time price snapshot, so a successful
+      # ingest should rebuild the frontend to keep prerendered data fresh (at most a day stale).
+      # No-op until the CF_PAGES_DEPLOY_HOOK secret is configured (Pages -> Settings -> Deploy hooks).
+      - name: Trigger Cloudflare Pages rebuild (data pages)
+        env:
+          CF_PAGES_DEPLOY_HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$CF_PAGES_DEPLOY_HOOK" ]; then
+            curl -fsS -X POST "$CF_PAGES_DEPLOY_HOOK" -o /dev/null
+            echo "Pages rebuild triggered."
+          else
+            echo "CF_PAGES_DEPLOY_HOOK not set; skipping rebuild trigger."
+          fi

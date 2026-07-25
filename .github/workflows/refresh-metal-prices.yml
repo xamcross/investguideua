@@ -43,3 +43,16 @@ jobs:
           BACKEND_BASE_URL: https://api.investguideua.com
           METAL_INGEST_SECRET: ${{ secrets.METAL_INGEST_SECRET }}
         run: npm run scrape:metals
+
+      # Feature 015: rebuild the frontend after a successful ingest so prerendered data pages stay
+      # fresh. No-op until the CF_PAGES_DEPLOY_HOOK secret is configured.
+      - name: Trigger Cloudflare Pages rebuild (data pages)
+        env:
+          CF_PAGES_DEPLOY_HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$CF_PAGES_DEPLOY_HOOK" ]; then
+            curl -fsS -X POST "$CF_PAGES_DEPLOY_HOOK" -o /dev/null
+            echo "Pages rebuild triggered."
+          else
+            echo "CF_PAGES_DEPLOY_HOOK not set; skipping rebuild trigger."
+          fi
