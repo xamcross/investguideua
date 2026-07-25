@@ -13,10 +13,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,15 +51,66 @@ class BondPriceServiceTest {
         validatorFactory.close();
     }
 
+    /** Fixed "today" for maturity-filter tests: 2026-07-25 in the Kyiv market calendar. */
+    private static final ZoneId KYIV = ZoneId.of("Europe/Kyiv");
+    private static final LocalDate TODAY = LocalDate.of(2026, 7, 25);
+    private static final Clock FIXED_CLOCK =
+            Clock.fixed(TODAY.atStartOfDay(KYIV).plusHours(12).toInstant(), KYIV);
+
+    private static BondPrice quote(String isin, LocalDate maturity) {
+        return new BondPrice(isin, true, "UAH", maturity, maturity.minusMonths(6),
+                100000L, 99000L, 15.0, 15.5, Instant.parse("2026-07-24T09:00:00Z"));
+    }
+
     @BeforeEach
     void setUp() {
         validator = validatorFactory.getValidator();
-        service = new BondPriceService(repository, validator);
+        service = new BondPriceService(repository, validator, FIXED_CLOCK);
         when(repository.saveAll(any())).thenAnswer(inv -> {
             List<BondPrice> out = new ArrayList<>();
             inv.<Iterable<BondPrice>>getArgument(0).forEach(out::add);
             return out;
         });
+    }
+
+    // Matured-quote filtering (fix after 015): ingest never deletes, so ISINs that matured and
+    // dropped out of the source feed linger in the collection. Every READ path that feeds a
+    // consumer (public /latest, advisor prompt, per-ISIN grounding) must exclude them.
+
+    @Test
+    void listCurrentExcludesMaturedBonds() {
+        when(repository.findAll()).thenReturn(List.of(
+                quote("UA4000000012", TODAY.plusMonths(3)),
+                quote("UA4000000023", TODAY.minusDays(1))));
+
+        assertThat(service.listCurrent())
+                .extracting(BondPrice::getIsin)
+                .containsExactly("UA4000000012");
+    }
+
+    @Test
+    void listCurrentKeepsBondMaturingToday() {
+        when(repository.findAll()).thenReturn(List.of(quote("UA4000000034", TODAY)));
+
+        assertThat(service.listCurrent()).hasSize(1);
+    }
+
+    @Test
+    void listForPromptExcludesMaturedBonds() {
+        when(repository.findAll()).thenReturn(List.of(
+                quote("UA4000000045", TODAY.plusMonths(6)),
+                quote("UA4000000056", TODAY.minusMonths(1))));
+
+        assertThat(service.listForPrompt("UAH"))
+                .extracting(BondPrice::getIsin)
+                .containsExactly("UA4000000045");
+    }
+
+    @Test
+    void findByIsinReturnsEmptyForMaturedBond() {
+        when(repository.findById("UA4000000067")).thenReturn(Optional.of(quote("UA4000000067", TODAY.minusDays(3))));
+
+        assertThat(service.findByIsin("UA4000000067")).isEmpty();
     }
 
     private static IngestBondRequest valid(String isin, long sellMinor) {

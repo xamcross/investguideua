@@ -8,10 +8,13 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,18 +35,50 @@ import java.util.Set;
  *
  * <p><b>Empty batch is a guarded 400.</b> A null/empty batch is rejected (it can never blank the
  * collection); the scraper additionally never POSTs an empty/failed scrape.
+ *
+ * <p><b>Matured quotes are filtered at READ time.</b> Because ingest never deletes, ISINs that
+ * mature and drop out of the source feed linger in the collection with their last quote. Every
+ * read path that feeds a consumer (public /latest, advisor prompt, per-ISIN grounding) excludes
+ * bonds whose maturity is before "today" in the Kyiv market calendar. The admin listing stays
+ * unfiltered on purpose - operators should see the zombies.
  */
 @Service
 public class BondPriceService {
 
     private static final Logger log = LoggerFactory.getLogger(BondPriceService.class);
 
+    /** The market's calendar for the "is it matured yet" boundary. */
+    private static final ZoneId KYIV = ZoneId.of("Europe/Kyiv");
+
     private final BondPriceRepository repository;
     private final Validator validator;
+    private final Clock clock;
 
+    @Autowired
     public BondPriceService(BondPriceRepository repository, Validator validator) {
+        this(repository, validator, Clock.system(KYIV));
+    }
+
+    /** Test seam: fixed clocks keep maturity-boundary tests deterministic in any CI timezone. */
+    BondPriceService(BondPriceRepository repository, Validator validator, Clock clock) {
         this.repository = repository;
         this.validator = validator;
+        this.clock = clock;
+    }
+
+    /** A quote is current while its maturity is today or later (payout day still counts). */
+    private boolean isCurrent(BondPrice bond) {
+        return !bond.getMaturity().isBefore(LocalDate.now(clock));
+    }
+
+    /**
+     * All stored quotes that have not yet matured - the snapshot behind the public
+     * {@code GET /api/v1/bond-prices/latest} endpoint (feature 015).
+     */
+    public java.util.List<BondPrice> listCurrent() {
+        return repository.findAll().stream()
+                .filter(this::isCurrent)
+                .toList();
     }
 
     /**
@@ -54,7 +89,7 @@ public class BondPriceService {
         if (isin == null || isin.isBlank()) {
             return java.util.Optional.empty();
         }
-        return repository.findById(isin.trim());
+        return repository.findById(isin.trim()).filter(this::isCurrent);
     }
 
     /**
@@ -67,6 +102,7 @@ public class BondPriceService {
             return java.util.List.of();
         }
         return repository.findAll().stream()
+                .filter(this::isCurrent)
                 .filter(b -> currency.equalsIgnoreCase(b.getCurrency()))
                 .toList();
     }

@@ -52,6 +52,9 @@ class BondPriceControllerTest {
     @MockitoBean
     private BondPriceRepository repository;
 
+    @MockitoBean
+    private BondPriceService bondPriceService;
+
     private static BondPrice sampleBond() {
         return new BondPrice("UA4000227545", true, "UAH",
                 LocalDate.of(2026, 11, 18), LocalDate.of(2026, 6, 5),
@@ -117,7 +120,7 @@ class BondPriceControllerTest {
     // reads must succeed with a 1h public cache header; the admin listing above stays gated.
     @Test
     void latestIsPublicForAnonymous() throws Exception {
-        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+        when(bondPriceService.listCurrent()).thenReturn(List.of(sampleBond()));
 
         // Exact header: "public" is load-bearing - it is what authorizes shared/CDN caching even
         // when a logged-in browser attaches an Authorization header (RFC 9111 s3.5).
@@ -128,12 +131,12 @@ class BondPriceControllerTest {
                 .andExpect(jsonPath("$[0].sellPriceMinor").value(107658))
                 .andExpect(jsonPath("$[0].sellYield").value(15.25));
 
-        verify(repository).findAll();
+        verify(bondPriceService).listCurrent();
     }
 
     @Test
     void latestReturnsEmptyArrayWhenNoData() throws Exception {
-        when(repository.findAll()).thenReturn(List.of());
+        when(bondPriceService.listCurrent()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/v1/bond-prices/latest"))
                 .andExpect(status().isOk())
@@ -148,7 +151,7 @@ class BondPriceControllerTest {
      */
     @Test
     void latestIgnoresInvalidBearerToken() throws Exception {
-        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+        when(bondPriceService.listCurrent()).thenReturn(List.of(sampleBond()));
 
         mockMvc.perform(get("/api/v1/bond-prices/latest").header("Authorization", "Bearer garbage"))
                 .andExpect(status().isOk())
@@ -158,7 +161,7 @@ class BondPriceControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void latestIsAlsoServedToAuthenticatedUsers() throws Exception {
-        when(repository.findAll()).thenReturn(List.of(sampleBond()));
+        when(bondPriceService.listCurrent()).thenReturn(List.of(sampleBond()));
 
         mockMvc.perform(get("/api/v1/bond-prices/latest"))
                 .andExpect(status().isOk());
@@ -169,7 +172,7 @@ class BondPriceControllerTest {
     void latestTrailingSlashIsNotWhitelisted() throws Exception {
         mockMvc.perform(get("/api/v1/bond-prices/latest/"))
                 .andExpect(status().isUnauthorized());
-        verify(repository, never()).findAll();
+        verify(bondPriceService, never()).listCurrent();
     }
 
     @Test
