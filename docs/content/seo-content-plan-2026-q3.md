@@ -46,7 +46,7 @@ Feature 015 (spec: `specs/015-ovdp-data-pages/spec.md`): /ovdp/rates, /ovdp/calc
 
 ## Monthly refresh routine (recurring, ~1h/month, first business week)
 
-1. Оновити «станом на [місяць] 2026» цифри в: ovdp-war-bonds, buy-ovdp-via-diia, deposit-ovdp-taxes, deposits-vs-alternatives, uah-vs-usd-savings, invest-50k/100k FAQ (ставки з НБУ/каталогу).
+1. Оновити «станом на [місяць] 2026» цифри в: ovdp-war-bonds, buy-ovdp-via-diia, deposit-ovdp-taxes, deposits-vs-alternatives, uah-vs-usd-savings, invest-50k/100k FAQ (ставки з НБУ/каталогу). Одночасно перевірити продуктові факти, що можуть «поплисти»: чи досі в Дії лише гривневі випуски, актуальний список партнерів, ціна «від ~900 грн».
 2. Bump `dateModified`/`reviewedOn` тільки там, де цифри реально змінилися (audit A21 = чесний lastmod).
 3. Перевірити, що GH Actions price-refresh зелений і (після 015) що Pages rebuild hook спрацював.
 4. `npm run seo:all` перед деплоєм.

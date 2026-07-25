@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { FooterComponent } from './footer.component';
 
@@ -17,6 +17,8 @@ describe('FooterComponent (014: articles link)', () => {
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     });
   });
+
+  afterEach(() => TestBed.inject(HttpTestingController).verify());
 
   it('links to the articles hub', () => {
     const fixture = TestBed.createComponent(FooterComponent);

@@ -119,21 +119,23 @@ import { ArticleService } from '../articles/article.service';
       </p>
     </section>
 
-    <section class="ig-articles" aria-labelledby="ig-articles-title">
-      <p class="ig-kicker">{{ 'landing.articlesKicker' | translate }}</p>
-      <h2 id="ig-articles-title">{{ 'landing.articlesTitle' | translate }}</h2>
-      <ul class="ig-arts">
-        @for (a of latestArticles(); track a.slug; let i = $index) {
-          <li [class]="'ig-card ig-art reveal d' + (i + 1)">
-            <a [routerLink]="['/articles', a.slug]" class="ig-art__link">
-              <h3 class="ig-art__title">{{ a.title }}</h3>
-              <p class="ig-muted ig-art__summary">{{ a.summary }}</p>
-            </a>
-          </li>
-        }
-      </ul>
-      <a routerLink="/articles" class="ig-btn ig-btn--ghost">{{ 'landing.articlesAll' | translate }}</a>
-    </section>
+    @if (latestArticles().length) {
+      <section class="ig-articles" aria-labelledby="ig-articles-title">
+        <p class="ig-kicker">{{ 'landing.articlesKicker' | translate }}</p>
+        <h2 id="ig-articles-title">{{ 'landing.articlesTitle' | translate }}</h2>
+        <ul class="ig-arts">
+          @for (a of latestArticles(); track a.slug; let i = $index) {
+            <li [class]="'ig-card ig-art reveal d' + (i + 1)">
+              <a [routerLink]="['/articles', a.slug]" class="ig-art__link">
+                <h3 class="ig-art__title">{{ a.title }}</h3>
+                <p class="ig-muted ig-art__summary">{{ a.summary }}</p>
+              </a>
+            </li>
+          }
+        </ul>
+        <a routerLink="/articles" class="ig-btn ig-btn--ghost">{{ 'landing.articlesAll' | translate }}</a>
+      </section>
+    }
 
     <section class="ig-section--dark ig-pricing" aria-labelledby="ig-pricing-title">
       <p class="ig-kicker">{{ 'landing.pricingKicker' | translate }}</p>
