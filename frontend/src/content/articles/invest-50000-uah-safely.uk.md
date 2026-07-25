@@ -8,11 +8,11 @@ answer: "П'ятдесят тисяч гривень варто спершу ч�
 primaryTopic: "куди вкласти 50000 гривень"
 keywords: ["куди вкласти 50000 гривень"]
 datePublished: "2026-06-04"
-dateModified: "2026-07-17"
+dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
-reviewedOn: "2026-07-17"
-relatedSlugs: ["invest-100000-uah-beginner", "understanding-investment-risk", "ovdp-war-bonds", "buy-ovdp-via-diia"]
+reviewedOn: "2026-07-24"
+relatedSlugs: ["invest-100000-uah-beginner", "understanding-investment-risk", "ovdp-war-bonds", "buy-ovdp-via-diia", "ovdp-minimum-investment"]
 providersReferenced: ["privatbank", "monobank", "minfin"]
 faq:
   - q: "Скільки доходу можуть дати 50 000 грн за рік?"

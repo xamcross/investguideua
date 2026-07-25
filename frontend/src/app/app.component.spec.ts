@@ -49,6 +49,16 @@ describe('AppComponent (US1: tri-state nav, no guest-CTA flash on restore)', () 
     return !!(fixture.nativeElement as HTMLElement).querySelector('.ig-linkbtn');
   }
 
+  /**
+   * Anchor hrefs inside the PRIMARY NAV only. The footer also links /articles unconditionally, so
+   * the 014 "link outside auth conditionals" assertions must scope to the nav to actually catch a
+   * regression that moves the header link inside an auth @if block.
+   */
+  function navHrefs(): string[] {
+    const nav = (fixture.nativeElement as HTMLElement).querySelector('#ig-primary-nav')!;
+    return Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href') ?? '');
+  }
+
   it('renders a neutral nav (no account menu, no guest CTAs) while the startup refresh is pending', () => {
     fixture.detectChanges(); // ngOnInit -> lang.init() + auth.refresh() (now in flight)
 
@@ -110,6 +120,26 @@ describe('AppComponent (US1: tri-state nav, no guest-CTA flash on restore)', () 
     const links = hrefs();
     expect(links).toContain('/providers');
     expect(links).toContain('/account'); // sanity: authenticated nav is shown
+  });
+
+  // 014-seo-content: the Статті (articles) link must render in EVERY auth state — including the
+  // startup 'unknown' state, because prerendering happens in that state and the link must be part
+  // of the prerendered HTML for crawlers to discover the content section.
+  it('shows the Articles link while refresh is pending (prerender state) and when authenticated (014)', () => {
+    fixture.detectChanges();
+    const req = httpMock.expectOne(`${base}/auth/refresh`);
+    expect(navHrefs()).withContext('articles link must be outside the auth conditionals').toContain('/articles');
+
+    req.flush({ accessToken: 'access-1', expiresInMs: 900000, user } as AuthResponse);
+    fixture.detectChanges();
+    expect(navHrefs()).toContain('/articles');
+  });
+
+  it('shows the Articles link for resolved guests (014)', () => {
+    fixture.detectChanges();
+    httpMock.expectOne(`${base}/auth/refresh`).flush(null, { status: 401, statusText: 'Unauthorized' });
+    fixture.detectChanges();
+    expect(navHrefs()).toContain('/articles');
   });
 
   it('hides the Providers nav item for a USER-only user (US2)', () => {

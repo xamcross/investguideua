@@ -1,13 +1,14 @@
 {
   "lang": {
-    "toEnglish": "Switch language to English",
-    "toUkrainian": "Перемкнути мову на українську",
+    "toEnglish": "UA/EN - switch language to English",
+    "toUkrainian": "UA/EN - перемкнути мову на українську",
     "announced": "Language changed to English"
   },
   "a11y": {
     "skipToContent": "Skip to main content"
   },
   "nav": {
+    "articles": "Articles",
     "search": "Search",
     "history": "History",
     "providers": "Providers",
@@ -73,6 +74,9 @@
     "eyebrow": "Catalog-grounded advisor",
     "titleLead": "Invest in Ukraine,",
     "titleAccent": "for Ukrainians",
+    "articlesKicker": "Guides",
+    "articlesTitle": "Latest investing articles",
+    "articlesAll": "All articles",
     "howKicker": "How it works",
     "howTitle": "Three steps to a confident decision",
     "ledgerLabel": "Matched for your request",
@@ -100,7 +104,7 @@
     "pricingFine": "Payments are securely handled by monobank (Plata by mono).",
     "pricingExample": "example",
     "title": "Invest in Ukraine, for Ukrainians",
-    "lead": "Tell us how much you want to invest and get curated, catalog-grounded options from vetted Ukrainian banks and providers - in plain language.",
+    "lead": "We help you decide where to invest money in Ukraine: enter an amount and get curated options from a vetted catalog of banks and providers - in plain language.",
     "ctaStart": "Get started - 5 free tokens",
     "ctaSignIn": "Sign in",
     "hint": "Free tokens are granted after you verify your email.",

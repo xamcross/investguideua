@@ -1,18 +1,18 @@
 ---
 slug: "uah-vs-usd-savings"
 lang: "uk"
-title: "Гривня чи долар: у чому зберігати кошти"
+title: "Гривня чи долар у 2026: де зберігати кошти"
 description: "Як розподілити заощадження між гривнею та доларом в Україні: дохідність гривневих інструментів проти захисту від девальвації у валюті."
 summary: "Переваги й ризики гривневих і валютних заощаджень та ідея валютної диверсифікації."
 answer: "Гривня дає вищі ставки за депозитами, долар - захист від девальвації. Оптимально не обирати щось одне, а диверсифікувати заощадження між валютами відповідно до ваших цілей і строків."
 primaryTopic: "гривня чи долар зберігати"
 keywords: ["гривня чи долар зберігати"]
 datePublished: "2026-06-04"
-dateModified: "2026-07-17"
+dateModified: "2026-07-24"
 status: "published"
 reviewedBy: "Редакція InvestGuideUA"
-reviewedOn: "2026-07-17"
-relatedSlugs: ["deposits-vs-alternatives", "understanding-investment-risk", "invest-100000-uah-beginner", "deposit-ovdp-taxes"]
+reviewedOn: "2026-07-24"
+relatedSlugs: ["deposits-vs-alternatives", "understanding-investment-risk", "invest-100000-uah-beginner", "deposit-ovdp-taxes", "gold-vs-ovdp"]
 providersReferenced: ["privatbank", "oschadbank", "otp"]
 faq:
   - q: "Яка частка валюти є розумною у заощадженнях?"

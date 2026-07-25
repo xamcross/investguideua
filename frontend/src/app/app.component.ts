@@ -51,6 +51,11 @@ import { RouteFocusService } from './core/a11y/route-focus.service';
 
         <nav class="ig-nav" id="ig-primary-nav" [class.is-open]="menuOpen()">
           <div class="ig-nav__actions">
+          <!-- Статті renders in EVERY auth state (incl. the startup 'unknown' state): prerendering
+               runs before the refresh resolves, and this link is the crawl path that connects the
+               articles section to the homepage link graph (014-seo-content). -->
+          <a routerLink="/articles" routerLinkActive="is-active" ariaCurrentWhenActive="page"
+             (click)="menuOpen.set(false)">{{ 'nav.articles' | translate }}</a>
           @if (auth.authStatus() === 'authenticated') {
             <!-- Token store sits left-most (first) so the balance is the primary nav anchor. -->
             <a routerLink="/tokens" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="ig-balance"
