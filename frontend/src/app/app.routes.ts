@@ -100,6 +100,26 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/articles/article-detail.component').then((m) => m.ArticleDetailComponent),
   },
+  // OVDP data pages (feature 015). Public, indexable, prerendered from the build-time bond
+  // snapshot - no guards (a guard would also break prerendering).
+  {
+    path: 'ovdp/rates',
+    title: 'seo.ovdpRates.title',
+    loadComponent: () =>
+      import('./features/ovdp/ovdp-rates.component').then((m) => m.OvdpRatesComponent),
+  },
+  {
+    path: 'ovdp/calculator',
+    title: 'seo.ovdpCalculator.title',
+    loadComponent: () =>
+      import('./features/ovdp/ovdp-calculator.component').then((m) => m.OvdpCalculatorComponent),
+  },
+  {
+    path: 'ovdp/vs-deposit',
+    title: 'seo.ovdpVsDeposit.title',
+    loadComponent: () =>
+      import('./features/ovdp/ovdp-vs-deposit.component').then((m) => m.OvdpVsDepositComponent),
+  },
   // Public legal screens linked from the footer (feature 004). One shared LegalDocumentComponent
   // renders both; `data.doc` selects the i18n content namespace via component-input binding. No guard.
   {
