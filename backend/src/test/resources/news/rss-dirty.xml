@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Dirty Feed</title>
+    <link>https://dirty.example.com/</link>
+    <description>Test fixture: normalization and rejects</description>
+    <item>
+      <title><![CDATA[ <b>Markets&nbsp;rally</b> as &amp; oil   drops ]]></title>
+      <link>https://dirty.example.com/markets-rally</link>
+      <pubDate>Fri, 24 Jul 2026 15:45:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>No link item</title>
+      <pubDate>Fri, 24 Jul 2026 14:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>No date item</title>
+      <link>https://dirty.example.com/no-date</link>
+    </item>
+    <item>
+      <title>Relative link item</title>
+      <link>/relative/path</link>
+      <pubDate>Fri, 24 Jul 2026 13:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

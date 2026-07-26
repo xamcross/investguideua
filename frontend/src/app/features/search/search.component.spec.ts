@@ -7,6 +7,7 @@ import { SearchComponent } from './search.component';
 import { AuthService } from '../../core/auth/auth.service';
 import { InvestmentService } from '../../core/investment/investment.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { NewsService } from '../news/news.service';
 
 /**
  * 005-search-ui-fixes:
@@ -26,6 +27,7 @@ describe('SearchComponent (US2 currency label, US3 form width)', () => {
         { provide: AuthService, useValue: { tokenBalance: signal(5) } },
         { provide: InvestmentService, useValue: { search: () => of() } },
         { provide: LanguageService, useValue: { current: signal('uk') } },
+        { provide: NewsService, useValue: { latest: () => of({ ukraine: [], world: [] }) } },
       ],
     }).compileComponents();
 
@@ -90,5 +92,9 @@ describe('SearchComponent (US2 currency label, US3 form width)', () => {
     // 'none' also guarantees it is neither the old component cap (560px) nor the global .ig-form
     // fallback (420px), which would re-introduce the crammed-left defect.
     expect(maxW).toBe('none');
+  });
+
+  it('embeds the news widget', () => {
+    expect((fixture.nativeElement as HTMLElement).querySelector('ig-news-widget')).toBeTruthy();
   });
 });

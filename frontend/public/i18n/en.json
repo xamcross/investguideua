@@ -319,6 +319,17 @@
     "accountPage": "account page",
     "backToBuy": "Back to buy tokens"
   },
+  "news": {
+    "title": "Financial news",
+    "ukraine": "Ukraine",
+    "world": "World markets",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutes": "{{n}}m ago",
+      "hours": "{{n}}h ago",
+      "days": "{{n}}d ago"
+    }
+  },
   "notFound": {
     "title": "Page not found",
     "body": "The page you are looking for does not exist."

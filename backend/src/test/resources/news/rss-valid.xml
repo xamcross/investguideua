@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Sample Business Feed</title>
+    <link>https://feed.example.com/</link>
+    <description>Test fixture: fully valid items</description>
+    <item>
+      <title>NBU keeps key rate at 15.5 percent</title>
+      <link>https://feed.example.com/nbu-rate</link>
+      <pubDate>Sat, 25 Jul 2026 08:30:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Government bonds auction raises UAH 12 bln</title>
+      <link>https://feed.example.com/bond-auction</link>
+      <pubDate>Sat, 25 Jul 2026 07:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
