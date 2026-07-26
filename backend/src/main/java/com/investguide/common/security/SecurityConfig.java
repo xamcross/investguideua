@@ -40,6 +40,8 @@ public class SecurityConfig {
             // Latest bond-price snapshot (015): anonymous read for the public SEO data pages. The
             // exact-match ADMIN rule on /api/v1/bond-prices below does not cover this sub-path.
             "/api/v1/bond-prices/latest",
+            // Latest news headlines (016): anonymous read for the landing/search news widget.
+            "/api/v1/news/latest",
             "/actuator/health"
     };
     private static final String[] PUBLIC_POST = {
