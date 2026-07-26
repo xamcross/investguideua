@@ -51,7 +51,8 @@ trivial and means "no traffic" harmlessly implies "no refresh".
 
 ### FR-2 Feed configuration (`NewsProperties`)
 
-- `@ConfigurationProperties` under `app.news`: per category an ordered list of
+- `@ConfigurationProperties(prefix = "news")` — a top-level `news:` yml block, matching the
+  `bonds:`/`metals:` convention: per category an ordered list of
   `{ sourceName, url }` feeds, plus `refresh-ttl` (default 30 min), per-feed HTTP timeout
   (default 5 s), `keep-per-category` (default 20), `serve-per-category` (default 8).
 - Default sources (verify liveness during implementation; swapping a dead feed is a
@@ -107,8 +108,9 @@ trivial and means "no traffic" harmlessly implies "no refresh".
 
 ## Acceptance
 
-1. `GET /api/v1/news/latest` returns both lists with the exact `Cache-Control: public, max-age=300`
-   header; empty collection yields `200 {"ukraine":[],"world":[]}`.
+1. `GET /api/v1/news/latest` returns both lists with the exact `Cache-Control: max-age=300, public`
+   header (Spring's emitted directive order — semantically `public, max-age=300`); empty collection
+   yields `200 {"ukraine":[],"world":[]}`.
 2. Backend tests cover: normalizer against RSS fixtures (valid, malformed XML, HTML-laden titles,
    missing dates/links), stale-vs-fresh refresh triggering (exactly one refresh under concurrent
    stale reads), failed fetch retaining stale items, prune-to-20, upsert idempotency. `mvn test`
