@@ -86,6 +86,23 @@ metals:
   # backfilled onto a precious-metals investment option (feature 011, FR-018). Non-secret tunable.
   primary-rate-group: ${METALS_PRIMARY_RATE_GROUP:one}
 
+news:
+  # Financial news widget (feature 016). Non-secret tunables; feeds are swappable without code.
+  # Feed list is curl-verified live XML as of 2026-07-26 (see task-3-report.md); minfin.com.ua/rss/
+  # was dropped (404 - dead) rather than shipped unverified.
+  refresh-ttl: 30m
+  fetch-timeout: 5s
+  keep-per-category: 20
+  serve-per-category: 8
+  ukraine:
+    - source-name: "Економічна правда"
+      url: "https://www.epravda.com.ua/rss/"
+  world:
+    - source-name: "CNBC"
+      url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+    - source-name: "MarketWatch"
+      url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"
+
 mail:
   # Verification-email delivery (003). OPTIONAL: default OFF so the app builds, starts, and registers
   # users with email disabled (a descriptive line is logged once at startup). Set enabled=true AND
