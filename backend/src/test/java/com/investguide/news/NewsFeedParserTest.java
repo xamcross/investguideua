@@ -80,4 +80,17 @@ class NewsFeedParserTest {
                 fixture("rss-malformed.xml"), NewsCategory.WORLD, "Broken", FETCHED_AT))
                 .isInstanceOf(NewsFeedException.class);
     }
+
+    @Test
+    void fallsBackToUpdatedDateWhenPublishedDateMissing() {
+        NewsFeedParser.Result result = NewsFeedParser.parse(
+                fixture("atom-updated.xml"), NewsCategory.WORLD, "Atom", FETCHED_AT);
+
+        assertThat(result.rejected()).isZero();
+        assertThat(result.items()).hasSize(1);
+        NewsItem item = result.items().get(0);
+        assertThat(item.getTitle()).isEqualTo("Atom entry with updated date only");
+        assertThat(item.getLink()).isEqualTo("https://atom.example.com/entry1");
+        assertThat(item.getPublishedAt()).isEqualTo(Instant.parse("2026-07-25T06:00:00Z"));
+    }
 }
