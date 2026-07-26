@@ -12,6 +12,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
 import { CurrencyLabelPipe } from '../../core/i18n/currency-label.pipe';
 import { ResultsComponent } from './results.component';
+import { NewsWidgetComponent } from '../news/news-widget.component';
 
 /**
  * Investment search page (tickets FE-SEARCH1/2/3, §4.2, §5.2, §5.4).
@@ -30,7 +31,7 @@ import { ResultsComponent } from './results.component';
   selector: 'ig-search',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ResultsComponent, DecimalPipe, TranslateModule, PluralPipe, CurrencyLabelPipe],
+  imports: [ReactiveFormsModule, RouterLink, ResultsComponent, DecimalPipe, TranslateModule, PluralPipe, CurrencyLabelPipe, NewsWidgetComponent],
   template: `
     <section class="ig-card ig-search__head reveal d1">
       <p class="ig-kicker">{{ 'search.kicker' | translate }}</p>
@@ -125,6 +126,8 @@ import { ResultsComponent } from './results.component';
         <ig-results [result]="result()!" />
       </section>
     }
+
+    <ig-news-widget />
   `,
   styles: [
     `

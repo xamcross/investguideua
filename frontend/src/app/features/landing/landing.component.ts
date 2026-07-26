@@ -5,6 +5,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { PluralPipe } from '../../core/i18n/plural.pipe';
 import { ArticleService } from '../articles/article.service';
+import { NewsWidgetComponent } from '../news/news-widget.component';
 
 /**
  * Guest landing page (ticket FE-AUTH0, §3 Guest role, §12 Landing). Product summary, how it works,
@@ -15,7 +16,7 @@ import { ArticleService } from '../articles/article.service';
   selector: 'ig-landing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, TranslateModule, PluralPipe],
+  imports: [RouterLink, TranslateModule, PluralPipe, NewsWidgetComponent],
   template: `
     <section class="ig-hero" aria-labelledby="ig-hero-title">
       <div class="ig-hero__copy reveal d1">
@@ -155,6 +156,8 @@ import { ArticleService } from '../articles/article.service';
       </ul>
       <p class="ig-pricing__fine">{{ 'landing.pricingFine' | translate }}</p>
     </section>
+
+    <ig-news-widget />
 
     <p class="ig-l-disclaimer">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"

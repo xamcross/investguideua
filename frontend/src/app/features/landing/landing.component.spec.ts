@@ -3,8 +3,10 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { LandingComponent } from './landing.component';
 import { ArticleService } from '../articles/article.service';
+import { NewsService } from '../news/news.service';
 
 /**
  * 014-seo-content: the landing page must link into the articles section — a "latest articles"
@@ -31,6 +33,7 @@ describe('LandingComponent (014: latest-articles section)', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ArticleService, useValue: { list: () => FAKE_ARTICLES } },
+        { provide: NewsService, useValue: { latest: () => of({ ukraine: [], world: [] }) } },
       ],
     });
   });
@@ -63,5 +66,11 @@ describe('LandingComponent (014: latest-articles section)', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.ig-articles')).toBeNull();
+  });
+
+  it('embeds the news widget', () => {
+    const fixture = TestBed.createComponent(LandingComponent);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('ig-news-widget')).toBeTruthy();
   });
 });
