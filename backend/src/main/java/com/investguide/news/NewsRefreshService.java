@@ -75,15 +75,20 @@ public class NewsRefreshService {
             return;
         }
         lastAttemptAt = clock.instant();
-        executor.execute(() -> {
-            try {
-                refresh();
-            } catch (RuntimeException ex) {
-                log.warn("news_refresh crashed: {}", ex.toString());
-            } finally {
-                refreshInFlight.set(false);
-            }
-        });
+        try {
+            executor.execute(() -> {
+                try {
+                    refresh();
+                } catch (RuntimeException ex) {
+                    log.warn("news_refresh crashed", ex);
+                } finally {
+                    refreshInFlight.set(false);
+                }
+            });
+        } catch (RuntimeException ex) { // e.g. RejectedExecutionException on shutdown
+            refreshInFlight.set(false);
+            log.warn("news_refresh submission rejected", ex);
+        }
     }
 
     private boolean isStale() {
@@ -112,8 +117,7 @@ public class NewsRefreshService {
                     rejected += result.rejected();
                 } catch (Exception ex) {
                     failedFeeds++;
-                    log.warn("news_feed_failed category={} source={} error={}",
-                            category, feed.sourceName(), ex.toString());
+                    log.warn("news_feed_failed category={} source={}", category, feed.sourceName(), ex);
                 }
             }
             if (!items.isEmpty()) {

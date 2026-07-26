@@ -183,4 +183,28 @@ class NewsRefreshServiceTest {
         service.maybeRefreshAsync(); // TTL elapsed -> retry allowed
         assertThat(queued).hasSize(2);
     }
+
+    @Test
+    void rejectedSubmissionResetsGuardSoLaterRefreshCanRun() throws Exception {
+        when(repository.findFirstByOrderByFetchedAtDesc()).thenReturn(Optional.empty());
+        when(repository.findByCategory(any())).thenReturn(List.of());
+        Clock movableClock = mock(Clock.class);
+        when(movableClock.instant()).thenReturn(NOW);
+        java.util.List<Runnable> queued = new java.util.ArrayList<>();
+        java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
+        Executor flaky = task -> {
+            if (first.compareAndSet(true, false)) {
+                throw new java.util.concurrent.RejectedExecutionException("shut down");
+            }
+            queued.add(task);
+        };
+        NewsRefreshService service = new NewsRefreshService(
+                repository, fetcher, properties(20), flaky, movableClock);
+
+        service.maybeRefreshAsync(); // submission rejected; guard must reset, no crash escapes
+
+        when(movableClock.instant()).thenReturn(NOW.plus(Duration.ofMinutes(31)));
+        service.maybeRefreshAsync(); // past TTL backoff -> schedules normally
+        assertThat(queued).hasSize(1);
+    }
 }
