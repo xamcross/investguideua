@@ -43,32 +43,36 @@ const SHOWN_PER_LIST = 5;
         <p class="ig-kicker">{{ 'news.title' | translate }}</p>
         <h2 id="ig-news-title" class="ig-sr-only">{{ 'news.title' | translate }}</h2>
         <div class="ig-news__cols">
-          <div class="ig-news__col">
-            <h3 class="ig-news__label">{{ 'news.ukraine' | translate }}</h3>
-            <ul class="ig-news__list">
-              @for (n of ukraine(); track n.link) {
-                <li class="ig-news__item">
-                  <a [href]="n.link" target="_blank" rel="noopener" class="ig-news__link">{{ n.title }}</a>
-                  <span class="ig-news__meta ig-muted">
-                    {{ n.sourceName }} &middot; {{ n.ago.key | translate: n.ago.params }}
-                  </span>
-                </li>
-              }
-            </ul>
-          </div>
-          <div class="ig-news__col">
-            <h3 class="ig-news__label">{{ 'news.world' | translate }}</h3>
-            <ul class="ig-news__list">
-              @for (n of world(); track n.link) {
-                <li class="ig-news__item">
-                  <a [href]="n.link" target="_blank" rel="noopener" class="ig-news__link">{{ n.title }}</a>
-                  <span class="ig-news__meta ig-muted">
-                    {{ n.sourceName }} &middot; {{ n.ago.key | translate: n.ago.params }}
-                  </span>
-                </li>
-              }
-            </ul>
-          </div>
+          @if (ukraine().length) {
+            <div class="ig-news__col">
+              <h3 class="ig-news__label">{{ 'news.ukraine' | translate }}</h3>
+              <ul class="ig-news__list">
+                @for (n of ukraine(); track n.link) {
+                  <li class="ig-news__item">
+                    <a [href]="n.link" target="_blank" rel="noopener" class="ig-news__link">{{ n.title }}</a>
+                    <span class="ig-news__meta ig-muted">
+                      {{ n.sourceName }} &middot; {{ n.ago.key | translate: n.ago.params }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+          @if (world().length) {
+            <div class="ig-news__col">
+              <h3 class="ig-news__label">{{ 'news.world' | translate }}</h3>
+              <ul class="ig-news__list">
+                @for (n of world(); track n.link) {
+                  <li class="ig-news__item">
+                    <a [href]="n.link" target="_blank" rel="noopener" class="ig-news__link">{{ n.title }}</a>
+                    <span class="ig-news__meta ig-muted">
+                      {{ n.sourceName }} &middot; {{ n.ago.key | translate: n.ago.params }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
         </div>
       </section>
     }

@@ -14,6 +14,10 @@ import java.util.List;
 /**
  * Financial news widget [CONFIG] (feature 016). Feed lists are config, not code, so a dead source
  * is a properties swap. All values are non-secret tunables; defaults live in application.yml.
+ *
+ * <p><b>Invariant:</b> feed links must not overlap across categories -- {@code _id} is the link
+ * hash, so a cross-category duplicate would silently reassign the item's category to whichever
+ * category is processed last.
  */
 @Validated
 @ConfigurationProperties(prefix = "news")

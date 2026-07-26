@@ -93,4 +93,91 @@ class NewsFeedParserTest {
         assertThat(item.getLink()).isEqualTo("https://atom.example.com/entry1");
         assertThat(item.getPublishedAt()).isEqualTo(Instant.parse("2026-07-25T06:00:00Z"));
     }
+
+    @Test
+    void clampsFuturePublishedDateToFetchedAt() {
+        // Timezone slop / mangled years: a pubDate after fetchedAt must not pin the item forever.
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel><title>t</title>
+                <item><title>Future dated item</title><link>https://x.example.com/future</link>
+                <pubDate>Tue, 28 Jul 2026 10:00:00 GMT</pubDate></item>
+                </channel></rss>""";
+
+        NewsFeedParser.Result result = NewsFeedParser.parse(
+                xml.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                NewsCategory.WORLD, "Future", FETCHED_AT);
+
+        assertThat(result.rejected()).isZero();
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).getPublishedAt()).isEqualTo(FETCHED_AT);
+    }
+
+    @Test
+    void capsItemsPerFeedAt50() {
+        StringBuilder xml = new StringBuilder("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel><title>t</title>
+                """);
+        for (int i = 0; i < 60; i++) {
+            xml.append("<item><title>Item ").append(i).append("</title>")
+                    .append("<link>https://many.example.com/").append(i).append("</link>")
+                    .append("<pubDate>Sat, 25 Jul 2026 08:30:00 GMT</pubDate></item>\n");
+        }
+        xml.append("</channel></rss>");
+
+        NewsFeedParser.Result result = NewsFeedParser.parse(
+                xml.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                NewsCategory.WORLD, "Many", FETCHED_AT);
+
+        assertThat(result.items()).hasSize(50);
+        assertThat(result.rejected()).isZero();
+    }
+
+    @Test
+    void htmlBodyThrowsNewsFeedException() {
+        // A misconfigured URL that 200s with HTML must fail loudly, not silently parse to 0 items.
+        String html = "<!doctype html><html><head><title>x</title></head><body><p>not a feed</p></body></html>";
+
+        assertThatThrownBy(() -> NewsFeedParser.parse(
+                html.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                NewsCategory.WORLD, "Html", FETCHED_AT))
+                .isInstanceOf(NewsFeedException.class);
+    }
+
+    @Test
+    void title200CharsPassesThroughUnmodified() {
+        String title200 = "a".repeat(200);
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel><title>t</title>
+                <item><title>%s</title><link>https://x.example.com/200</link>
+                <pubDate>Sat, 25 Jul 2026 08:30:00 GMT</pubDate></item>
+                </channel></rss>""".formatted(title200);
+
+        NewsFeedParser.Result result = NewsFeedParser.parse(
+                xml.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                NewsCategory.WORLD, "Exact200", FETCHED_AT);
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).getTitle()).isEqualTo(title200);
+    }
+
+    @Test
+    void title201CharsIsTruncatedTo200OrFewer() {
+        String title201 = "b".repeat(201);
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel><title>t</title>
+                <item><title>%s</title><link>https://x.example.com/201</link>
+                <pubDate>Sat, 25 Jul 2026 08:30:00 GMT</pubDate></item>
+                </channel></rss>""".formatted(title201);
+
+        NewsFeedParser.Result result = NewsFeedParser.parse(
+                xml.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                NewsCategory.WORLD, "Over201", FETCHED_AT);
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).getTitle().length()).isLessThanOrEqualTo(200);
+    }
 }

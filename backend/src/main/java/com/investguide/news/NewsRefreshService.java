@@ -116,6 +116,9 @@ public class NewsRefreshService {
                     items.addAll(result.items());
                     rejected += result.rejected();
                 } catch (Exception ex) {
+                    if (ex instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
                     failedFeeds++;
                     log.warn("news_feed_failed category={} source={}", category, feed.sourceName(), ex);
                 }

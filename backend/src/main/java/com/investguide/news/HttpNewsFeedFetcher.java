@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -47,10 +48,11 @@ public class HttpNewsFeedFetcher implements NewsFeedFetcher {
                 .header("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml")
                 .GET()
                 .build();
+        CompletableFuture<HttpResponse<byte[]>> exchange =
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray());
         HttpResponse<byte[]> response;
         try {
-            response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray())
-                    .get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            response = exchange.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (ExecutionException ex) {
             Throwable cause = ex.getCause();
             if (cause instanceof IOException io) {
@@ -58,6 +60,7 @@ public class HttpNewsFeedFetcher implements NewsFeedFetcher {
             }
             throw new IOException("Feed fetch failed for " + url, cause);
         } catch (TimeoutException ex) {
+            exchange.cancel(true); // abandon the download - the client must not keep pulling bytes
             throw new IOException("Feed fetch exceeded " + timeout + " for " + url, ex);
         }
         if (response.statusCode() / 100 != 2) {

@@ -17,11 +17,18 @@ import java.util.List;
  * Pure RSS/Atom -> {@link NewsItem} normalization (feature 016, FR-3). An item needs a non-blank
  * title, an absolute http(s) link and a parseable published (or updated) date; everything else is
  * skipped and counted in {@link Result#rejected()}. Titles are stripped of HTML/CDATA, entity-
- * unescaped, whitespace-collapsed and capped at {@value #MAX_TITLE_LENGTH} chars.
+ * unescaped, whitespace-collapsed and capped at {@value #MAX_TITLE_LENGTH} chars. A published date
+ * after the fetch time (timezone slop, mangled years) is clamped to {@code fetchedAt} rather than
+ * rejected, so such items don't pin to the top of every list forever. At most
+ * {@value #MAX_ITEMS_PER_FEED} entries are taken per feed (RSS is newest-first by convention); the
+ * whole feed body is already downloaded and Rome-parsed in full by this point, so the cap bounds
+ * normalization/storage volume only (not download or parse cost) -- surplus entries are simply not
+ * turned into {@link NewsItem}s and are not counted as rejected.
  */
 public final class NewsFeedParser {
 
     static final int MAX_TITLE_LENGTH = 200;
+    static final int MAX_ITEMS_PER_FEED = 50;
 
     private NewsFeedParser() {
     }
@@ -40,6 +47,9 @@ public final class NewsFeedParser {
         List<NewsItem> items = new ArrayList<>();
         int rejected = 0;
         for (SyndEntry entry : feed.getEntries()) {
+            if (items.size() == MAX_ITEMS_PER_FEED) {
+                break;
+            }
             String title = cleanTitle(entry.getTitle());
             String link = entry.getLink() == null ? "" : entry.getLink().trim();
             Date published = entry.getPublishedDate() != null
@@ -48,8 +58,12 @@ public final class NewsFeedParser {
                 rejected++;
                 continue;
             }
+            Instant publishedAt = published.toInstant();
+            if (publishedAt.isAfter(fetchedAt)) {
+                publishedAt = fetchedAt; // clamp timezone-slop/mangled-year dates, don't reject
+            }
             items.add(new NewsItem(NewsItem.idFor(link), category, sourceName, title, link,
-                    published.toInstant(), fetchedAt));
+                    publishedAt, fetchedAt));
         }
         return new Result(items, rejected);
     }

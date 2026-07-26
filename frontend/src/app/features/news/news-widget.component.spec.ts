@@ -1,3 +1,4 @@
+import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -49,6 +50,14 @@ describe('NewsWidgetComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('a.ig-news__link').length).toBe(5);
   });
 
+  it('omits an empty category column entirely (no bare heading with zero items)', () => {
+    const fixture = create({ ukraine: [item(1)], world: [] });
+
+    const cols = fixture.nativeElement.querySelectorAll('.ig-news__col');
+    expect(cols.length).toBe(1);
+    expect(fixture.nativeElement.textContent).not.toContain('news.world');
+  });
+
   it('renders nothing when the request fails', () => {
     const fixture = create(undefined, true);
 
@@ -58,6 +67,25 @@ describe('NewsWidgetComponent', () => {
   it('renders nothing when both lists are empty', () => {
     const fixture = create({ ukraine: [], world: [] });
 
+    expect(fixture.nativeElement.querySelector('section')).toBeNull();
+  });
+
+  it('does not fetch or render on the server platform', () => {
+    const serverLatestSpy = jasmine
+      .createSpy('latest')
+      .and.returnValue(of({ ukraine: [item(1)], world: [item(2)] }));
+    TestBed.configureTestingModule({
+      imports: [NewsWidgetComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: NewsService, useValue: { latest: serverLatestSpy } },
+        { provide: PLATFORM_ID, useValue: 'server' },
+      ],
+    });
+    const fixture = TestBed.createComponent(NewsWidgetComponent);
+
+    fixture.detectChanges();
+
+    expect(serverLatestSpy).not.toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('section')).toBeNull();
   });
 });

@@ -3,11 +3,13 @@ package com.investguide.news;
 import com.investguide.config.NewsProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -182,6 +184,37 @@ class NewsRefreshServiceTest {
         when(movableClock.instant()).thenReturn(NOW.plus(Duration.ofMinutes(31)));
         service.maybeRefreshAsync(); // TTL elapsed -> retry allowed
         assertThat(queued).hasSize(2);
+    }
+
+    @Test
+    void intraBatchDuplicateLinksAreDedupedLastWins() throws Exception {
+        when(repository.findFirstByOrderByFetchedAtDesc()).thenReturn(Optional.empty());
+        when(repository.findByCategory(any())).thenReturn(List.of());
+        String rssA = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel><title>t</title>
+                <item><title>First headline</title><link>https://dup.example.com/1</link>
+                <pubDate>Sat, 25 Jul 2026 08:30:00 GMT</pubDate></item>
+                </channel></rss>""";
+        String rssB = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rss version="2.0"><channel><title>t</title>
+                <item><title>Second headline</title><link>https://dup.example.com/1</link>
+                <pubDate>Sat, 25 Jul 2026 09:00:00 GMT</pubDate></item>
+                </channel></rss>""";
+        when(fetcher.fetch("https://ua1.example.com/rss")).thenReturn(rssA.getBytes(UTF_8));
+        when(fetcher.fetch("https://ua2.example.com/rss")).thenReturn(rssB.getBytes(UTF_8));
+
+        service(20).maybeRefreshAsync();
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<NewsItem>> captor = ArgumentCaptor.forClass(Iterable.class);
+        verify(repository, times(2)).saveAll(captor.capture());
+        // UKRAINE is processed first, so the first captured batch is the UKRAINE pass.
+        List<NewsItem> ukraineBatch = new ArrayList<>();
+        captor.getAllValues().get(0).forEach(ukraineBatch::add);
+        assertThat(ukraineBatch).hasSize(1);
+        assertThat(ukraineBatch.get(0).getTitle()).isEqualTo("Second headline");
     }
 
     @Test
